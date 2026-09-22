@@ -10,3 +10,5 @@ __pycache__/
 
 # NOTE: artifacts/ is deliberately NOT ignored.
 # Cached LLM responses ship with the repo so the tool runs offline with no API key.
+# The analyst decision log is runtime output, not something to ship.
+artifacts/decisions.jsonl
