@@ -1,0 +1,206 @@
+{
+  "case_id": "CB-2025-0006",
+  "fingerprint": "959fb57bdb165e14",
+  "model": "claude-opus-5-5",
+  "workup": {
+    "reason_code_summary": "The issuer alleges the cardholder received the Carlton armchair but it is defective: the frame wobbles and one leg is not properly seated. The cardholder also says the merchant did not respond to a refund request. To defend under Visa 13.3, the merchant must meet all three requirements: (1) show the published item description, (2) prove the delivered item matched that description, and (3) show either that a return/refund route was offered and the cardholder did not use it, or that the cardholder kept using the item after complaining.",
+    "requirements": [
+      {
+        "requirement_id": 1,
+        "status": "satisfied",
+        "pointers": [
+          {
+            "document": "CB-2025-0006_product_listing.pdf",
+            "page": 1,
+            "quote": "Product: Carlton Mid-Century Armchair, Sage Velvet"
+          },
+          {
+            "document": "CB-2025-0006_product_listing.pdf",
+            "page": 1,
+            "quote": "The Carlton armchair combines a hand-finished beech frame with deep-buttoned sage velvet upholstery. Tapered solid oak legs. Seat height 46cm."
+          }
+        ],
+        "reasoning": "The listing snapshot is dated to the transaction date (15 April 2025) and matches the £329.00 price. It sets out the published description, construction and contents."
+      },
+      {
+        "requirement_id": 2,
+        "status": "partial",
+        "pointers": [
+          {
+            "document": "CB-2025-0006_delivery_photo.png",
+            "page": 1,
+            "quote": "Carlton Armchair (Sage) — delivered 18 Apr 2025"
+          },
+          {
+            "document": "CB-2025-0006_delivery_photo.png",
+            "page": 1,
+            "quote": "Photo taken by driver at delivery (front view only)"
+          }
+        ],
+        "reasoning": "The photo shows a sage armchair with legs at delivery, which matches the colour and general style. It is a single front view, however, and does not show frame stability or whether every leg is properly seated, which is the defect alleged. There is no serial, SKU or pre-dispatch inspection record either, so the evidence does not rebut the structural-fault claim."
+      },
+      {
+        "requirement_id": 3,
+        "status": "partial",
+        "pointers": [
+          {
+            "document": "CB-2025-0006_returns_policy.pdf",
+            "page": 1,
+            "quote": "Defective items: please email returns@havenhome.example within 7 days of delivery with photos clearly showing the defect. We will arrange a free collection and either repair, replace, or refund at our discretion."
+          }
+        ],
+        "reasoning": "The policy proves a defect route exists, but a policy is not proof that it was shown to or applied to this cardholder. It also does not show that the cardholder failed to use it. The cardholder says they did request a refund and got no response, and the merchant has supplied no correspondence log to rebut that or evidence of continued use after the complaint."
+      }
+    ],
+    "rationale": "The cardholder purchased a Carlton Mid-Century Armchair, Sage Velvet, for £329.00 on 15 April 2025, as described in the merchant's listing snapshot dated the same day. The driver photographed the item at delivery on 18 April 2025, showing a sage armchair matching the listed product. The merchant's published returns policy provides a defect route via returns@havenhome.example with free collection and repair, replacement or refund. The listing states the armchair ships with an allen key for leg re-tightening, which addresses the loose-leg complaint. The transaction was fully authenticated with 3DS, AVS full match, CVV match and matching billing and shipping postcodes.",
+    "recommended_action": "request_more_evidence",
+    "action_justification": "Requirement 1 is met, but requirements 2 and 3 are only partial and both gaps can be filled with records the merchant should hold.",
+    "evidence_to_request": [
+      "A full log of the returns@havenhome.example mailbox and any other support channels for this order/cardholder from 18 April 2025 to date, showing whether the cardholder reported the defect and whether and how the merchant responded, including any offer of collection, repair, replacement or refund.",
+      "Any written offer of return, collection or refund sent to the cardholder, with timestamps, and whether the cardholder accepted or ignored it.",
+      "Pre-dispatch quality-control or inspection record for this specific unit (SKU HH-ARM-CARL-SG), with serial or batch number if available, showing the frame and legs passed inspection.",
+      "Additional delivery or dispatch photos showing the legs and frame from other angles, or proof of delivery signature confirming the item was received undamaged.",
+      "Any evidence the cardholder continued to use the armchair after complaining, e.g. customer messages or photos showing it in use."
+    ],
+    "caveats": [
+      "The issuer says the merchant did not respond to the cardholder's refund request, and the merchant has supplied nothing to contradict this. If the cardholder did email within 7 days and got no response, requirement 3 cannot be met and liability should be accepted.",
+      "The delivery photo is front view only and cannot show a wobbling frame or a mis-seated leg, so it does not disprove the defect.",
+      "The listing says an allen key is supplied for leg re-tightening, which suggests a loose leg may be expected and fixable. This does not prove the item was not defective, and a structural frame wobble is a separate issue.",
+      "The policy's defect window (7 days from 18 April, i.e. to 25 April) and return window (14 days, to 2 May) may matter. Confirm when the cardholder first contacted the merchant.",
+      "The strong authentication results (3DS, AVS Y, CVV M) are irrelevant to a not-as-described claim and do not support the defence."
+    ],
+    "model_confidence": "medium"
+  },
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "inference_geo": "global",
+    "input_tokens": 5122,
+    "output_tokens": 2190,
+    "output_tokens_details": {
+      "thinking_tokens": 378
+    },
+    "server_tool_use": null,
+    "service_tier": "standard"
+  },
+  "attempts": 2,
+  "validation_problems": [],
+  "rule_text": "Visa 13.3 - Not as Described or Defective Merchandise\nIssuer claim: Cardholder received the goods but they are materially not as described or defective.\nLogic: ALL 3 requirements must be satisfied.\nCompelling evidence requirements:\n  1. The merchant's published description of the item the cardholder purchased\n  2. Evidence the item delivered matches that description (photos, specs, serial number match)\n  3. Evidence the merchant offered a return/refund route and the cardholder did not use it, OR evidence the cardholder used and retained the merchandise after raising the complaint",
+  "prechecks": [
+    "Representable under the rule: yes",
+    "AVS: Y (full address match); CVV: M (match); 3DS: authenticated",
+    "Shipping vs billing postcode: match",
+    "Chargeback raised 23 days after the transaction"
+  ],
+  "raw_response": {
+    "id": "msg_011CfKB1dTqMov6u5ESeabuu",
+    "container": null,
+    "content": [
+      {
+        "signature": "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",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "citations": null,
+        "text": "{\"reason_code_summary\":\"The issuer alleges the cardholder received the Carlton armchair but it is defective: the frame wobbles and one leg is not properly seated. The cardholder also says the merchant did not respond to a refund request. To defend under Visa 13.3, the merchant must meet all three requirements: (1) show the published item description, (2) prove the delivered item matched that description, and (3) show either that a return/refund route was offered and the cardholder did not use it, or that the cardholder kept using the item after complaining.\",\"requirements\":[{\"requirement_id\":1,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0006_product_listing.pdf\",\"page\":1,\"quote\":\"Product: Carlton Mid-Century Armchair, Sage Velvet\"},{\"document\":\"CB-2025-0006_product_listing.pdf\",\"page\":1,\"quote\":\"The Carlton armchair combines a hand-finished beech frame with deep-buttoned sage velvet upholstery. Tapered solid oak legs. Seat height 46cm.\"}],\"reasoning\":\"The listing snapshot is dated to the transaction date (15 April 2025) and matches the £329.00 price. It sets out the published description, construction and contents.\"},{\"requirement_id\":2,\"status\":\"partial\",\"pointers\":[{\"document\":\"CB-2025-0006_delivery_photo.png\",\"page\":1,\"quote\":\"Carlton Armchair (Sage) — delivered 18 Apr 2025\"},{\"document\":\"CB-2025-0006_delivery_photo.png\",\"page\":1,\"quote\":\"Photo taken by driver at delivery (front view only)\"}],\"reasoning\":\"The photo shows a sage armchair with legs at delivery, which matches the colour and general style. It is a single front view, however, and does not show frame stability or whether every leg is properly seated, which is the defect alleged. There is no serial, SKU or pre-dispatch inspection record either, so the evidence does not rebut the structural-fault claim.\"},{\"requirement_id\":3,\"status\":\"partial\",\"pointers\":[{\"document\":\"CB-2025-0006_returns_policy.pdf\",\"page\":1,\"quote\":\"Defective items: please email returns@havenhome.example within 7 days of delivery with photos clearly showing the defect. We will arrange a free collection and either repair, replace, or refund at our discretion.\"}],\"reasoning\":\"The policy proves a defect route exists, but a policy is not proof that it was shown to or applied to this cardholder. It also does not show that the cardholder failed to use it. The cardholder says they did request a refund and got no response, and the merchant has supplied no correspondence log to rebut that or evidence of continued use after the complaint.\"}],\"rationale\":\"The cardholder purchased a Carlton Mid-Century Armchair, Sage Velvet, for £329.00 on 15 April 2025, as described in the merchant's listing snapshot dated the same day. The driver photographed the item at delivery on 18 April 2025, showing a sage armchair matching the listed product. The merchant's published returns policy provides a defect route via returns@havenhome.example with free collection and repair, replacement or refund. The listing states the armchair ships with an allen key for leg re-tightening, which addresses the loose-leg complaint. The transaction was fully authenticated with 3DS, AVS full match, CVV match and matching billing and shipping postcodes.\",\"recommended_action\":\"request_more_evidence\",\"action_justification\":\"Requirement 1 is met, but requirements 2 and 3 are only partial and both gaps can be filled with records the merchant should hold.\",\"evidence_to_request\":[\"A full log of the returns@havenhome.example mailbox and any other support channels for this order/cardholder from 18 April 2025 to date, showing whether the cardholder reported the defect and whether and how the merchant responded, including any offer of collection, repair, replacement or refund.\",\"Any written offer of return, collection or refund sent to the cardholder, with timestamps, and whether the cardholder accepted or ignored it.\",\"Pre-dispatch quality-control or inspection record for this specific unit (SKU HH-ARM-CARL-SG), with serial or batch number if available, showing the frame and legs passed inspection.\",\"Additional delivery or dispatch photos showing the legs and frame from other angles, or proof of delivery signature confirming the item was received undamaged.\",\"Any evidence the cardholder continued to use the armchair after complaining, e.g. customer messages or photos showing it in use.\"],\"caveats\":[\"The issuer says the merchant did not respond to the cardholder's refund request, and the merchant has supplied nothing to contradict this. If the cardholder did email within 7 days and got no response, requirement 3 cannot be met and liability should be accepted.\",\"The delivery photo is front view only and cannot show a wobbling frame or a mis-seated leg, so it does not disprove the defect.\",\"The listing says an allen key is supplied for leg re-tightening, which suggests a loose leg may be expected and fixable. This does not prove the item was not defective, and a structural frame wobble is a separate issue.\",\"The policy's defect window (7 days from 18 April, i.e. to 25 April) and return window (14 days, to 2 May) may matter. Confirm when the cardholder first contacted the merchant.\",\"The strong authentication results (3DS, AVS Y, CVV M) are irrelevant to a not-as-described claim and do not support the defence.\"],\"model_confidence\":\"medium\"}",
+        "type": "text",
+        "parsed_output": {
+          "reason_code_summary": "The issuer alleges the cardholder received the Carlton armchair but it is defective: the frame wobbles and one leg is not properly seated. The cardholder also says the merchant did not respond to a refund request. To defend under Visa 13.3, the merchant must meet all three requirements: (1) show the published item description, (2) prove the delivered item matched that description, and (3) show either that a return/refund route was offered and the cardholder did not use it, or that the cardholder kept using the item after complaining.",
+          "requirements": [
+            {
+              "requirement_id": 1,
+              "status": "satisfied",
+              "pointers": [
+                {
+                  "document": "CB-2025-0006_product_listing.pdf",
+                  "page": 1,
+                  "quote": "Product: Carlton Mid-Century Armchair, Sage Velvet"
+                },
+                {
+                  "document": "CB-2025-0006_product_listing.pdf",
+                  "page": 1,
+                  "quote": "The Carlton armchair combines a hand-finished beech frame with deep-buttoned sage velvet upholstery. Tapered solid oak legs. Seat height 46cm."
+                }
+              ],
+              "reasoning": "The listing snapshot is dated to the transaction date (15 April 2025) and matches the £329.00 price. It sets out the published description, construction and contents."
+            },
+            {
+              "requirement_id": 2,
+              "status": "partial",
+              "pointers": [
+                {
+                  "document": "CB-2025-0006_delivery_photo.png",
+                  "page": 1,
+                  "quote": "Carlton Armchair (Sage) — delivered 18 Apr 2025"
+                },
+                {
+                  "document": "CB-2025-0006_delivery_photo.png",
+                  "page": 1,
+                  "quote": "Photo taken by driver at delivery (front view only)"
+                }
+              ],
+              "reasoning": "The photo shows a sage armchair with legs at delivery, which matches the colour and general style. It is a single front view, however, and does not show frame stability or whether every leg is properly seated, which is the defect alleged. There is no serial, SKU or pre-dispatch inspection record either, so the evidence does not rebut the structural-fault claim."
+            },
+            {
+              "requirement_id": 3,
+              "status": "partial",
+              "pointers": [
+                {
+                  "document": "CB-2025-0006_returns_policy.pdf",
+                  "page": 1,
+                  "quote": "Defective items: please email returns@havenhome.example within 7 days of delivery with photos clearly showing the defect. We will arrange a free collection and either repair, replace, or refund at our discretion."
+                }
+              ],
+              "reasoning": "The policy proves a defect route exists, but a policy is not proof that it was shown to or applied to this cardholder. It also does not show that the cardholder failed to use it. The cardholder says they did request a refund and got no response, and the merchant has supplied no correspondence log to rebut that or evidence of continued use after the complaint."
+            }
+          ],
+          "rationale": "The cardholder purchased a Carlton Mid-Century Armchair, Sage Velvet, for £329.00 on 15 April 2025, as described in the merchant's listing snapshot dated the same day. The driver photographed the item at delivery on 18 April 2025, showing a sage armchair matching the listed product. The merchant's published returns policy provides a defect route via returns@havenhome.example with free collection and repair, replacement or refund. The listing states the armchair ships with an allen key for leg re-tightening, which addresses the loose-leg complaint. The transaction was fully authenticated with 3DS, AVS full match, CVV match and matching billing and shipping postcodes.",
+          "recommended_action": "request_more_evidence",
+          "action_justification": "Requirement 1 is met, but requirements 2 and 3 are only partial and both gaps can be filled with records the merchant should hold.",
+          "evidence_to_request": [
+            "A full log of the returns@havenhome.example mailbox and any other support channels for this order/cardholder from 18 April 2025 to date, showing whether the cardholder reported the defect and whether and how the merchant responded, including any offer of collection, repair, replacement or refund.",
+            "Any written offer of return, collection or refund sent to the cardholder, with timestamps, and whether the cardholder accepted or ignored it.",
+            "Pre-dispatch quality-control or inspection record for this specific unit (SKU HH-ARM-CARL-SG), with serial or batch number if available, showing the frame and legs passed inspection.",
+            "Additional delivery or dispatch photos showing the legs and frame from other angles, or proof of delivery signature confirming the item was received undamaged.",
+            "Any evidence the cardholder continued to use the armchair after complaining, e.g. customer messages or photos showing it in use."
+          ],
+          "caveats": [
+            "The issuer says the merchant did not respond to the cardholder's refund request, and the merchant has supplied nothing to contradict this. If the cardholder did email within 7 days and got no response, requirement 3 cannot be met and liability should be accepted.",
+            "The delivery photo is front view only and cannot show a wobbling frame or a mis-seated leg, so it does not disprove the defect.",
+            "The listing says an allen key is supplied for leg re-tightening, which suggests a loose leg may be expected and fixable. This does not prove the item was not defective, and a structural frame wobble is a separate issue.",
+            "The policy's defect window (7 days from 18 April, i.e. to 25 April) and return window (14 days, to 2 May) may matter. Confirm when the cardholder first contacted the merchant.",
+            "The strong authentication results (3DS, AVS Y, CVV M) are irrelevant to a not-as-described claim and do not support the defence."
+          ],
+          "model_confidence": "medium"
+        }
+      }
+    ],
+    "model": "claude-opus-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "inference_geo": "global",
+      "input_tokens": 5122,
+      "output_tokens": 2190,
+      "output_tokens_details": {
+        "thinking_tokens": 378
+      },
+      "server_tool_use": null,
+      "service_tier": "standard"
+    }
+  }
+}

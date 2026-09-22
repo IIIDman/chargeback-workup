@@ -67,7 +67,8 @@ class LLMResult:
     raw_response: dict  # full API response, for the audit log
     usage: dict
     attempts: int
-    validation_problems: list[str]  # problems found on the final attempt (should be empty)
+    validation_problems: list[str]  # problems left on the final attempt (should be empty)
+    problems_per_attempt: list[list[str]] = None  # what each attempt got wrong, for the audit log
 
 
 def build_user_content(case: Case, rule: ReasonCode, prechecks: PreChecks, documents: list[Document]) -> list[dict]:
@@ -116,6 +117,7 @@ def request_workup(case: Case, rule: ReasonCode, prechecks: PreChecks, documents
 
     attempts = 0
     problems: list[str] = []
+    history: list[list[str]] = []
     while True:
         attempts += 1
         response = client.messages.parse(
@@ -129,6 +131,7 @@ def request_workup(case: Case, rule: ReasonCode, prechecks: PreChecks, documents
         )
         workup: Workup = response.parsed_output
         problems = validate_pointers(workup, case_docs, len(rule.requirements))
+        history.append(problems)
         if not problems or attempts >= 2:
             break
         # One corrective round-trip: show the model its own answer and the concrete problems.
@@ -145,4 +148,5 @@ def request_workup(case: Case, rule: ReasonCode, prechecks: PreChecks, documents
         usage=usage,
         attempts=attempts,
         validation_problems=problems,
+        problems_per_attempt=history,
     )

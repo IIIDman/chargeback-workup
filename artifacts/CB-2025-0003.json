@@ -1,0 +1,194 @@
+{
+  "case_id": "CB-2025-0003",
+  "fingerprint": "c26f5b4ae0672587",
+  "model": "claude-opus-5-5",
+  "workup": {
+    "reason_code_summary": "The issuer alleges the cardholder did not authorise this EUR 1,240.50 card-not-present car rental charge and that their card details may have been compromised. Mastercard 4837 can be defended if any two of four compelling-evidence items are met: (1) a full AVS match and CVV match, (2) successful 3D Secure / Identity Check authentication, (3) two prior undisputed transactions with matching billing details in the past 12 months, or (4) signed proof of delivery to the billing address.",
+    "requirements": [
+      {
+        "requirement_id": 1,
+        "status": "satisfied",
+        "pointers": [
+          {
+            "document": "CB-2025-0003_avs_cvv_log.pdf",
+            "page": 1,
+            "quote": "AVS check (full address) Y Full match"
+          },
+          {
+            "document": "CB-2025-0003_avs_cvv_log.pdf",
+            "page": 1,
+            "quote": "CVV check M Match"
+          }
+        ],
+        "reasoning": "The pre-checks from the transaction record show AVS Y (full address match) and CVV M (match). The gateway log for txn_4412EF confirms both results."
+      },
+      {
+        "requirement_id": 2,
+        "status": "satisfied",
+        "pointers": [
+          {
+            "document": "CB-2025-0003_3ds_authentication.pdf",
+            "page": 1,
+            "quote": "Outcome AUTHENTICATED (frictionless)"
+          },
+          {
+            "document": "CB-2025-0003_3ds_authentication.pdf",
+            "page": 1,
+            "quote": "ECI 02"
+          }
+        ],
+        "reasoning": "The pre-checks show 3DS status 'authenticated'. The Identity Check record shows issuer BNP Paribas authenticated the transaction with ECI 02, an authentication value and a DS transaction ID, timestamped 4 seconds before authorisation."
+      },
+      {
+        "requirement_id": 3,
+        "status": "missing",
+        "pointers": [],
+        "reasoning": "No prior transactions are documented. The 'Returning device (seen 3x)' note in the gateway log is a device observation, not proof of two prior undisputed transactions with matching billing details, so it does not meet this requirement."
+      },
+      {
+        "requirement_id": 4,
+        "status": "not_applicable",
+        "pointers": [],
+        "reasoning": "This is a car rental service (MCC 7512), not a shipment of physical goods, so signed delivery to a billing address does not apply. The merchant supplied no delivery evidence in any case."
+      }
+    ],
+    "rationale": "Mastercard 4837 requires any two of the four compelling-evidence items, and requirements 1 and 2 are met. The authorisation record for txn_4412EF on 2025-04-01 shows a full AVS address match (Y) and a CVV match (M), corroborated by the merchant's gateway log. The transaction was also authenticated by the issuer, BNP Paribas, under Mastercard Identity Check (3DS2): the authentication record ic_77f31a82bb shows ECI 02, a present authentication value and DS transaction ID ds_4b2e1100c4. Because the issuer itself authenticated the cardholder and the address and security code both matched, the claim of no cardholder authorisation is not supported, and we request that the chargeback be reversed.",
+    "recommended_action": "represent",
+    "action_justification": "Two of four requirements (AVS+CVV match and successful 3DS authentication) are satisfied and corroborated by the transaction record, meeting the any-two logic.",
+    "evidence_to_request": [],
+    "caveats": [
+      "Car rental context: confirm the disputed EUR 1,240.50 is the same amount and transaction that was 3DS-authenticated (txn_4412EF) and not a later post-rental add-on charge (damage, fuel, extension). 3DS liability shift covers only the authenticated transaction.",
+      "The gateway log describes 3DS as 'Frictionless step-up completed', which is internally contradictory (frictionless means no step-up challenge). The Identity Check record says 'AUTHENTICATED (frictionless)'; rely on that record and the ECI 02 value.",
+      "The 3DS record's statement that liability rests with the issuer is the merchant document's own assertion. The supporting facts are the ECI, authentication value and DS transaction ID, not that conclusion.",
+      "The 'Returning device (seen 3x)' note is supportive context only and does not satisfy requirement 3.",
+      "Chargeback raised 24 days after the transaction; no timing concerns noted, but verify the representment deadline."
+    ],
+    "model_confidence": "high"
+  },
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "inference_geo": "global",
+    "input_tokens": 3963,
+    "output_tokens": 2036,
+    "output_tokens_details": {
+      "thinking_tokens": 589
+    },
+    "server_tool_use": null,
+    "service_tier": "standard"
+  },
+  "attempts": 1,
+  "validation_problems": [],
+  "rule_text": "Mastercard 4837 - No Cardholder Authorisation\nIssuer claim: Cardholder denies authorising the transaction (card-not-present fraud equivalent).\nLogic: Any TWO of the 4 requirements must be satisfied.\nCompelling evidence requirements:\n  1. AVS match (full address) AND CVV match on the disputed transaction\n  2. 3D Secure authentication completed successfully (Mastercard SecureCode / Identity Check)\n  3. Two prior undisputed transactions from the same cardholder with this merchant in the past 12 months, with matching billing details\n  4. Proof of delivery to the cardholder's billing address with signature",
+  "prechecks": [
+    "Representable under the rule: yes",
+    "AVS: Y (full address match); CVV: M (match); 3DS: authenticated",
+    "Shipping vs billing postcode: match",
+    "Chargeback raised 24 days after the transaction"
+  ],
+  "raw_response": {
+    "id": "msg_011CfKAvJB5NswkJmBDH3qc2",
+    "container": null,
+    "content": [
+      {
+        "signature": "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",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "citations": null,
+        "text": "{\"reason_code_summary\":\"The issuer alleges the cardholder did not authorise this EUR 1,240.50 card-not-present car rental charge and that their card details may have been compromised. Mastercard 4837 can be defended if any two of four compelling-evidence items are met: (1) a full AVS match and CVV match, (2) successful 3D Secure / Identity Check authentication, (3) two prior undisputed transactions with matching billing details in the past 12 months, or (4) signed proof of delivery to the billing address.\",\"requirements\":[{\"requirement_id\":1,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0003_avs_cvv_log.pdf\",\"page\":1,\"quote\":\"AVS check (full address) Y Full match\"},{\"document\":\"CB-2025-0003_avs_cvv_log.pdf\",\"page\":1,\"quote\":\"CVV check M Match\"}],\"reasoning\":\"The pre-checks from the transaction record show AVS Y (full address match) and CVV M (match). The gateway log for txn_4412EF confirms both results.\"},{\"requirement_id\":2,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0003_3ds_authentication.pdf\",\"page\":1,\"quote\":\"Outcome AUTHENTICATED (frictionless)\"},{\"document\":\"CB-2025-0003_3ds_authentication.pdf\",\"page\":1,\"quote\":\"ECI 02\"}],\"reasoning\":\"The pre-checks show 3DS status 'authenticated'. The Identity Check record shows issuer BNP Paribas authenticated the transaction with ECI 02, an authentication value and a DS transaction ID, timestamped 4 seconds before authorisation.\"},{\"requirement_id\":3,\"status\":\"missing\",\"pointers\":[],\"reasoning\":\"No prior transactions are documented. The 'Returning device (seen 3x)' note in the gateway log is a device observation, not proof of two prior undisputed transactions with matching billing details, so it does not meet this requirement.\"},{\"requirement_id\":4,\"status\":\"not_applicable\",\"pointers\":[],\"reasoning\":\"This is a car rental service (MCC 7512), not a shipment of physical goods, so signed delivery to a billing address does not apply. The merchant supplied no delivery evidence in any case.\"}],\"rationale\":\"Mastercard 4837 requires any two of the four compelling-evidence items, and requirements 1 and 2 are met. The authorisation record for txn_4412EF on 2025-04-01 shows a full AVS address match (Y) and a CVV match (M), corroborated by the merchant's gateway log. The transaction was also authenticated by the issuer, BNP Paribas, under Mastercard Identity Check (3DS2): the authentication record ic_77f31a82bb shows ECI 02, a present authentication value and DS transaction ID ds_4b2e1100c4. Because the issuer itself authenticated the cardholder and the address and security code both matched, the claim of no cardholder authorisation is not supported, and we request that the chargeback be reversed.\",\"recommended_action\":\"represent\",\"action_justification\":\"Two of four requirements (AVS+CVV match and successful 3DS authentication) are satisfied and corroborated by the transaction record, meeting the any-two logic.\",\"evidence_to_request\":[],\"caveats\":[\"Car rental context: confirm the disputed EUR 1,240.50 is the same amount and transaction that was 3DS-authenticated (txn_4412EF) and not a later post-rental add-on charge (damage, fuel, extension). 3DS liability shift covers only the authenticated transaction.\",\"The gateway log describes 3DS as 'Frictionless step-up completed', which is internally contradictory (frictionless means no step-up challenge). The Identity Check record says 'AUTHENTICATED (frictionless)'; rely on that record and the ECI 02 value.\",\"The 3DS record's statement that liability rests with the issuer is the merchant document's own assertion. The supporting facts are the ECI, authentication value and DS transaction ID, not that conclusion.\",\"The 'Returning device (seen 3x)' note is supportive context only and does not satisfy requirement 3.\",\"Chargeback raised 24 days after the transaction; no timing concerns noted, but verify the representment deadline.\"],\"model_confidence\":\"high\"}",
+        "type": "text",
+        "parsed_output": {
+          "reason_code_summary": "The issuer alleges the cardholder did not authorise this EUR 1,240.50 card-not-present car rental charge and that their card details may have been compromised. Mastercard 4837 can be defended if any two of four compelling-evidence items are met: (1) a full AVS match and CVV match, (2) successful 3D Secure / Identity Check authentication, (3) two prior undisputed transactions with matching billing details in the past 12 months, or (4) signed proof of delivery to the billing address.",
+          "requirements": [
+            {
+              "requirement_id": 1,
+              "status": "satisfied",
+              "pointers": [
+                {
+                  "document": "CB-2025-0003_avs_cvv_log.pdf",
+                  "page": 1,
+                  "quote": "AVS check (full address) Y Full match"
+                },
+                {
+                  "document": "CB-2025-0003_avs_cvv_log.pdf",
+                  "page": 1,
+                  "quote": "CVV check M Match"
+                }
+              ],
+              "reasoning": "The pre-checks from the transaction record show AVS Y (full address match) and CVV M (match). The gateway log for txn_4412EF confirms both results."
+            },
+            {
+              "requirement_id": 2,
+              "status": "satisfied",
+              "pointers": [
+                {
+                  "document": "CB-2025-0003_3ds_authentication.pdf",
+                  "page": 1,
+                  "quote": "Outcome AUTHENTICATED (frictionless)"
+                },
+                {
+                  "document": "CB-2025-0003_3ds_authentication.pdf",
+                  "page": 1,
+                  "quote": "ECI 02"
+                }
+              ],
+              "reasoning": "The pre-checks show 3DS status 'authenticated'. The Identity Check record shows issuer BNP Paribas authenticated the transaction with ECI 02, an authentication value and a DS transaction ID, timestamped 4 seconds before authorisation."
+            },
+            {
+              "requirement_id": 3,
+              "status": "missing",
+              "pointers": [],
+              "reasoning": "No prior transactions are documented. The 'Returning device (seen 3x)' note in the gateway log is a device observation, not proof of two prior undisputed transactions with matching billing details, so it does not meet this requirement."
+            },
+            {
+              "requirement_id": 4,
+              "status": "not_applicable",
+              "pointers": [],
+              "reasoning": "This is a car rental service (MCC 7512), not a shipment of physical goods, so signed delivery to a billing address does not apply. The merchant supplied no delivery evidence in any case."
+            }
+          ],
+          "rationale": "Mastercard 4837 requires any two of the four compelling-evidence items, and requirements 1 and 2 are met. The authorisation record for txn_4412EF on 2025-04-01 shows a full AVS address match (Y) and a CVV match (M), corroborated by the merchant's gateway log. The transaction was also authenticated by the issuer, BNP Paribas, under Mastercard Identity Check (3DS2): the authentication record ic_77f31a82bb shows ECI 02, a present authentication value and DS transaction ID ds_4b2e1100c4. Because the issuer itself authenticated the cardholder and the address and security code both matched, the claim of no cardholder authorisation is not supported, and we request that the chargeback be reversed.",
+          "recommended_action": "represent",
+          "action_justification": "Two of four requirements (AVS+CVV match and successful 3DS authentication) are satisfied and corroborated by the transaction record, meeting the any-two logic.",
+          "evidence_to_request": [],
+          "caveats": [
+            "Car rental context: confirm the disputed EUR 1,240.50 is the same amount and transaction that was 3DS-authenticated (txn_4412EF) and not a later post-rental add-on charge (damage, fuel, extension). 3DS liability shift covers only the authenticated transaction.",
+            "The gateway log describes 3DS as 'Frictionless step-up completed', which is internally contradictory (frictionless means no step-up challenge). The Identity Check record says 'AUTHENTICATED (frictionless)'; rely on that record and the ECI 02 value.",
+            "The 3DS record's statement that liability rests with the issuer is the merchant document's own assertion. The supporting facts are the ECI, authentication value and DS transaction ID, not that conclusion.",
+            "The 'Returning device (seen 3x)' note is supportive context only and does not satisfy requirement 3.",
+            "Chargeback raised 24 days after the transaction; no timing concerns noted, but verify the representment deadline."
+          ],
+          "model_confidence": "high"
+        }
+      }
+    ],
+    "model": "claude-opus-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "inference_geo": "global",
+      "input_tokens": 3963,
+      "output_tokens": 2036,
+      "output_tokens_details": {
+        "thinking_tokens": 589
+      },
+      "server_tool_use": null,
+      "service_tier": "standard"
+    }
+  }
+}

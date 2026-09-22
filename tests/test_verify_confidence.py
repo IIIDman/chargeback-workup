@@ -100,6 +100,44 @@ def test_non_representable_forces_accept_and_overrides_model():
     assert a.tier == "medium"
 
 
+def test_prechecks_do_not_warn_when_they_support_the_recommendation():
+    """Case 4: AVS/CVV both failed. That is why accept_liability is right, so it must not raise the tier."""
+    c = CASES["CB-2025-0004"]
+    rule = get_rule(c.scheme, c.reason_code)
+    pre = run_prechecks(c, rule)
+    w = _workup([_req(i, Status.missing) for i in range(1, 5)], action=Action.accept_liability, conf="medium")
+    a = assess(rule, pre, w, verify_workup(w, []))
+    assert a.tier == "high"
+    assert not any("AVS" in r for r in a.reasons)
+
+
+def test_accept_liability_with_partial_requirements_needs_review():
+    """Conceding a case that partly works costs the merchant money: the analyst should look."""
+    c = CASES["CB-2025-0002"]
+    rule = get_rule(c.scheme, c.reason_code)
+    pre = run_prechecks(c, rule)
+    docs = [_doc("a.pdf", "delivered to M1 7DR")]
+    ptr = [EvidencePointer(document="a.pdf", page=1, quote="delivered to M1 7DR")]
+    w = _workup([_req(1, Status.partial, ptr), _req(2, Status.not_applicable), _req(3, Status.satisfied, ptr),
+                 _req(4, Status.missing)], action=Action.accept_liability)
+    a = assess(rule, pre, w, verify_workup(w, docs))
+    assert a.tier == "needs_review"
+    assert any("although requirement" in r for r in a.reasons)
+
+
+def test_image_only_support_forces_needs_review():
+    c = CASES["CB-2025-0006"]
+    rule = get_rule(c.scheme, c.reason_code)
+    pre = run_prechecks(c, rule)
+    docs = [_doc("photo.png", "", kind="image")]
+    ptr = [EvidencePointer(document="photo.png", page=1, quote="delivered 18 Apr")]
+    w = _workup([_req(1, Status.satisfied, ptr), _req(2, Status.partial, ptr), _req(3, Status.missing)],
+                action=Action.request_more_evidence, ask=["correspondence"])
+    a = assess(rule, pre, w, verify_workup(w, docs))
+    assert a.tier == "needs_review"
+    assert any("image only" in r for r in a.reasons)
+
+
 def test_clean_case_is_high():
     c = CASES["CB-2025-0003"]
     rule = get_rule(c.scheme, c.reason_code)

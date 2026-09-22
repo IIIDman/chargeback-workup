@@ -80,6 +80,7 @@ def run_case(case: Case, recompute: bool = False) -> CaseResult:
         "usage": result.usage,
         "attempts": result.attempts,
         "validation_problems": result.validation_problems,
+        "problems_per_attempt": result.problems_per_attempt,
         "rule_text": rule_as_text(rule),
         "prechecks": prechecks.as_lines(),
         "raw_response": result.raw_response,
