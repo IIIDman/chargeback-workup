@@ -1,0 +1,12 @@
+# secrets: the API key lives only in .env, never in git
+.env
+
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.DS_Store
+
+# NOTE: artifacts/ is deliberately NOT ignored.
+# Cached LLM responses ship with the repo so the tool runs offline with no API key.

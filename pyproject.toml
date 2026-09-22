@@ -1,0 +1,25 @@
+[project]
+name = "chargeback-workup"
+version = "0.1.0"
+description = "Analyst-ready chargeback representment workups: rule + evidence + gap, with an LLM doing the reading and code doing the checking"
+requires-python = ">=3.12"
+dependencies = [
+    "anthropic>=1.2.0",
+    "pdfplumber>=0.11.10",
+    "pydantic>=2.13.5",
+    "python-dotenv>=1.2.3",
+    "typer>=0.27.2",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.16.5",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 110
