@@ -12,6 +12,8 @@ import json
 import typer
 from dotenv import load_dotenv
 
+load_dotenv()  # before workup imports: WORKUP_MODEL is read at import time
+
 from workup.checks import run_prechecks
 from workup.docs import load_case_documents
 from workup.llm import SYSTEM_PROMPT, build_user_content
@@ -71,7 +73,6 @@ def main(
     recompute: bool = typer.Option(False, "--recompute", help="ignore cached responses"),
     dry_run: bool = typer.Option(False, "--dry-run", help="print the prompt and exit without calling the API"),
 ):
-    load_dotenv()
     cases = load_cases()
     ids = list(cases) if all_cases else [case_id]
     if not all_cases and case_id not in cases:
