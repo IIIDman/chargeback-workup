@@ -176,3 +176,17 @@ def test_rationale_conflict_silent_when_nothing_is_requested():
     w = _workup([_req(1, Status.satisfied, [EvidencePointer(document="a.pdf", page=1, quote="q")])])
     w.rationale = "POD-9051-img confirms delivery."
     assert rationale_conflicts(w) == []
+
+
+def test_request_more_evidence_with_most_of_the_file_missing_is_medium():
+    """Case 8 shape: 1 of 4 satisfied, three missing outright. Asking is unlikely to close that gap."""
+    c = CASES["CB-2025-0008"]
+    rule = get_rule(c.scheme, c.reason_code)
+    pre = run_prechecks(c, rule)
+    docs = [_doc("terms.pdf", "subscriptions auto-renew monthly")]
+    ptr = [EvidencePointer(document="terms.pdf", page=1, quote="subscriptions auto-renew monthly")]
+    w = _workup([_req(1, Status.satisfied, ptr), _req(2, Status.missing), _req(3, Status.missing),
+                 _req(4, Status.missing)], action=Action.request_more_evidence, ask=["logs"])
+    a = assess(rule, pre, w, verify_workup(w, docs))
+    assert a.tier == "medium"
+    assert any("most of the file" in r for r in a.reasons)

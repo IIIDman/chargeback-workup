@@ -1,9 +1,9 @@
 {
   "case_id": "CB-2025-0005",
-  "fingerprint": "2e1835b561cb82e7",
+  "fingerprint": "fb42e5b4a57cc432",
   "model": "claude-opus-5-5",
   "workup": {
-    "reason_code_summary": "The issuer alleges the cardholder was charged £54.00 twice by Roastline Coffee Co on 12 April 2025 for a single purchase. To defend, the merchant must prove all three: the charges are for two separate purchases, each purchase event is documented, and each charge has its own timestamp and authorisation code.",
+    "reason_code_summary": "The issuer alleges the cardholder was charged £54.00 twice by Roastline Coffee Co on 12 April 2025 for a single purchase. To defend, the merchant must show that the two charges were separate purchases, document each purchase event, and supply the timestamp and authorisation code for each charge.",
     "requirements": [
       {
         "requirement_id": 1,
@@ -30,7 +30,7 @@
             "quote": "Aeropress Go starter kit 1 £42.00"
           }
         ],
-        "reasoning": "The two orders have different order IDs (RL-ORDER-44188 vs RL-ORDER-44192) and entirely different baskets: coffee beans with a loyalty discount versus an Aeropress kit and filter papers. The matching £54.00 total is coincidental. The merchant's note on invoice B that 'Both charges are valid' is an assertion and is not relied on; the line items carry the proof."
+        "reasoning": "The two invoices carry different order IDs and entirely different items: coffee beans on order A and brewing equipment on order B. Each basket independently arrives at £54.00. The merchant's own note that 'Both charges are valid' is a conclusion, not evidence; the order and item detail is what satisfies this requirement."
       },
       {
         "requirement_id": 2,
@@ -57,7 +57,7 @@
             "quote": "Delivered: 15 April 2025 (DPD tracking 7711224501)"
           }
         ],
-        "reasoning": "There are separate invoices (RL-88291, RL-88294), each showing a distinct order time. Each also lists a separate DPD consignment delivered on a different date. The delivery details are merchant-stated on the invoices and are not carrier proof-of-delivery documents."
+        "reasoning": "There are separate invoices with distinct invoice numbers for each purchase. Each shows a separate DPD consignment and a different delivery date. The delivery statements are merchant-stated, not carrier confirmations, but separate invoices meet the documentation requirement on their own."
       },
       {
         "requirement_id": 3,
@@ -74,19 +74,18 @@
             "quote": "Auth code: 552781 — captured 12 Apr 2025 19:42:18 BST"
           }
         ],
-        "reasoning": "Each charge has its own authorisation code (442189, 552781) and a capture timestamp roughly 11.5 hours apart. The disputed txn_5523IJ corresponds to the 08:11:33 capture, subject to the timezone caveat below."
+        "reasoning": "Each charge has a distinct authorisation code (442189 vs 552781) and a distinct capture timestamp about 11.5 hours apart. This refutes a duplicate submission of a single authorisation."
       }
     ],
-    "rationale": "The cardholder alleges duplicate processing of £54.00 on 12 April 2025. The two charges relate to separate orders. Order RL-ORDER-44188 (invoice RL-88291) contains coffee beans, was captured at 08:11:33 under auth code 442189, and was delivered 14 April via DPD 7711224488. Order RL-ORDER-44192 (invoice RL-88294) contains an Aeropress Go kit and filter papers, was captured at 19:42:18 under auth code 552781, and was delivered 15 April via DPD 7711224501. The identical £54.00 amount is coincidental: the first order totalled £60.00 less a £6.00 loyalty discount, while the second totalled £54.00 with different items. Both orders were placed by the same verified cardholder at the matching billing and delivery address (AVS Y, CVV M, 3DS frictionless), and neither charge is a duplicate.",
     "recommended_action": "represent",
-    "action_justification": "All three requirements are met: different order IDs and items, separate invoices and consignments, and distinct auth codes and timestamps for each charge.",
+    "action_justification": "All three requirements are satisfied: distinct order IDs, items, invoices, auth codes and timestamps show two separate purchases.",
     "evidence_to_request": [],
+    "rationale": "The cardholder was charged twice on 12 April 2025 because two separate orders were placed. Order RL-ORDER-44188 (invoice RL-88291) was for coffee beans, authorised under code 442189 at 08:11:33. Order RL-ORDER-44192 (invoice RL-88294) was for an Aeropress Go kit and filter papers, authorised under code 552781 at 19:42:18. Each order was invoiced separately and shipped under its own DPD consignment (7711224488 and 7711224501) to the cardholder's verified address, N1 4PD. The two charges are distinct purchases with separate authorisations, so the duplicate processing claim does not apply.",
     "caveats": [
-      "Timezone mismatch: the transaction record shows 2025-04-12T08:11:33Z, but invoice A states '08:11:33 BST', which would be 07:11:33Z. Confirm which is correct in acquirer or gateway logs; the invoice likely mislabels UTC as BST.",
-      "Verify in the acquirer's own records that a second £54.00 settlement with auth code 552781 exists on the same card. This confirms the two charges the cardholder sees are the two orders shown.",
-      "Delivery dates and DPD tracking numbers appear only on the merchant's invoices. Consider attaching the DPD proof-of-delivery for both consignments to strengthen the file.",
-      "The merchant's note on invoice B ('Both charges are valid') is a self-serving assertion and should not be cited as evidence.",
-      "Invoice A's line '2 £18.00' is ambiguous (unit price vs line total). The £60.00 total implies £18.00 per unit; check this for consistency before filing."
+      "Timezone discrepancy on order A: the transaction record shows 2025-04-12T08:11:33Z (UTC), while invoice A states '08:11:33 BST'. 08:11 BST would be 07:11 UTC, so confirm which label is correct before filing so the timestamps are not challenged.",
+      "Confirm which of the two charges is the disputed txn_5523IJ; by timestamp it appears to be order A (auth 442189), and the second charge's transaction ID should be referenced in the representment.",
+      "Delivery dates and tracking numbers are stated on the merchant's own invoices; consider pulling DPD proof-of-delivery for both consignments to strengthen the file, though it is not required by the rule.",
+      "Both orders total exactly £54.00 (order A after a £6.00 loyalty discount). This coincidence likely explains the cardholder's confusion and is worth addressing explicitly in the response."
     ],
     "model_confidence": "high"
   },
@@ -98,16 +97,19 @@
     "cache_creation_input_tokens": 0,
     "cache_read_input_tokens": 0,
     "inference_geo": "global",
-    "input_tokens": 3941,
-    "output_tokens": 2436,
+    "input_tokens": 4227,
+    "output_tokens": 2170,
     "output_tokens_details": {
-      "thinking_tokens": 616
+      "thinking_tokens": 512
     },
     "server_tool_use": null,
     "service_tier": "standard"
   },
   "attempts": 1,
   "validation_problems": [],
+  "problems_per_attempt": [
+    []
+  ],
   "rule_text": "Visa 12.6.1 - Duplicate Processing\nIssuer claim: The same transaction was processed more than once.\nLogic: ALL 3 requirements must be satisfied.\nCompelling evidence requirements:\n  1. Evidence the two transactions are for two separate purchases (e.g. different order IDs, different items, different services rendered)\n  2. Documentation of each purchase event (separate invoices, separate delivery confirmations, separate service dates)\n  3. Transaction timestamps and authorisation codes for each charge",
   "prechecks": [
     "Representable under the rule: yes",
@@ -116,20 +118,20 @@
     "Chargeback raised 18 days after the transaction"
   ],
   "raw_response": {
-    "id": "msg_011CfKAxydSjVDH3wmusZbAV",
+    "id": "msg_011CfKDwYK1Y4XvGMeE3ixEC",
     "container": null,
     "content": [
       {
-        "signature": "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",
+        "signature": "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",
         "thinking": "",
         "type": "thinking"
       },
       {
         "citations": null,
-        "text": "{\"reason_code_summary\":\"The issuer alleges the cardholder was charged £54.00 twice by Roastline Coffee Co on 12 April 2025 for a single purchase. To defend, the merchant must prove all three: the charges are for two separate purchases, each purchase event is documented, and each charge has its own timestamp and authorisation code.\",\"requirements\":[{\"requirement_id\":1,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0005_invoice_order_A.pdf\",\"page\":1,\"quote\":\"Order ID: RL-ORDER-44188\"},{\"document\":\"CB-2025-0005_invoice_order_A.pdf\",\"page\":1,\"quote\":\"Single Origin Ethiopia Yirgacheffe 250g 2 £18.00\"},{\"document\":\"CB-2025-0005_invoice_order_B.pdf\",\"page\":1,\"quote\":\"Order ID: RL-ORDER-44192\"},{\"document\":\"CB-2025-0005_invoice_order_B.pdf\",\"page\":1,\"quote\":\"Aeropress Go starter kit 1 £42.00\"}],\"reasoning\":\"The two orders have different order IDs (RL-ORDER-44188 vs RL-ORDER-44192) and entirely different baskets: coffee beans with a loyalty discount versus an Aeropress kit and filter papers. The matching £54.00 total is coincidental. The merchant's note on invoice B that 'Both charges are valid' is an assertion and is not relied on; the line items carry the proof.\"},{\"requirement_id\":2,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0005_invoice_order_A.pdf\",\"page\":1,\"quote\":\"Invoice #RL-88291\"},{\"document\":\"CB-2025-0005_invoice_order_A.pdf\",\"page\":1,\"quote\":\"Delivered: 14 April 2025 (DPD tracking 7711224488)\"},{\"document\":\"CB-2025-0005_invoice_order_B.pdf\",\"page\":1,\"quote\":\"Invoice #RL-88294\"},{\"document\":\"CB-2025-0005_invoice_order_B.pdf\",\"page\":1,\"quote\":\"Delivered: 15 April 2025 (DPD tracking 7711224501)\"}],\"reasoning\":\"There are separate invoices (RL-88291, RL-88294), each showing a distinct order time. Each also lists a separate DPD consignment delivered on a different date. The delivery details are merchant-stated on the invoices and are not carrier proof-of-delivery documents.\"},{\"requirement_id\":3,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0005_invoice_order_A.pdf\",\"page\":1,\"quote\":\"Auth code: 442189 — captured 12 Apr 2025 08:11:33 BST\"},{\"document\":\"CB-2025-0005_invoice_order_B.pdf\",\"page\":1,\"quote\":\"Auth code: 552781 — captured 12 Apr 2025 19:42:18 BST\"}],\"reasoning\":\"Each charge has its own authorisation code (442189, 552781) and a capture timestamp roughly 11.5 hours apart. The disputed txn_5523IJ corresponds to the 08:11:33 capture, subject to the timezone caveat below.\"}],\"rationale\":\"The cardholder alleges duplicate processing of £54.00 on 12 April 2025. The two charges relate to separate orders. Order RL-ORDER-44188 (invoice RL-88291) contains coffee beans, was captured at 08:11:33 under auth code 442189, and was delivered 14 April via DPD 7711224488. Order RL-ORDER-44192 (invoice RL-88294) contains an Aeropress Go kit and filter papers, was captured at 19:42:18 under auth code 552781, and was delivered 15 April via DPD 7711224501. The identical £54.00 amount is coincidental: the first order totalled £60.00 less a £6.00 loyalty discount, while the second totalled £54.00 with different items. Both orders were placed by the same verified cardholder at the matching billing and delivery address (AVS Y, CVV M, 3DS frictionless), and neither charge is a duplicate.\",\"recommended_action\":\"represent\",\"action_justification\":\"All three requirements are met: different order IDs and items, separate invoices and consignments, and distinct auth codes and timestamps for each charge.\",\"evidence_to_request\":[],\"caveats\":[\"Timezone mismatch: the transaction record shows 2025-04-12T08:11:33Z, but invoice A states '08:11:33 BST', which would be 07:11:33Z. Confirm which is correct in acquirer or gateway logs; the invoice likely mislabels UTC as BST.\",\"Verify in the acquirer's own records that a second £54.00 settlement with auth code 552781 exists on the same card. This confirms the two charges the cardholder sees are the two orders shown.\",\"Delivery dates and DPD tracking numbers appear only on the merchant's invoices. Consider attaching the DPD proof-of-delivery for both consignments to strengthen the file.\",\"The merchant's note on invoice B ('Both charges are valid') is a self-serving assertion and should not be cited as evidence.\",\"Invoice A's line '2 £18.00' is ambiguous (unit price vs line total). The £60.00 total implies £18.00 per unit; check this for consistency before filing.\"],\"model_confidence\":\"high\"}",
+        "text": "{\"reason_code_summary\":\"The issuer alleges the cardholder was charged £54.00 twice by Roastline Coffee Co on 12 April 2025 for a single purchase. To defend, the merchant must show that the two charges were separate purchases, document each purchase event, and supply the timestamp and authorisation code for each charge.\",\"requirements\":[{\"requirement_id\":1,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0005_invoice_order_A.pdf\",\"page\":1,\"quote\":\"Order ID: RL-ORDER-44188\"},{\"document\":\"CB-2025-0005_invoice_order_A.pdf\",\"page\":1,\"quote\":\"Single Origin Ethiopia Yirgacheffe 250g 2 £18.00\"},{\"document\":\"CB-2025-0005_invoice_order_B.pdf\",\"page\":1,\"quote\":\"Order ID: RL-ORDER-44192\"},{\"document\":\"CB-2025-0005_invoice_order_B.pdf\",\"page\":1,\"quote\":\"Aeropress Go starter kit 1 £42.00\"}],\"reasoning\":\"The two invoices carry different order IDs and entirely different items: coffee beans on order A and brewing equipment on order B. Each basket independently arrives at £54.00. The merchant's own note that 'Both charges are valid' is a conclusion, not evidence; the order and item detail is what satisfies this requirement.\"},{\"requirement_id\":2,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0005_invoice_order_A.pdf\",\"page\":1,\"quote\":\"Invoice #RL-88291\"},{\"document\":\"CB-2025-0005_invoice_order_A.pdf\",\"page\":1,\"quote\":\"Delivered: 14 April 2025 (DPD tracking 7711224488)\"},{\"document\":\"CB-2025-0005_invoice_order_B.pdf\",\"page\":1,\"quote\":\"Invoice #RL-88294\"},{\"document\":\"CB-2025-0005_invoice_order_B.pdf\",\"page\":1,\"quote\":\"Delivered: 15 April 2025 (DPD tracking 7711224501)\"}],\"reasoning\":\"There are separate invoices with distinct invoice numbers for each purchase. Each shows a separate DPD consignment and a different delivery date. The delivery statements are merchant-stated, not carrier confirmations, but separate invoices meet the documentation requirement on their own.\"},{\"requirement_id\":3,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0005_invoice_order_A.pdf\",\"page\":1,\"quote\":\"Auth code: 442189 — captured 12 Apr 2025 08:11:33 BST\"},{\"document\":\"CB-2025-0005_invoice_order_B.pdf\",\"page\":1,\"quote\":\"Auth code: 552781 — captured 12 Apr 2025 19:42:18 BST\"}],\"reasoning\":\"Each charge has a distinct authorisation code (442189 vs 552781) and a distinct capture timestamp about 11.5 hours apart. This refutes a duplicate submission of a single authorisation.\"}],\"recommended_action\":\"represent\",\"action_justification\":\"All three requirements are satisfied: distinct order IDs, items, invoices, auth codes and timestamps show two separate purchases.\",\"evidence_to_request\":[],\"rationale\":\"The cardholder was charged twice on 12 April 2025 because two separate orders were placed. Order RL-ORDER-44188 (invoice RL-88291) was for coffee beans, authorised under code 442189 at 08:11:33. Order RL-ORDER-44192 (invoice RL-88294) was for an Aeropress Go kit and filter papers, authorised under code 552781 at 19:42:18. Each order was invoiced separately and shipped under its own DPD consignment (7711224488 and 7711224501) to the cardholder's verified address, N1 4PD. The two charges are distinct purchases with separate authorisations, so the duplicate processing claim does not apply.\",\"caveats\":[\"Timezone discrepancy on order A: the transaction record shows 2025-04-12T08:11:33Z (UTC), while invoice A states '08:11:33 BST'. 08:11 BST would be 07:11 UTC, so confirm which label is correct before filing so the timestamps are not challenged.\",\"Confirm which of the two charges is the disputed txn_5523IJ; by timestamp it appears to be order A (auth 442189), and the second charge's transaction ID should be referenced in the representment.\",\"Delivery dates and tracking numbers are stated on the merchant's own invoices; consider pulling DPD proof-of-delivery for both consignments to strengthen the file, though it is not required by the rule.\",\"Both orders total exactly £54.00 (order A after a £6.00 loyalty discount). This coincidence likely explains the cardholder's confusion and is worth addressing explicitly in the response.\"],\"model_confidence\":\"high\"}",
         "type": "text",
         "parsed_output": {
-          "reason_code_summary": "The issuer alleges the cardholder was charged £54.00 twice by Roastline Coffee Co on 12 April 2025 for a single purchase. To defend, the merchant must prove all three: the charges are for two separate purchases, each purchase event is documented, and each charge has its own timestamp and authorisation code.",
+          "reason_code_summary": "The issuer alleges the cardholder was charged £54.00 twice by Roastline Coffee Co on 12 April 2025 for a single purchase. To defend, the merchant must show that the two charges were separate purchases, document each purchase event, and supply the timestamp and authorisation code for each charge.",
           "requirements": [
             {
               "requirement_id": 1,
@@ -156,7 +158,7 @@
                   "quote": "Aeropress Go starter kit 1 £42.00"
                 }
               ],
-              "reasoning": "The two orders have different order IDs (RL-ORDER-44188 vs RL-ORDER-44192) and entirely different baskets: coffee beans with a loyalty discount versus an Aeropress kit and filter papers. The matching £54.00 total is coincidental. The merchant's note on invoice B that 'Both charges are valid' is an assertion and is not relied on; the line items carry the proof."
+              "reasoning": "The two invoices carry different order IDs and entirely different items: coffee beans on order A and brewing equipment on order B. Each basket independently arrives at £54.00. The merchant's own note that 'Both charges are valid' is a conclusion, not evidence; the order and item detail is what satisfies this requirement."
             },
             {
               "requirement_id": 2,
@@ -183,7 +185,7 @@
                   "quote": "Delivered: 15 April 2025 (DPD tracking 7711224501)"
                 }
               ],
-              "reasoning": "There are separate invoices (RL-88291, RL-88294), each showing a distinct order time. Each also lists a separate DPD consignment delivered on a different date. The delivery details are merchant-stated on the invoices and are not carrier proof-of-delivery documents."
+              "reasoning": "There are separate invoices with distinct invoice numbers for each purchase. Each shows a separate DPD consignment and a different delivery date. The delivery statements are merchant-stated, not carrier confirmations, but separate invoices meet the documentation requirement on their own."
             },
             {
               "requirement_id": 3,
@@ -200,19 +202,18 @@
                   "quote": "Auth code: 552781 — captured 12 Apr 2025 19:42:18 BST"
                 }
               ],
-              "reasoning": "Each charge has its own authorisation code (442189, 552781) and a capture timestamp roughly 11.5 hours apart. The disputed txn_5523IJ corresponds to the 08:11:33 capture, subject to the timezone caveat below."
+              "reasoning": "Each charge has a distinct authorisation code (442189 vs 552781) and a distinct capture timestamp about 11.5 hours apart. This refutes a duplicate submission of a single authorisation."
             }
           ],
-          "rationale": "The cardholder alleges duplicate processing of £54.00 on 12 April 2025. The two charges relate to separate orders. Order RL-ORDER-44188 (invoice RL-88291) contains coffee beans, was captured at 08:11:33 under auth code 442189, and was delivered 14 April via DPD 7711224488. Order RL-ORDER-44192 (invoice RL-88294) contains an Aeropress Go kit and filter papers, was captured at 19:42:18 under auth code 552781, and was delivered 15 April via DPD 7711224501. The identical £54.00 amount is coincidental: the first order totalled £60.00 less a £6.00 loyalty discount, while the second totalled £54.00 with different items. Both orders were placed by the same verified cardholder at the matching billing and delivery address (AVS Y, CVV M, 3DS frictionless), and neither charge is a duplicate.",
           "recommended_action": "represent",
-          "action_justification": "All three requirements are met: different order IDs and items, separate invoices and consignments, and distinct auth codes and timestamps for each charge.",
+          "action_justification": "All three requirements are satisfied: distinct order IDs, items, invoices, auth codes and timestamps show two separate purchases.",
           "evidence_to_request": [],
+          "rationale": "The cardholder was charged twice on 12 April 2025 because two separate orders were placed. Order RL-ORDER-44188 (invoice RL-88291) was for coffee beans, authorised under code 442189 at 08:11:33. Order RL-ORDER-44192 (invoice RL-88294) was for an Aeropress Go kit and filter papers, authorised under code 552781 at 19:42:18. Each order was invoiced separately and shipped under its own DPD consignment (7711224488 and 7711224501) to the cardholder's verified address, N1 4PD. The two charges are distinct purchases with separate authorisations, so the duplicate processing claim does not apply.",
           "caveats": [
-            "Timezone mismatch: the transaction record shows 2025-04-12T08:11:33Z, but invoice A states '08:11:33 BST', which would be 07:11:33Z. Confirm which is correct in acquirer or gateway logs; the invoice likely mislabels UTC as BST.",
-            "Verify in the acquirer's own records that a second £54.00 settlement with auth code 552781 exists on the same card. This confirms the two charges the cardholder sees are the two orders shown.",
-            "Delivery dates and DPD tracking numbers appear only on the merchant's invoices. Consider attaching the DPD proof-of-delivery for both consignments to strengthen the file.",
-            "The merchant's note on invoice B ('Both charges are valid') is a self-serving assertion and should not be cited as evidence.",
-            "Invoice A's line '2 £18.00' is ambiguous (unit price vs line total). The £60.00 total implies £18.00 per unit; check this for consistency before filing."
+            "Timezone discrepancy on order A: the transaction record shows 2025-04-12T08:11:33Z (UTC), while invoice A states '08:11:33 BST'. 08:11 BST would be 07:11 UTC, so confirm which label is correct before filing so the timestamps are not challenged.",
+            "Confirm which of the two charges is the disputed txn_5523IJ; by timestamp it appears to be order A (auth 442189), and the second charge's transaction ID should be referenced in the representment.",
+            "Delivery dates and tracking numbers are stated on the merchant's own invoices; consider pulling DPD proof-of-delivery for both consignments to strengthen the file, though it is not required by the rule.",
+            "Both orders total exactly £54.00 (order A after a £6.00 loyalty discount). This coincidence likely explains the cardholder's confusion and is worth addressing explicitly in the response."
           ],
           "model_confidence": "high"
         }
@@ -232,10 +233,10 @@
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 0,
       "inference_geo": "global",
-      "input_tokens": 3941,
-      "output_tokens": 2436,
+      "input_tokens": 4227,
+      "output_tokens": 2170,
       "output_tokens_details": {
-        "thinking_tokens": 616
+        "thinking_tokens": 512
       },
       "server_tool_use": null,
       "service_tier": "standard"

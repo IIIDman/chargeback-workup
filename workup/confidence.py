@@ -6,6 +6,7 @@ Tier is one of high / medium / needs_review, always with the list of reasons tha
 - agreement between the model's recommended action and that coverage
 - quote verification results (downgrades, unverified pointers, image-only support)
 - deterministic pre-check flags, counted only where they cut against the recommendation
+- the size of the gap when more evidence is requested: asking is cheap for the tool, not for the analyst
 - non-representable codes, where the action is forced by rule and the evidence is irrelevant
 - the model's self-reported confidence, as a minor input
 
@@ -97,6 +98,13 @@ def assess(rule: ReasonCode, prechecks: PreChecks, workup: Workup,
     # Conceding a case that partly works is a decision too: the merchant eats the loss.
     if workup.recommended_action is Action.accept_liability and satisfied_or_partial:
         add("needs_review", f"accept_liability although requirement(s) {satisfied_or_partial} are met or partly met")
+    # Asking costs the analyst a follow-up and the merchant goodwill. When most of the file is absent
+    # rather than incomplete, the request is unlikely to close the gap and accepting may be the faster call.
+    missing = [v.requirement_id for v in verifications if v.effective_status is Status.missing]
+    if (workup.recommended_action is Action.request_more_evidence
+            and a.applicable_count and len(missing) > a.applicable_count / 2):
+        add("medium", f"request_more_evidence, but {len(missing)} of {a.applicable_count} applicable "
+                      f"requirement(s) are missing entirely: the merchant would have to supply most of the file")
 
     # 3. verification outcomes
     for v in verifications:

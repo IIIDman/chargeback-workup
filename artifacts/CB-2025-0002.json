@@ -1,9 +1,9 @@
 {
   "case_id": "CB-2025-0002",
-  "fingerprint": "a8da6a1833f18010",
+  "fingerprint": "8b2a7d0d6c3b1d65",
   "model": "claude-opus-5-5",
   "workup": {
-    "reason_code_summary": "The issuer says the cardholder never received the goods (Sony headphones and iPad, GBP 642.00). The issuer also says the delivery address on the order is not the cardholder's address and was not authorised by them. To defend under Visa 13.1 the merchant must prove all of the following: carrier delivery to the cardholder's address with tracking and carrier details, service rendering where relevant, delivery on or before the chargeback date, and a delivery address that materially matches the address the cardholder provided at purchase.",
+    "reason_code_summary": "The issuer alleges the cardholder paid £642.00 but never received the goods, and says the order's delivery address is not theirs and they did not authorise delivery there. To defend a Visa 13.1 dispute, the merchant must meet all four requirements: proof of delivery (tracking, carrier and delivery to the cardholder's address), service evidence where applicable, delivery on or before the chargeback date, and a delivery address that materially matches the address the cardholder gave at purchase.",
     "requirements": [
       {
         "requirement_id": 1,
@@ -22,16 +22,16 @@
           {
             "document": "CB-2025-0002_tracking_screenshot.png",
             "page": 1,
-            "quote": "Flat 14, 7 Aspen Wharf Manchester M1 7DR"
+            "quote": "Manchester M1 7DR"
           }
         ],
-        "reasoning": "A tracking number, a carrier (DPDx) and delivery confirmation exist, but delivery was to M1 7DR, not the cardholder's billing postcode M14 5RT. With AVS N there is no proof M1 7DR is the cardholder's address. Delivery was to a 'safe place' with no signature, recipient name or photo."
+        "reasoning": "The DPDx tracking shows a tracking number, the carrier and a delivered status to M1 7DR. It does not prove delivery to the cardholder's address: the billing postcode is M14 5RT, AVS returned N, and the cardholder denies the address is theirs. The recipient is shown only as 'Lumatech Customer' and the parcel was left in a safe place with no signature."
       },
       {
         "requirement_id": 2,
         "status": "not_applicable",
         "pointers": [],
-        "reasoning": "The order is for physical goods (headphones and a tablet), so the services clause does not apply."
+        "reasoning": "This is a physical-goods order (headphones and an iPad) shipped by carrier, so the services requirement does not apply."
       },
       {
         "requirement_id": 3,
@@ -43,7 +43,7 @@
             "quote": "Delivered: 10 April 2025, 15:22"
           }
         ],
-        "reasoning": "The carrier shows delivery on 10 April 2025, before the chargeback date of 2 May 2025."
+        "reasoning": "The carrier's delivery date of 10 April 2025 falls before the chargeback date of 2 May 2025."
       },
       {
         "requirement_id": 4,
@@ -52,23 +52,32 @@
           {
             "document": "CB-2025-0002_order_confirmation.pdf",
             "page": 1,
-            "quote": "Shipping address:\nFlat 14, 7 Aspen Wharf\nManchester M1 7DR\nNote: this address was entered by the customer at checkout."
+            "quote": "Note: this address was entered by the customer at checkout."
+          },
+          {
+            "document": "CB-2025-0002_order_confirmation.pdf",
+            "page": 1,
+            "quote": "Flat 14, 7 Aspen Wharf"
           }
         ],
-        "reasoning": "The delivery address matches the shipping address on the order. However, the claim that the cardholder entered it is only the merchant's own assertion. The cardholder denies it, the address differs from the billing postcode, and AVS returned N, so there is no proof the cardholder provided it."
+        "reasoning": "The delivery address matches the shipping address on the merchant's order confirmation. However, the claim that the cardholder entered it is only the merchant's own assertion. The pre-checks show a shipping/billing postcode mismatch and a failed AVS, and the cardholder denies providing this address, so it is not proven to be the cardholder's address."
       }
     ],
-    "rationale": "The merchant provides DPDx tracking 15441288821100 showing delivery on 10 April 2025 to Flat 14, 7 Aspen Wharf, Manchester M1 7DR, which matches the order's shipping address. The cardholder's billing postcode is M14 5RT, and the transaction returned AVS N (no match) with 3DS only attempted. The parcel was left in a safe place without signature, and the label names 'Lumatech Customer' rather than the cardholder. Nothing in the evidence links M1 7DR to the cardholder, so delivery to the cardholder's address cannot be shown and Visa 13.1 requirements 1 and 4 are not met. Liability is accepted.",
-    "recommended_action": "accept_liability",
-    "action_justification": "Delivery went to an address that fails AVS and that the cardholder denies, so requirement 1 (delivery to the cardholder's address) cannot be met with the evidence available.",
-    "evidence_to_request": [],
+    "recommended_action": "request_more_evidence",
+    "action_justification": "Delivery timing is proven, but nothing links the M1 7DR delivery address to the cardholder, and the failed AVS and billing mismatch leave requirements 1 and 4 unmet without further merchant evidence.",
+    "evidence_to_request": [
+      "Records of prior undisputed orders on the same card or customer account delivered to Flat 14, 7 Aspen Wharf, Manchester M1 7DR",
+      "Customer account details showing when the M1 7DR address was added and by whom, including the account creation date, login history, and the IP address and device fingerprint used (188.29.44.179 / fp_c01e84f2b9) matched against prior undisputed activity",
+      "Carrier proof-of-delivery photo or GPS delivery record from DPDx for tracking number 15441288821100",
+      "Any communication with the customer (email to a.carter****@gmail.com, delivery notifications, support contacts) acknowledging the order or the delivery address"
+    ],
+    "rationale": "DPDx tracking 15441288821100 shows the order was delivered on 10 April 2025 to Flat 14, 7 Aspen Wharf, Manchester M1 7DR, which is before the 2 May 2025 chargeback date. The delivery address matches the order's shipping address, but it differs from the cardholder's billing postcode M14 5RT, and the transaction returned AVS N with 3DS only attempted. The evidence on file does not establish that M1 7DR is the cardholder's address or that the cardholder provided it, which leaves requirements 1 and 4 unmet. The case is held pending merchant evidence linking the cardholder to the delivery address.",
     "caveats": [
-      "Reconsider only if the merchant can show that the same card or customer account previously received undisputed orders at Flat 14, 7 Aspen Wharf, M1 7DR, or that the IP 188.29.44.179 or device fp_c01e84f2b9 is linked to prior legitimate cardholder activity.",
-      "The order confirmation says the address was 'entered by the customer at checkout'. This is a merchant statement, not proof the cardholder entered it.",
-      "The tracking recipient name is 'Lumatech Customer', not A. Carter. There is no signature or photo proof of delivery; the parcel was left on the 'front porch'.",
-      "The tracking evidence is a screenshot rather than a carrier-issued proof-of-delivery document.",
-      "Time mismatch: the order confirmation shows 19:14 BST, while the transaction record shows 19:14:51Z. BST is UTC+1, so these differ by one hour; verify the order corresponds to txn_9931CD.",
-      "The issuer narrative reads as an unauthorised-use or address-fraud allegation. 3DS was only 'attempted', and no fraud-code liability shift argument applies under 13.1."
+      "The issuer narrative effectively alleges the cardholder did not authorise the order or the address. This reads as possible unauthorised use and may be re-raised under a fraud reason code (e.g. 10.4), where AVS N and 3DS attempted weaken the merchant's position.",
+      "The tracking shows the recipient as 'Lumatech Customer' rather than the cardholder's name, and the parcel was 'Left in safe place: 'front porch''. There is no signature, so delivery to the cardholder personally cannot be shown.",
+      "The order confirmation note that the address was entered by the customer is a merchant-generated statement and does not by itself prove the cardholder supplied it.",
+      "The shipping postcode M1 7DR differs from the billing postcode M14 5RT. Although both are in Manchester, they are not a material match.",
+      "The customer name on the order is 'A. Carter'. Confirm this matches the cardholder name held by the issuer."
     ],
     "model_confidence": "medium"
   },
@@ -80,16 +89,19 @@
     "cache_creation_input_tokens": 0,
     "cache_read_input_tokens": 0,
     "inference_geo": "global",
-    "input_tokens": 4480,
-    "output_tokens": 3095,
+    "input_tokens": 4766,
+    "output_tokens": 2817,
     "output_tokens_details": {
-      "thinking_tokens": 1508
+      "thinking_tokens": 1042
     },
     "server_tool_use": null,
     "service_tier": "standard"
   },
   "attempts": 1,
   "validation_problems": [],
+  "problems_per_attempt": [
+    []
+  ],
   "rule_text": "Visa 13.1 - Merchandise / Services Not Received\nIssuer claim: Cardholder paid but never received the goods or services.\nLogic: ALL 4 requirements must be satisfied.\nCompelling evidence requirements:\n  1. Proof of delivery: tracking number, carrier name, and confirmation of delivery to the cardholder's address\n  2. For services: evidence the service was rendered on or before the expected date (booking confirmation, attendance log, access logs)\n  3. Date of delivery / service rendered is on or before the chargeback date\n  4. The delivery address materially matches the address provided by the cardholder at purchase",
   "prechecks": [
     "Representable under the rule: yes",
@@ -99,20 +111,20 @@
     "Flag: shipping postcode M1 7DR differs from billing postcode M14 5RT; delivery-to-cardholder-address requirements are at risk"
   ],
   "raw_response": {
-    "id": "msg_011CfKAt5fhK3bF6X2VtAzzd",
+    "id": "msg_011CfKDs3WYXsYkQWeNsCVAK",
     "container": null,
     "content": [
       {
-        "signature": "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",
+        "signature": "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",
         "thinking": "",
         "type": "thinking"
       },
       {
         "citations": null,
-        "text": "{\"reason_code_summary\":\"The issuer says the cardholder never received the goods (Sony headphones and iPad, GBP 642.00). The issuer also says the delivery address on the order is not the cardholder's address and was not authorised by them. To defend under Visa 13.1 the merchant must prove all of the following: carrier delivery to the cardholder's address with tracking and carrier details, service rendering where relevant, delivery on or before the chargeback date, and a delivery address that materially matches the address the cardholder provided at purchase.\",\"requirements\":[{\"requirement_id\":1,\"status\":\"partial\",\"pointers\":[{\"document\":\"CB-2025-0002_tracking_screenshot.png\",\"page\":1,\"quote\":\"Tracking number: 15441288821100\"},{\"document\":\"CB-2025-0002_tracking_screenshot.png\",\"page\":1,\"quote\":\"Status: DELIVERED\"},{\"document\":\"CB-2025-0002_tracking_screenshot.png\",\"page\":1,\"quote\":\"Flat 14, 7 Aspen Wharf Manchester M1 7DR\"}],\"reasoning\":\"A tracking number, a carrier (DPDx) and delivery confirmation exist, but delivery was to M1 7DR, not the cardholder's billing postcode M14 5RT. With AVS N there is no proof M1 7DR is the cardholder's address. Delivery was to a 'safe place' with no signature, recipient name or photo.\"},{\"requirement_id\":2,\"status\":\"not_applicable\",\"pointers\":[],\"reasoning\":\"The order is for physical goods (headphones and a tablet), so the services clause does not apply.\"},{\"requirement_id\":3,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0002_tracking_screenshot.png\",\"page\":1,\"quote\":\"Delivered: 10 April 2025, 15:22\"}],\"reasoning\":\"The carrier shows delivery on 10 April 2025, before the chargeback date of 2 May 2025.\"},{\"requirement_id\":4,\"status\":\"partial\",\"pointers\":[{\"document\":\"CB-2025-0002_order_confirmation.pdf\",\"page\":1,\"quote\":\"Shipping address:\\nFlat 14, 7 Aspen Wharf\\nManchester M1 7DR\\nNote: this address was entered by the customer at checkout.\"}],\"reasoning\":\"The delivery address matches the shipping address on the order. However, the claim that the cardholder entered it is only the merchant's own assertion. The cardholder denies it, the address differs from the billing postcode, and AVS returned N, so there is no proof the cardholder provided it.\"}],\"rationale\":\"The merchant provides DPDx tracking 15441288821100 showing delivery on 10 April 2025 to Flat 14, 7 Aspen Wharf, Manchester M1 7DR, which matches the order's shipping address. The cardholder's billing postcode is M14 5RT, and the transaction returned AVS N (no match) with 3DS only attempted. The parcel was left in a safe place without signature, and the label names 'Lumatech Customer' rather than the cardholder. Nothing in the evidence links M1 7DR to the cardholder, so delivery to the cardholder's address cannot be shown and Visa 13.1 requirements 1 and 4 are not met. Liability is accepted.\",\"recommended_action\":\"accept_liability\",\"action_justification\":\"Delivery went to an address that fails AVS and that the cardholder denies, so requirement 1 (delivery to the cardholder's address) cannot be met with the evidence available.\",\"evidence_to_request\":[],\"caveats\":[\"Reconsider only if the merchant can show that the same card or customer account previously received undisputed orders at Flat 14, 7 Aspen Wharf, M1 7DR, or that the IP 188.29.44.179 or device fp_c01e84f2b9 is linked to prior legitimate cardholder activity.\",\"The order confirmation says the address was 'entered by the customer at checkout'. This is a merchant statement, not proof the cardholder entered it.\",\"The tracking recipient name is 'Lumatech Customer', not A. Carter. There is no signature or photo proof of delivery; the parcel was left on the 'front porch'.\",\"The tracking evidence is a screenshot rather than a carrier-issued proof-of-delivery document.\",\"Time mismatch: the order confirmation shows 19:14 BST, while the transaction record shows 19:14:51Z. BST is UTC+1, so these differ by one hour; verify the order corresponds to txn_9931CD.\",\"The issuer narrative reads as an unauthorised-use or address-fraud allegation. 3DS was only 'attempted', and no fraud-code liability shift argument applies under 13.1.\"],\"model_confidence\":\"medium\"}",
+        "text": "{\"reason_code_summary\":\"The issuer alleges the cardholder paid £642.00 but never received the goods, and says the order's delivery address is not theirs and they did not authorise delivery there. To defend a Visa 13.1 dispute, the merchant must meet all four requirements: proof of delivery (tracking, carrier and delivery to the cardholder's address), service evidence where applicable, delivery on or before the chargeback date, and a delivery address that materially matches the address the cardholder gave at purchase.\",\"requirements\":[{\"requirement_id\":1,\"status\":\"partial\",\"pointers\":[{\"document\":\"CB-2025-0002_tracking_screenshot.png\",\"page\":1,\"quote\":\"Tracking number: 15441288821100\"},{\"document\":\"CB-2025-0002_tracking_screenshot.png\",\"page\":1,\"quote\":\"Status: DELIVERED\"},{\"document\":\"CB-2025-0002_tracking_screenshot.png\",\"page\":1,\"quote\":\"Manchester M1 7DR\"}],\"reasoning\":\"The DPDx tracking shows a tracking number, the carrier and a delivered status to M1 7DR. It does not prove delivery to the cardholder's address: the billing postcode is M14 5RT, AVS returned N, and the cardholder denies the address is theirs. The recipient is shown only as 'Lumatech Customer' and the parcel was left in a safe place with no signature.\"},{\"requirement_id\":2,\"status\":\"not_applicable\",\"pointers\":[],\"reasoning\":\"This is a physical-goods order (headphones and an iPad) shipped by carrier, so the services requirement does not apply.\"},{\"requirement_id\":3,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0002_tracking_screenshot.png\",\"page\":1,\"quote\":\"Delivered: 10 April 2025, 15:22\"}],\"reasoning\":\"The carrier's delivery date of 10 April 2025 falls before the chargeback date of 2 May 2025.\"},{\"requirement_id\":4,\"status\":\"partial\",\"pointers\":[{\"document\":\"CB-2025-0002_order_confirmation.pdf\",\"page\":1,\"quote\":\"Note: this address was entered by the customer at checkout.\"},{\"document\":\"CB-2025-0002_order_confirmation.pdf\",\"page\":1,\"quote\":\"Flat 14, 7 Aspen Wharf\"}],\"reasoning\":\"The delivery address matches the shipping address on the merchant's order confirmation. However, the claim that the cardholder entered it is only the merchant's own assertion. The pre-checks show a shipping/billing postcode mismatch and a failed AVS, and the cardholder denies providing this address, so it is not proven to be the cardholder's address.\"}],\"recommended_action\":\"request_more_evidence\",\"action_justification\":\"Delivery timing is proven, but nothing links the M1 7DR delivery address to the cardholder, and the failed AVS and billing mismatch leave requirements 1 and 4 unmet without further merchant evidence.\",\"evidence_to_request\":[\"Records of prior undisputed orders on the same card or customer account delivered to Flat 14, 7 Aspen Wharf, Manchester M1 7DR\",\"Customer account details showing when the M1 7DR address was added and by whom, including the account creation date, login history, and the IP address and device fingerprint used (188.29.44.179 / fp_c01e84f2b9) matched against prior undisputed activity\",\"Carrier proof-of-delivery photo or GPS delivery record from DPDx for tracking number 15441288821100\",\"Any communication with the customer (email to a.carter****@gmail.com, delivery notifications, support contacts) acknowledging the order or the delivery address\"],\"rationale\":\"DPDx tracking 15441288821100 shows the order was delivered on 10 April 2025 to Flat 14, 7 Aspen Wharf, Manchester M1 7DR, which is before the 2 May 2025 chargeback date. The delivery address matches the order's shipping address, but it differs from the cardholder's billing postcode M14 5RT, and the transaction returned AVS N with 3DS only attempted. The evidence on file does not establish that M1 7DR is the cardholder's address or that the cardholder provided it, which leaves requirements 1 and 4 unmet. The case is held pending merchant evidence linking the cardholder to the delivery address.\",\"caveats\":[\"The issuer narrative effectively alleges the cardholder did not authorise the order or the address. This reads as possible unauthorised use and may be re-raised under a fraud reason code (e.g. 10.4), where AVS N and 3DS attempted weaken the merchant's position.\",\"The tracking shows the recipient as 'Lumatech Customer' rather than the cardholder's name, and the parcel was 'Left in safe place: 'front porch''. There is no signature, so delivery to the cardholder personally cannot be shown.\",\"The order confirmation note that the address was entered by the customer is a merchant-generated statement and does not by itself prove the cardholder supplied it.\",\"The shipping postcode M1 7DR differs from the billing postcode M14 5RT. Although both are in Manchester, they are not a material match.\",\"The customer name on the order is 'A. Carter'. Confirm this matches the cardholder name held by the issuer.\"],\"model_confidence\":\"medium\"}",
         "type": "text",
         "parsed_output": {
-          "reason_code_summary": "The issuer says the cardholder never received the goods (Sony headphones and iPad, GBP 642.00). The issuer also says the delivery address on the order is not the cardholder's address and was not authorised by them. To defend under Visa 13.1 the merchant must prove all of the following: carrier delivery to the cardholder's address with tracking and carrier details, service rendering where relevant, delivery on or before the chargeback date, and a delivery address that materially matches the address the cardholder provided at purchase.",
+          "reason_code_summary": "The issuer alleges the cardholder paid £642.00 but never received the goods, and says the order's delivery address is not theirs and they did not authorise delivery there. To defend a Visa 13.1 dispute, the merchant must meet all four requirements: proof of delivery (tracking, carrier and delivery to the cardholder's address), service evidence where applicable, delivery on or before the chargeback date, and a delivery address that materially matches the address the cardholder gave at purchase.",
           "requirements": [
             {
               "requirement_id": 1,
@@ -131,16 +143,16 @@
                 {
                   "document": "CB-2025-0002_tracking_screenshot.png",
                   "page": 1,
-                  "quote": "Flat 14, 7 Aspen Wharf Manchester M1 7DR"
+                  "quote": "Manchester M1 7DR"
                 }
               ],
-              "reasoning": "A tracking number, a carrier (DPDx) and delivery confirmation exist, but delivery was to M1 7DR, not the cardholder's billing postcode M14 5RT. With AVS N there is no proof M1 7DR is the cardholder's address. Delivery was to a 'safe place' with no signature, recipient name or photo."
+              "reasoning": "The DPDx tracking shows a tracking number, the carrier and a delivered status to M1 7DR. It does not prove delivery to the cardholder's address: the billing postcode is M14 5RT, AVS returned N, and the cardholder denies the address is theirs. The recipient is shown only as 'Lumatech Customer' and the parcel was left in a safe place with no signature."
             },
             {
               "requirement_id": 2,
               "status": "not_applicable",
               "pointers": [],
-              "reasoning": "The order is for physical goods (headphones and a tablet), so the services clause does not apply."
+              "reasoning": "This is a physical-goods order (headphones and an iPad) shipped by carrier, so the services requirement does not apply."
             },
             {
               "requirement_id": 3,
@@ -152,7 +164,7 @@
                   "quote": "Delivered: 10 April 2025, 15:22"
                 }
               ],
-              "reasoning": "The carrier shows delivery on 10 April 2025, before the chargeback date of 2 May 2025."
+              "reasoning": "The carrier's delivery date of 10 April 2025 falls before the chargeback date of 2 May 2025."
             },
             {
               "requirement_id": 4,
@@ -161,23 +173,32 @@
                 {
                   "document": "CB-2025-0002_order_confirmation.pdf",
                   "page": 1,
-                  "quote": "Shipping address:\nFlat 14, 7 Aspen Wharf\nManchester M1 7DR\nNote: this address was entered by the customer at checkout."
+                  "quote": "Note: this address was entered by the customer at checkout."
+                },
+                {
+                  "document": "CB-2025-0002_order_confirmation.pdf",
+                  "page": 1,
+                  "quote": "Flat 14, 7 Aspen Wharf"
                 }
               ],
-              "reasoning": "The delivery address matches the shipping address on the order. However, the claim that the cardholder entered it is only the merchant's own assertion. The cardholder denies it, the address differs from the billing postcode, and AVS returned N, so there is no proof the cardholder provided it."
+              "reasoning": "The delivery address matches the shipping address on the merchant's order confirmation. However, the claim that the cardholder entered it is only the merchant's own assertion. The pre-checks show a shipping/billing postcode mismatch and a failed AVS, and the cardholder denies providing this address, so it is not proven to be the cardholder's address."
             }
           ],
-          "rationale": "The merchant provides DPDx tracking 15441288821100 showing delivery on 10 April 2025 to Flat 14, 7 Aspen Wharf, Manchester M1 7DR, which matches the order's shipping address. The cardholder's billing postcode is M14 5RT, and the transaction returned AVS N (no match) with 3DS only attempted. The parcel was left in a safe place without signature, and the label names 'Lumatech Customer' rather than the cardholder. Nothing in the evidence links M1 7DR to the cardholder, so delivery to the cardholder's address cannot be shown and Visa 13.1 requirements 1 and 4 are not met. Liability is accepted.",
-          "recommended_action": "accept_liability",
-          "action_justification": "Delivery went to an address that fails AVS and that the cardholder denies, so requirement 1 (delivery to the cardholder's address) cannot be met with the evidence available.",
-          "evidence_to_request": [],
+          "recommended_action": "request_more_evidence",
+          "action_justification": "Delivery timing is proven, but nothing links the M1 7DR delivery address to the cardholder, and the failed AVS and billing mismatch leave requirements 1 and 4 unmet without further merchant evidence.",
+          "evidence_to_request": [
+            "Records of prior undisputed orders on the same card or customer account delivered to Flat 14, 7 Aspen Wharf, Manchester M1 7DR",
+            "Customer account details showing when the M1 7DR address was added and by whom, including the account creation date, login history, and the IP address and device fingerprint used (188.29.44.179 / fp_c01e84f2b9) matched against prior undisputed activity",
+            "Carrier proof-of-delivery photo or GPS delivery record from DPDx for tracking number 15441288821100",
+            "Any communication with the customer (email to a.carter****@gmail.com, delivery notifications, support contacts) acknowledging the order or the delivery address"
+          ],
+          "rationale": "DPDx tracking 15441288821100 shows the order was delivered on 10 April 2025 to Flat 14, 7 Aspen Wharf, Manchester M1 7DR, which is before the 2 May 2025 chargeback date. The delivery address matches the order's shipping address, but it differs from the cardholder's billing postcode M14 5RT, and the transaction returned AVS N with 3DS only attempted. The evidence on file does not establish that M1 7DR is the cardholder's address or that the cardholder provided it, which leaves requirements 1 and 4 unmet. The case is held pending merchant evidence linking the cardholder to the delivery address.",
           "caveats": [
-            "Reconsider only if the merchant can show that the same card or customer account previously received undisputed orders at Flat 14, 7 Aspen Wharf, M1 7DR, or that the IP 188.29.44.179 or device fp_c01e84f2b9 is linked to prior legitimate cardholder activity.",
-            "The order confirmation says the address was 'entered by the customer at checkout'. This is a merchant statement, not proof the cardholder entered it.",
-            "The tracking recipient name is 'Lumatech Customer', not A. Carter. There is no signature or photo proof of delivery; the parcel was left on the 'front porch'.",
-            "The tracking evidence is a screenshot rather than a carrier-issued proof-of-delivery document.",
-            "Time mismatch: the order confirmation shows 19:14 BST, while the transaction record shows 19:14:51Z. BST is UTC+1, so these differ by one hour; verify the order corresponds to txn_9931CD.",
-            "The issuer narrative reads as an unauthorised-use or address-fraud allegation. 3DS was only 'attempted', and no fraud-code liability shift argument applies under 13.1."
+            "The issuer narrative effectively alleges the cardholder did not authorise the order or the address. This reads as possible unauthorised use and may be re-raised under a fraud reason code (e.g. 10.4), where AVS N and 3DS attempted weaken the merchant's position.",
+            "The tracking shows the recipient as 'Lumatech Customer' rather than the cardholder's name, and the parcel was 'Left in safe place: 'front porch''. There is no signature, so delivery to the cardholder personally cannot be shown.",
+            "The order confirmation note that the address was entered by the customer is a merchant-generated statement and does not by itself prove the cardholder supplied it.",
+            "The shipping postcode M1 7DR differs from the billing postcode M14 5RT. Although both are in Manchester, they are not a material match.",
+            "The customer name on the order is 'A. Carter'. Confirm this matches the cardholder name held by the issuer."
           ],
           "model_confidence": "medium"
         }
@@ -197,10 +218,10 @@
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 0,
       "inference_geo": "global",
-      "input_tokens": 4480,
-      "output_tokens": 3095,
+      "input_tokens": 4766,
+      "output_tokens": 2817,
       "output_tokens_details": {
-        "thinking_tokens": 1508
+        "thinking_tokens": 1042
       },
       "server_tool_use": null,
       "service_tier": "standard"

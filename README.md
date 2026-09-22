@@ -24,7 +24,7 @@ Ten workups are committed under `artifacts/`, so the UI works offline and costs 
 
 ```bash
 uv run python run.py CB-2025-0001      # one case, markdown to stdout
-uv run python run.py --all             # all ten, about $0.62 on claude-opus-5-5
+uv run python run.py --all             # all ten, about $0.63 on claude-opus-5-5
 uv run python run.py CB-2025-0004 --dry-run   # show the exact prompt, make no call
 
 uv run python scripts/compare.py       # tool output vs my hand-written expectations
@@ -41,8 +41,9 @@ pointer to the document, the page and a **verbatim quote**, and the reasoning. T
 recommended action, what to ask the merchant for, and caveats. Every case carries a confidence tier with
 the reasons that produced it.
 
-On the ten provided cases: **44 pointers, 38 verified verbatim against the extracted text, 0 not found**,
-6 pointing at images (not text-verifiable by design). Queue: 5 high, 3 medium, 2 needs review.
+On the ten provided cases: **47 pointers, 41 verified verbatim against the extracted text, 0 not found**,
+6 pointing at images (not text-verifiable by design). Queue: 5 high, 3 medium, 2 needs review. Total cost
+of a full run: $0.63.
 
 ## Design decisions
 
@@ -71,8 +72,9 @@ came first, and on one case it asserted a proof-of-delivery image that the same 
 **Confidence is computed, not asked for.** The model's own confidence is one weak input among several in
 `workup/confidence.py`. The tier comes from things that can be checked: does the count of satisfied
 requirements meet the rule's logic, were the cited quotes actually on the cited pages, does a transaction
-fact cut against the recommendation, does a requirement rest on an image that code cannot read. Two rules
-took a wrong turn first and are worth stating:
+fact cut against the recommendation, does a requirement rest on an image that code cannot read, and how
+big is the gap when more evidence is requested (asking is cheap for the tool and expensive for the analyst
+and the merchant). Two rules took a wrong turn first and are worth stating:
 
 - *Direction-neutral.* Accepting liability means the merchant eats the loss; it is a decision too, so
   conceding a case where requirements are partly met is `needs_review` in its own right.
@@ -117,7 +119,8 @@ those rows.
 - The rationale-consistency check matches identifier-shaped tokens and over-fires when a reference is used
   as context in a request; it raises the tier to medium and tells the analyst what to look at.
 - Ten cases is not an evaluation. It is enough to catch design errors, which it did, and not enough to
-  quote an accuracy number.
+  quote an accuracy number. Two confidence rules were added after seeing where the tool and I disagreed,
+  which is how a small set should be used, and also why a number from it means little.
 - No auth, no deployment, no concurrency, single-user decision log.
 
 ## If this were going into production
