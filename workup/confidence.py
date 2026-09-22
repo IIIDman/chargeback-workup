@@ -28,7 +28,7 @@ from typing import Literal
 from .checks import PreChecks
 from .rules import ReasonCode
 from .schema import Action, Status, Workup
-from .verify import RequirementVerification
+from .verify import RequirementVerification, rationale_conflicts
 
 Tier = Literal["high", "medium", "needs_review"]
 _RANK = {"high": 0, "medium": 1, "needs_review": 2}
@@ -124,7 +124,11 @@ def assess(rule: ReasonCode, prechecks: PreChecks, workup: Workup,
         if any("differs from" in f and "amount" in f for f in prechecks.flags):
             add(escalate, "chargeback amount differs from the transaction amount")
 
-    # 5. model self-report, minor: only counted when something else is already shaky.
+    # 5. the rationale is the text that gets filed: it must not assert evidence we do not hold
+    for conflict in rationale_conflicts(workup):
+        add("medium", conflict)
+
+    # 6. model self-report, minor: only counted when something else is already shaky.
     if workup.model_confidence == "low":
         add("medium", "model reports low confidence")
     elif workup.model_confidence == "medium" and partials:

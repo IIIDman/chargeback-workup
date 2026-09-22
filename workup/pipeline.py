@@ -56,7 +56,9 @@ def prompt_fingerprint(case: Case, rule: ReasonCode, prechecks: PreChecks, docum
     return hashlib.sha256(canonical.encode()).hexdigest()[:16]
 
 
-def run_case(case: Case, recompute: bool = False) -> CaseResult:
+def run_case(case: Case, recompute: bool = False, allow_api: bool = True) -> CaseResult:
+    """allow_api=False guarantees no network call: used by the UI and the compare script, so that
+    opening the app can never spend money, and a stale cache is reported instead of silently refreshed."""
     rule = get_rule(case.scheme, case.reason_code)
     prechecks = run_prechecks(case, rule)
     documents = load_case_documents(case.merchant_evidence_documents, DOCS_DIR)
@@ -71,6 +73,11 @@ def run_case(case: Case, recompute: bool = False) -> CaseResult:
                            usage=cached.get("usage", {}), from_cache=True,
                            attempts=cached.get("attempts", 1), problems=cached.get("validation_problems", []))
 
+    if not allow_api:
+        raise LookupError(
+            f"no cached workup for {case.case_id} matching the current prompt "
+            f"(fingerprint {fp}). Run `uv run python run.py --all` to refresh."
+        )
     result: LLMResult = request_workup(case, rule, prechecks, documents)
     cache_path.write_text(json.dumps({
         "case_id": case.case_id,

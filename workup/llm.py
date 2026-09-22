@@ -58,6 +58,10 @@ Rules for your assessment:
 8. Put contradictions between the issuer narrative and the evidence, date or address concerns, and anything
    the analyst should double-check into caveats.
 9. Write the rationale as 3-5 sentences in the voice of the analyst, factual, no hedging words, ready to file.
+10. The rationale must be consistent with your own assessment. Never state as fact anything a requirement is
+    marked partial or missing for, and never cite a document you are asking the merchant to supply. If the
+    recommended action is not represent, the rationale states where the case stands and what is unproven,
+    rather than arguing a representment.
 """
 
 

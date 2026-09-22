@@ -1,18 +1,130 @@
-# chargeback-workup
+# Chargeback representment workup
 
-Takes a chargeback case (reason code, transaction metadata, issuer narrative, merchant evidence files) and
-produces an analyst-ready representment workup: the rule in plain English, each compelling-evidence
-requirement marked satisfied / partial / missing with a pointer to the document, page and verbatim quote,
-a draft rationale, and a recommended action.
+A disputes analyst gets a chargeback, decides in about ninety seconds, and then spends eighteen minutes
+re-reading scheme rules, opening PDFs to check one date, and writing up why. This tool does the eighteen
+minutes: for each case it lays out **the rule, the evidence, and the gap**, drafts the representment
+rationale, and recommends represent / accept liability / request more evidence. The analyst decides.
 
-Status: work in progress. Full run instructions, design notes and limitations will land here.
+```
+case ─┬─ scheme rule (encoded)      ─┐
+      ├─ deterministic pre-checks    ├─ one LLM call ─ structured workup ─ quote verification ─ confidence tier ─ UI
+      └─ evidence, page by page     ─┘
+```
 
-## Run
+## Run it
 
 ```bash
-cp .env.example .env            # add ANTHROPIC_API_KEY
+cp .env.example .env         # add your ANTHROPIC_API_KEY
 uv sync
-uv run python run.py CB-2025-0001
-uv run python run.py --all
-uv run pytest
+
+uv run streamlit run app.py  # the analyst UI, reads cached results, no API key needed
 ```
+
+Ten workups are committed under `artifacts/`, so the UI works offline and costs nothing. To regenerate:
+
+```bash
+uv run python run.py CB-2025-0001      # one case, markdown to stdout
+uv run python run.py --all             # all ten, about $0.62 on claude-opus-5-5
+uv run python run.py CB-2025-0004 --dry-run   # show the exact prompt, make no call
+
+uv run python scripts/compare.py       # tool output vs my hand-written expectations
+uv run pytest                          # 28 tests, no network
+```
+
+`WORKUP_MODEL` in `.env` overrides the model. The model id is part of the cache key, so switching models
+never replays another model's answers.
+
+## What it produces
+
+For every requirement of the reason code: a status (satisfied / partial / missing / not applicable), a
+pointer to the document, the page and a **verbatim quote**, and the reasoning. Then a draft rationale, the
+recommended action, what to ask the merchant for, and caveats. Every case carries a confidence tier with
+the reasons that produced it.
+
+On the ten provided cases: **44 pointers, 38 verified verbatim against the extracted text, 0 not found**,
+6 pointing at images (not text-verifiable by design). Queue: 5 high, 3 medium, 2 needs review.
+
+## Design decisions
+
+**Split the job between code and the model.** The model reads documents; code owns everything that can be
+decided without reading. The rule logic (`all` / `any two` / `any one` / non-representable) is encoded as
+data in `workup/rules.py`, and `workup/checks.py` computes AVS/CVV/3DS, postcode match, date ordering and
+amount agreement from the transaction record. So Visa 10.5 is accept-liability before any document is
+opened, and a merchant document cannot talk the tool out of a failed AVS.
+
+**Extract the text myself rather than posting PDFs to the model.** `workup/docs.py` pulls each page with
+`pdfplumber`, and the page arrives in the prompt inside `<document name= page= of=>`. That buys three
+things: I know exactly what the model saw, page-level pointers come free, and every quote can be checked
+against the same text afterwards. The two PNGs go in as image blocks. Cost: a scanned PDF would need an
+OCR step in `extract_pages`; there are none here, and I checked (tesseract output matches the text layer).
+
+**The output schema is the guardrail.** `Workup` in `workup/schema.py` is passed to the API as the required
+response format, so statuses and actions are enums rather than prose. What a JSON schema cannot express is
+checked afterwards in `validate_pointers`: the document must be one of this case's files, the page must
+exist in it, a satisfied requirement must carry a pointer. A failure sends the model its own answer plus the
+list of problems for one corrective round-trip. That fired on two of ten cases and both then passed.
+
+**Field order is generation order.** The rationale is the last thing the model writes, after it has
+committed to the statuses, the action and the evidence it still needs. In the first version the rationale
+came first, and on one case it asserted a proof-of-delivery image that the same response listed as missing.
+
+**Confidence is computed, not asked for.** The model's own confidence is one weak input among several in
+`workup/confidence.py`. The tier comes from things that can be checked: does the count of satisfied
+requirements meet the rule's logic, were the cited quotes actually on the cited pages, does a transaction
+fact cut against the recommendation, does a requirement rest on an image that code cannot read. Two rules
+took a wrong turn first and are worth stating:
+
+- *Direction-neutral.* Accepting liability means the merchant eats the loss; it is a decision too, so
+  conceding a case where requirements are partly met is `needs_review` in its own right.
+- *But a signal only counts against the recommendation it undermines.* A failed AVS makes a represent
+  doubtful; on an accept-liability it is the reason the recommendation is right, so it is not a warning.
+
+Every tier is shown with its reasons. `needs_review` never appears without a sentence saying why.
+
+**The tool downgrades rather than discards.** A satisfied requirement whose quotes cannot be found in the
+document text becomes partial with a note, because a failed match is usually the extractor, not the model.
+The analyst sees "quote NOT found" next to the quote and decides.
+
+## For the analyst
+
+`app.py` sorts the queue by tier, hardest first, then by amount. A case opens as rule / evidence / gap, with
+the requirement checklist below it. Every pointer expands to show the quote and whether it was verified.
+Every status has an override, the rationale is editable, and the action can be changed. Approving writes a
+record to `artifacts/decisions.jsonl` that keeps both what the tool proposed and what the analyst chose,
+which is the data you would want later to see where the tool is wrong.
+
+The UI never calls the API. A stale cache is reported, not silently refreshed.
+
+## Checking myself
+
+`expected.json` holds an answer I wrote by hand for each case, after reading every document and before
+running the tool on all ten. `scripts/compare.py` prints agreement on the action and whether the tool was
+at least as cautious as I was, plus the tier distribution, because "mark everything needs review" would
+score perfectly on caution while saving nobody any time.
+
+First run: agreement on eight of ten. Of the two disagreements, one is a fair judgement call (whether a
+freight company's own manifest counts as carrier confirmation when it is also the carrier), and on the
+other the tool was right and I was wrong: it noticed the hotel charge is dated 26 April while the booking
+says the rate was charged on 12 March, which makes a duplicate charge possible. I changed my answer, kept
+the original visible in `expected.json` with the reason, and `compare.py` prints `(key revised: ...)` on
+those rows.
+
+## Limitations
+
+- Scanned documents would need OCR; every PDF here has a text layer.
+- The rules are the take-home's simplified ones, not Visa VCR or the Mastercard Chargeback Guide: no time
+  limits, thresholds or exclusions.
+- The rationale-consistency check matches identifier-shaped tokens and over-fires when a reference is used
+  as context in a request; it raises the tier to medium and tells the analyst what to look at.
+- Ten cases is not an evaluation. It is enough to catch design errors, which it did, and not enough to
+  quote an accuracy number.
+- No auth, no deployment, no concurrency, single-user decision log.
+
+## If this were going into production
+
+Build the eval set first: a few hundred closed cases with the outcome the scheme actually gave, which is
+the only ground truth that matters. Then choose the model against it rather than by reputation, and expect
+a cascade: rule-only cases need no model at all, routine ones can run on a cheaper model, and only the
+doubtful ones need the expensive one. Cache the system prompt and the rule text, batch the overnight queue
+at half price, and track the override rate from `decisions.jsonl` per reason code, because the requirements
+an analyst keeps correcting are where the prompt or the encoded rules are wrong.

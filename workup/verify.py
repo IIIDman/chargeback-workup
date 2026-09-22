@@ -92,3 +92,33 @@ def verify_workup(workup: Workup, documents: list[Document]) -> list[Requirement
             rv.note = "supported by an image only; not text-verifiable, analyst should view it"
         out.append(rv)
     return out
+
+
+# ----------------------------------------------------------- rationale self-consistency
+
+# identifier-shaped tokens only: must contain a digit, so "non-refundable" and "pre-renewal" are ignored
+_IDENT = re.compile(r"\b(?=[A-Za-z0-9_-]*\d)[A-Za-z][A-Za-z0-9]*(?:[-_][A-Za-z0-9]+)+\b")
+
+
+def rationale_conflicts(workup: Workup) -> list[str]:
+    """Catch a rationale that asserts evidence the same workup says is missing.
+
+    Found on the first full run: case 7's rationale read "the signed proof of delivery POD-9051-img and
+    the driver telematics logs confirm service was rendered", while its own assessment marked that
+    requirement partial precisely because POD-9051-img had not been supplied, and listed it under
+    evidence to request. The rationale is the text that gets filed, so an assertion about evidence we do
+    not hold is the most expensive kind of error here.
+
+    The check is a smoke alarm, not a verdict: it matches identifier-shaped tokens carrying a digit that
+    appear both in the rationale and in the list of things to ask for. It over-fires when a reference is
+    used as context in the ask ("the folio for booking MSP-2025-4488"), so the message tells the analyst
+    what to look at rather than asserting an error, and it raises the tier to medium, not needs_review.
+    """
+    asks = " ".join(workup.evidence_to_request)
+    if not asks.strip():
+        return []
+    in_rationale = {m.group().lower() for m in _IDENT.finditer(workup.rationale)}
+    in_asks = {m.group().lower() for m in _IDENT.finditer(asks)}
+    overlap = sorted(in_rationale & in_asks)
+    return [f"the rationale mentions {ident!r}, which the workup also asks the merchant to supply: check it "
+            f"is not claimed as proof we already hold" for ident in overlap]

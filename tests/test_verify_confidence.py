@@ -9,7 +9,7 @@ from workup.docs import Document, Page, load_case_documents
 from workup.pipeline import ARTIFACTS, DOCS_DIR, load_cases
 from workup.rules import get_rule
 from workup.schema import Action, EvidencePointer, RequirementAssessment, Status, Workup
-from workup.verify import quote_in_text, verify_workup
+from workup.verify import quote_in_text, rationale_conflicts, verify_workup
 
 CASES = load_cases()
 
@@ -162,3 +162,17 @@ def test_cached_case_1_end_to_end_offline():
     assert all(p.verified for rv in v for p in rv.pointers)
     a = assess(rule, pre, w, v)
     assert a.final_action is Action.represent
+
+
+def test_rationale_conflict_flags_identifiers_but_ignores_plain_hyphenated_words():
+    w = _workup([_req(1, Status.missing)], action=Action.request_more_evidence,
+                ask=["The POD image POD-9051-img", "the pre-renewal notice"])
+    w.rationale = "The signed proof POD-9051-img confirms delivery under the non-refundable pre-renewal terms."
+    conflicts = rationale_conflicts(w)
+    assert len(conflicts) == 1 and "pod-9051-img" in conflicts[0]
+
+
+def test_rationale_conflict_silent_when_nothing_is_requested():
+    w = _workup([_req(1, Status.satisfied, [EvidencePointer(document="a.pdf", page=1, quote="q")])])
+    w.rationale = "POD-9051-img confirms delivery."
+    assert rationale_conflicts(w) == []

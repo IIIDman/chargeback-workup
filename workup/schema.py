@@ -85,17 +85,29 @@ class RequirementAssessment(BaseModel):
 
 
 class Workup(BaseModel):
+    """Field order is deliberate: it is the generation order.
+
+    The rationale is written after the model has committed to the per-requirement statuses, the action and
+    the evidence it still needs, so it cannot argue a case the assessment does not support. In the first
+    version the rationale came first and one case produced a rationale asserting a proof-of-delivery image
+    that the same response listed as missing.
+    """
+
     reason_code_summary: str = Field(
         description="Plain-English restatement of what the issuer alleges and what the scheme requires to defend it."
     )
     requirements: list[RequirementAssessment] = Field(
         description="One entry per requirement in the rule, in order. Empty list if the code is non-representable."
     )
-    rationale: str = Field(description="3-5 sentence representment rationale, ready for the analyst to edit and file.")
     recommended_action: Action
     action_justification: str = Field(description="One line.")
     evidence_to_request: list[str] = Field(
         description="Only when recommended_action is request_more_evidence: specific items to ask the merchant for."
+    )
+    rationale: str = Field(
+        description="3-5 sentences for the file, consistent with the assessment above: it may not state as "
+        "fact anything a requirement was marked partial or missing for, and may not cite a document listed "
+        "in evidence_to_request. If the action is not represent, describe where the case stands."
     )
     caveats: list[str] = Field(
         description="Anything the analyst should double-check before acting: contradictions, dates, address "

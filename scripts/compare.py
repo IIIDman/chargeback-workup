@@ -30,7 +30,11 @@ def main() -> int:
         if not (ARTIFACTS / f"{cid}.json").exists():
             rows.append((cid, "(no cached result: run `uv run python run.py --all` first)", "", "", ""))
             continue
-        r = run_case(cases[cid])  # cache hit; a fingerprint mismatch would call the API, so run --all first
+        try:
+            r = run_case(cases[cid], allow_api=False)  # never calls the API
+        except LookupError as e:
+            rows.append((cid, f"(stale cache: {e})", "", "", ""))
+            continue
         got = r.assessment.final_action.value
         acceptable = [exp["action"], *exp.get("also_acceptable", [])]
         a_ok = got in acceptable
