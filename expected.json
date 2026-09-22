@@ -1,0 +1,23 @@
+{
+  "_note": "My expected outcome per case before running the tool, from reading the rules, the case metadata and every document by hand. `action` is what I would file; `also_acceptable` lists defensible alternatives on genuinely ambiguous cases; `tier` is the minimum attention level I expect the tool to flag (needs_review > medium > high).",
+  "CB-2025-0001": {"action": "represent", "also_acceptable": [], "tier": "high",
+    "why": "Signed Royal Mail delivery to SW4 7QR on 24 Mar, before the 18 Apr chargeback; addresses match; AVS Y."},
+  "CB-2025-0002": {"action": "accept_liability", "also_acceptable": ["request_more_evidence"], "tier": "needs_review",
+    "why": "Delivered to M1 7DR, billing is M14 5RT, AVS N, 3DS only attempted, left in safe place with no signature. Issuer says the address is not theirs. Ambiguous by design; the tool must flag it, not decide it."},
+  "CB-2025-0003": {"action": "represent", "also_acceptable": [], "tier": "high",
+    "why": "4837 needs any two: AVS Y + CVV M (req 1) and 3DS authenticated (req 2) are both documented in the gateway log."},
+  "CB-2025-0004": {"action": "accept_liability", "also_acceptable": [], "tier": "high",
+    "why": "The internal fraud report is the merchant's own risk score; it meets none of the four requirements. AVS N, CVV N, 3DS not attempted, new account. Confident tone, zero evidence."},
+  "CB-2025-0005": {"action": "represent", "also_acceptable": ["request_more_evidence"], "tier": "high",
+    "why": "Two invoices with different order IDs, items, auth codes, capture timestamps and DPD consignments. All three 12.6.1 requirements are on the page."},
+  "CB-2025-0006": {"action": "request_more_evidence", "also_acceptable": ["accept_liability"], "tier": "needs_review",
+    "why": "Listing exists; the delivery photo shows a front view only and cannot prove the frame is sound; returns policy exists but the issuer says the merchant ignored the refund request. Ask for the correspondence and the return offer."},
+  "CB-2025-0007": {"action": "represent", "also_acceptable": [], "tier": "high",
+    "why": "Page 8 of the 10-page manifest: TF-9051 ref txn_7745MN collected from LS1 4DT and delivered to LS9 8AA on 22 Apr, before the 14 May chargeback. Shipping/billing mismatch is expected for freight (pickup vs destination)."},
+  "CB-2025-0008": {"action": "request_more_evidence", "also_acceptable": [], "tier": "needs_review",
+    "why": "Only the generic terms document. No opt-in record, no renewal notification (terms promise 5 days, rule wants 7+), no evidence of the absence of a cancellation. Policy is not proof."},
+  "CB-2025-0009": {"action": "represent", "also_acceptable": [], "tier": "high",
+    "why": "Booking MSP-2025-4488 at 215 EUR non-refundable, policy accepted via tick-box with consent id, front desk log marks NO-SHOW, fee equals the disclosed rate."},
+  "CB-2025-0010": {"action": "accept_liability", "also_acceptable": [], "tier": "high",
+    "why": "Visa 10.5 is non-representable under the rule regardless of evidence. The strong 3DS and delivery proof are a distraction."}
+}

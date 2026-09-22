@@ -75,6 +75,11 @@ def run_prechecks(case: Case, rule: ReasonCode) -> PreChecks:
         flags.append("3DS was not attempted")
     if days < 0:
         flags.append("chargeback date precedes transaction date: data problem")
+    if (case.chargeback_amount.value, case.chargeback_amount.currency) != (t.amount.value, t.amount.currency):
+        flags.append(
+            f"chargeback amount {case.chargeback_amount.value} {case.chargeback_amount.currency} differs from "
+            f"transaction amount {t.amount.value} {t.amount.currency}"
+        )
 
     return PreChecks(
         representable=representable,

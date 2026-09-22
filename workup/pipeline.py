@@ -1,4 +1,7 @@
-"""Run one case end to end: load -> rule -> pre-checks -> documents -> LLM -> (later: verify, confidence).
+"""Run one case end to end: load -> rule -> pre-checks -> documents -> LLM -> verify quotes -> confidence tier.
+
+Only the LLM response is cached; verification and the confidence tier are recomputed on every run because
+they are deterministic and cheap, so a change to the code layer applies immediately without new API calls.
 
 Every LLM response is cached under artifacts/<case_id>.json. The cache key includes a hash of the prompt
 inputs, so a change to the system prompt, the rule text or the documents invalidates it automatically.
@@ -12,10 +15,12 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .checks import PreChecks, run_prechecks
+from .confidence import Assessment, assess
 from .docs import Document, load_case_documents
 from .llm import MODEL, SYSTEM_PROMPT, LLMResult, build_user_content, request_workup
 from .rules import ReasonCode, get_rule, rule_as_text
 from .schema import Case, Workup
+from .verify import RequirementVerification, verify_workup
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
@@ -30,6 +35,8 @@ class CaseResult:
     prechecks: PreChecks
     documents: list[Document]
     workup: Workup
+    verifications: list[RequirementVerification]
+    assessment: Assessment
     usage: dict
     from_cache: bool
     attempts: int
@@ -60,12 +67,9 @@ def run_case(case: Case, recompute: bool = False) -> CaseResult:
     if cache_path.exists() and not recompute:
         cached = json.loads(cache_path.read_text())
         if cached.get("fingerprint") == fp:
-            return CaseResult(
-                case=case, rule=rule, prechecks=prechecks, documents=documents,
-                workup=Workup.model_validate(cached["workup"]),
-                usage=cached.get("usage", {}), from_cache=True,
-                attempts=cached.get("attempts", 1), validation_problems=cached.get("validation_problems", []),
-            )
+            return _finish(case, rule, prechecks, documents, Workup.model_validate(cached["workup"]),
+                           usage=cached.get("usage", {}), from_cache=True,
+                           attempts=cached.get("attempts", 1), problems=cached.get("validation_problems", []))
 
     result: LLMResult = request_workup(case, rule, prechecks, documents)
     cache_path.write_text(json.dumps({
@@ -81,8 +85,16 @@ def run_case(case: Case, recompute: bool = False) -> CaseResult:
         "raw_response": result.raw_response,
     }, indent=2, ensure_ascii=False))
 
+    return _finish(case, rule, prechecks, documents, result.workup, usage=result.usage, from_cache=False,
+                   attempts=result.attempts, problems=result.validation_problems)
+
+
+def _finish(case: Case, rule: ReasonCode, prechecks: PreChecks, documents: list[Document], workup: Workup,
+            *, usage: dict, from_cache: bool, attempts: int, problems: list[str]) -> CaseResult:
+    verifications = verify_workup(workup, documents)
+    assessment = assess(rule, prechecks, workup, verifications)
     return CaseResult(
-        case=case, rule=rule, prechecks=prechecks, documents=documents,
-        workup=result.workup, usage=result.usage, from_cache=False,
-        attempts=result.attempts, validation_problems=result.validation_problems,
+        case=case, rule=rule, prechecks=prechecks, documents=documents, workup=workup,
+        verifications=verifications, assessment=assessment,
+        usage=usage, from_cache=from_cache, attempts=attempts, validation_problems=problems,
     )

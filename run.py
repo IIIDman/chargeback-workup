@@ -29,12 +29,18 @@ ICON = {Status.satisfied: "[x]", Status.partial: "[~]", Status.missing: "[ ]", S
 def render(r: CaseResult) -> str:
     c, w = r.case, r.workup
     t = c.transaction
+    a = r.assessment
+    ver = {v.requirement_id: v for v in r.verifications}
     out = [
         f"# {c.case_id}  {c.scheme.title()} {c.reason_code} {c.reason_code_label}",
         f"{t.merchant_name} · {c.chargeback_amount.value} {c.chargeback_amount.currency} · "
         f"txn {t.transaction_date[:10]} · chargeback {c.chargeback_date}",
         f"source: {'cache' if r.from_cache else 'api'}, attempts: {r.attempts}"
         + (f", validation problems: {r.validation_problems}" if r.validation_problems else ""),
+        "",
+        f"## Confidence: {a.tier.upper()}   ->  final action: {a.final_action.value}"
+        + ("  (overridden by rule)" if a.action_overridden else ""),
+        *[f"- {x}" for x in a.reasons],
         "",
         "## Pre-checks",
         *[f"- {line}" for line in r.prechecks.as_lines()],
@@ -44,12 +50,17 @@ def render(r: CaseResult) -> str:
         "",
         "## Evidence assessment",
     ]
-    for a in w.requirements:
-        req = next(x for x in r.rule.requirements if x.id == a.requirement_id)
-        out.append(f"{ICON[a.status]} {a.requirement_id}. {req.text}")
-        out.append(f"    {a.status.value}: {a.reasoning}")
-        for p in a.pointers:
-            out.append(f'    -> {p.document} p.{p.page}: "{p.quote}"')
+    for ra in w.requirements:
+        req = next(x for x in r.rule.requirements if x.id == ra.requirement_id)
+        v = ver[ra.requirement_id]
+        status_txt = v.effective_status.value + (f" (model said {ra.status.value})" if v.downgraded else "")
+        out.append(f"{ICON[v.effective_status]} {ra.requirement_id}. {req.text}")
+        out.append(f"    {status_txt}: {ra.reasoning}")
+        if v.note:
+            out.append(f"    ! {v.note}")
+        for pc in v.pointers:
+            mark = {True: "verified", False: "NOT FOUND", None: "image"}[pc.verified]
+            out.append(f'    -> [{mark}] {pc.document} p.{pc.page}: "{pc.quote}"')
     out += [
         "",
         "## Rationale",
