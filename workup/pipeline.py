@@ -13,7 +13,7 @@ from pathlib import Path
 
 from .checks import PreChecks, run_prechecks
 from .docs import Document, load_case_documents
-from .llm import SYSTEM_PROMPT, LLMResult, build_user_content, request_workup
+from .llm import MODEL, SYSTEM_PROMPT, LLMResult, build_user_content, request_workup
 from .rules import ReasonCode, get_rule, rule_as_text
 from .schema import Case, Workup
 
@@ -43,9 +43,9 @@ def load_cases(path: Path = DATA / "cases.json") -> dict[str, Case]:
 
 
 def prompt_fingerprint(case: Case, rule: ReasonCode, prechecks: PreChecks, documents: list[Document]) -> str:
-    """Hash of everything the model sees. Image bytes are included via their base64 payload."""
+    """Hash of the model id plus everything the model sees. Image bytes are included via their base64 payload."""
     content = build_user_content(case, rule, prechecks, documents)
-    canonical = json.dumps({"system": SYSTEM_PROMPT, "content": content}, sort_keys=True, separators=(",", ":"))
+    canonical = json.dumps({"model": MODEL, "system": SYSTEM_PROMPT, "content": content}, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode()).hexdigest()[:16]
 
 

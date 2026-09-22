@@ -1,6 +1,6 @@
 """The single LLM call per case: build the prompt, request a structured Workup, validate, retry once.
 
-Model: claude-opus-5 with adaptive thinking. Structured output is enforced by passing the Pydantic
+Model: claude-opus-5-5 (default) with adaptive thinking. Structured output is enforced by passing the Pydantic
 `Workup` class as the response format, so the model cannot return prose or an unknown status value.
 Things a JSON schema cannot check (document names, page ranges) are validated after parsing; if they
 fail, the call is repeated once with the problems appended so the model can correct itself.
@@ -8,6 +8,7 @@ fail, the call is repeated once with the problems appended so the model can corr
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass
 
 import anthropic
@@ -17,7 +18,8 @@ from .docs import Document
 from .rules import ReasonCode, rule_as_text
 from .schema import Case, Workup, validate_pointers
 
-MODEL = "claude-opus-5"
+# Override with WORKUP_MODEL in .env (e.g. claude-opus-5, claude-sonnet-5) to compare models.
+MODEL = os.environ.get("WORKUP_MODEL", "claude-opus-5-5")
 
 SYSTEM_PROMPT = """You are preparing a chargeback representment workup for a disputes analyst at a payment
 acquirer. The analyst decides; you lay the case out so the decision takes seconds instead of minutes.
