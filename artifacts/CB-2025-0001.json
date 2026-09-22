@@ -1,0 +1,236 @@
+{
+  "case_id": "CB-2025-0001",
+  "fingerprint": "3f57244a680a1f3a",
+  "model": "claude-opus-5-5",
+  "workup": {
+    "reason_code_summary": "The issuer alleges the cardholder paid £189.99 for clothing ordered on 22 March 2025 and the package never arrived. To defend under Visa 13.1, the merchant must show carrier proof of delivery (tracking number, carrier, delivery confirmation to the cardholder's address). For services, it must show the service was rendered. It must also show delivery on or before the chargeback date (18 April 2025) to an address that materially matches the one given at purchase.",
+    "requirements": [
+      {
+        "requirement_id": 1,
+        "status": "satisfied",
+        "pointers": [
+          {
+            "document": "CB-2025-0001_delivery_confirmation.pdf",
+            "page": 1,
+            "quote": "Royal Mail — Tracking & Delivery Confirmation"
+          },
+          {
+            "document": "CB-2025-0001_delivery_confirmation.pdf",
+            "page": 1,
+            "quote": "Tracking number: RM98421144GB"
+          },
+          {
+            "document": "CB-2025-0001_delivery_confirmation.pdf",
+            "page": 1,
+            "quote": "DELIVERED — signed by WHITFORD 24 Mar 2025 11:47 SW4 7QR"
+          }
+        ],
+        "reasoning": "The Royal Mail confirmation gives the carrier name and tracking number RM98421144GB. It records a signed delivery by WHITFORD to 22 Cavendish Court, London SW4 7QR, which is the cardholder's address."
+      },
+      {
+        "requirement_id": 2,
+        "status": "satisfied",
+        "pointers": [
+          {
+            "document": "CB-2025-0001_carrier_tracking.pdf",
+            "page": 1,
+            "quote": "1× Heritage Wool Overcoat, charcoal, size L — £189.99"
+          }
+        ],
+        "reasoning": "This requirement does not apply: the transaction is for physical merchandise (an overcoat), not services. It is marked satisfied only because it is not applicable; no service-rendered evidence is needed."
+      },
+      {
+        "requirement_id": 3,
+        "status": "satisfied",
+        "pointers": [
+          {
+            "document": "CB-2025-0001_delivery_confirmation.pdf",
+            "page": 1,
+            "quote": "This item was delivered to the address shown and signed for"
+          },
+          {
+            "document": "CB-2025-0001_delivery_confirmation.pdf",
+            "page": 1,
+            "quote": "DELIVERED — signed by WHITFORD 24 Mar 2025 11:47 SW4 7QR"
+          }
+        ],
+        "reasoning": "Delivery occurred on 24 March 2025. That is 25 days before the 18 April 2025 chargeback date."
+      },
+      {
+        "requirement_id": 4,
+        "status": "satisfied",
+        "pointers": [
+          {
+            "document": "CB-2025-0001_carrier_tracking.pdf",
+            "page": 1,
+            "quote": "Shipping address: 22 Cavendish Court, London SW4 7QR"
+          },
+          {
+            "document": "CB-2025-0001_delivery_confirmation.pdf",
+            "page": 1,
+            "quote": "22 Cavendish Court"
+          }
+        ],
+        "reasoning": "The carrier's recipient address, 22 Cavendish Court, London SW4 7QR, matches the shipping and billing address on the order. The pre-checks independently confirm billing and shipping postcodes match (SW4 7QR) and AVS returned Y."
+      }
+    ],
+    "rationale": "The cardholder ordered one Heritage Wool Overcoat (£189.99) on 22 March 2025, order #NT-44912, with AVS Y, CVV M and 3DS authenticated. The merchant dispatched the item on 23 March 2025 via Royal Mail Tracked 24 under tracking number RM98421144GB. Royal Mail records delivery on 24 March 2025 at 11:47 to 22 Cavendish Court, London SW4 7QR, signed for by WHITFORD, which matches the cardholder's surname. The delivery address matches the billing and shipping address supplied at purchase, and delivery predates the 18 April 2025 chargeback by 25 days. The claim that the merchandise was not received is contradicted by signed carrier proof of delivery, and we request the chargeback be reversed.",
+    "recommended_action": "represent",
+    "action_justification": "Signed Royal Mail proof of delivery to the matching cardholder address, dated before the chargeback, meets all applicable 13.1 requirements; the services requirement does not apply.",
+    "evidence_to_request": [],
+    "caveats": [
+      "Requirement 2 (services) is not applicable to this physical-goods transaction. It is marked satisfied on that basis only; confirm your filing treats it as N/A.",
+      "The file names appear swapped or mislabelled. 'CB-2025-0001_carrier_tracking.pdf' is the merchant's own order record, not a carrier document. The actual carrier proof is 'CB-2025-0001_delivery_confirmation.pdf'. Cite the Royal Mail document as the primary proof.",
+      "The signature is recorded only as 'WHITFORD' (surname), and the cardholder name is not in the case metadata. Confirm the cardholder's name matches M. Whitford.",
+      "The issuer says the cardholder contacted the merchant twice without resolution. Consider asking the merchant for that correspondence to confirm no claim of a lost, damaged or wrong item was raised that would undercut the delivery evidence.",
+      "A signature image is described as 'on file' but not included. The Royal Mail signature capture could strengthen the file if the issuer pushes back."
+    ],
+    "model_confidence": "high"
+  },
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "inference_geo": "global",
+    "input_tokens": 3940,
+    "output_tokens": 2260,
+    "output_tokens_details": {
+      "thinking_tokens": 489
+    },
+    "server_tool_use": null,
+    "service_tier": "standard"
+  },
+  "attempts": 1,
+  "validation_problems": [],
+  "rule_text": "Visa 13.1 - Merchandise / Services Not Received\nIssuer claim: Cardholder paid but never received the goods or services.\nLogic: ALL 4 requirements must be satisfied.\nCompelling evidence requirements:\n  1. Proof of delivery: tracking number, carrier name, and confirmation of delivery to the cardholder's address\n  2. For services: evidence the service was rendered on or before the expected date (booking confirmation, attendance log, access logs)\n  3. Date of delivery / service rendered is on or before the chargeback date\n  4. The delivery address materially matches the address provided by the cardholder at purchase",
+  "prechecks": [
+    "Representable under the rule: yes",
+    "AVS: Y (full address match); CVV: M (match); 3DS: authenticated",
+    "Shipping vs billing postcode: match",
+    "Chargeback raised 27 days after the transaction"
+  ],
+  "raw_response": {
+    "id": "msg_011CfK9RngAPEXnN7Ywp9nhV",
+    "container": null,
+    "content": [
+      {
+        "signature": "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",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "text": "{\"reason_code_summary\":\"The issuer alleges the cardholder paid £189.99 for clothing ordered on 22 March 2025 and the package never arrived. To defend under Visa 13.1, the merchant must show carrier proof of delivery (tracking number, carrier, delivery confirmation to the cardholder's address). For services, it must show the service was rendered. It must also show delivery on or before the chargeback date (18 April 2025) to an address that materially matches the one given at purchase.\",\"requirements\":[{\"requirement_id\":1,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0001_delivery_confirmation.pdf\",\"page\":1,\"quote\":\"Royal Mail — Tracking & Delivery Confirmation\"},{\"document\":\"CB-2025-0001_delivery_confirmation.pdf\",\"page\":1,\"quote\":\"Tracking number: RM98421144GB\"},{\"document\":\"CB-2025-0001_delivery_confirmation.pdf\",\"page\":1,\"quote\":\"DELIVERED — signed by WHITFORD 24 Mar 2025 11:47 SW4 7QR\"}],\"reasoning\":\"The Royal Mail confirmation gives the carrier name and tracking number RM98421144GB. It records a signed delivery by WHITFORD to 22 Cavendish Court, London SW4 7QR, which is the cardholder's address.\"},{\"requirement_id\":2,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0001_carrier_tracking.pdf\",\"page\":1,\"quote\":\"1× Heritage Wool Overcoat, charcoal, size L — £189.99\"}],\"reasoning\":\"This requirement does not apply: the transaction is for physical merchandise (an overcoat), not services. It is marked satisfied only because it is not applicable; no service-rendered evidence is needed.\"},{\"requirement_id\":3,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0001_delivery_confirmation.pdf\",\"page\":1,\"quote\":\"This item was delivered to the address shown and signed for\"},{\"document\":\"CB-2025-0001_delivery_confirmation.pdf\",\"page\":1,\"quote\":\"DELIVERED — signed by WHITFORD 24 Mar 2025 11:47 SW4 7QR\"}],\"reasoning\":\"Delivery occurred on 24 March 2025. That is 25 days before the 18 April 2025 chargeback date.\"},{\"requirement_id\":4,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0001_carrier_tracking.pdf\",\"page\":1,\"quote\":\"Shipping address: 22 Cavendish Court, London SW4 7QR\"},{\"document\":\"CB-2025-0001_delivery_confirmation.pdf\",\"page\":1,\"quote\":\"22 Cavendish Court\"}],\"reasoning\":\"The carrier's recipient address, 22 Cavendish Court, London SW4 7QR, matches the shipping and billing address on the order. The pre-checks independently confirm billing and shipping postcodes match (SW4 7QR) and AVS returned Y.\"}],\"rationale\":\"The cardholder ordered one Heritage Wool Overcoat (£189.99) on 22 March 2025, order #NT-44912, with AVS Y, CVV M and 3DS authenticated. The merchant dispatched the item on 23 March 2025 via Royal Mail Tracked 24 under tracking number RM98421144GB. Royal Mail records delivery on 24 March 2025 at 11:47 to 22 Cavendish Court, London SW4 7QR, signed for by WHITFORD, which matches the cardholder's surname. The delivery address matches the billing and shipping address supplied at purchase, and delivery predates the 18 April 2025 chargeback by 25 days. The claim that the merchandise was not received is contradicted by signed carrier proof of delivery, and we request the chargeback be reversed.\",\"recommended_action\":\"represent\",\"action_justification\":\"Signed Royal Mail proof of delivery to the matching cardholder address, dated before the chargeback, meets all applicable 13.1 requirements; the services requirement does not apply.\",\"evidence_to_request\":[],\"caveats\":[\"Requirement 2 (services) is not applicable to this physical-goods transaction. It is marked satisfied on that basis only; confirm your filing treats it as N/A.\",\"The file names appear swapped or mislabelled. 'CB-2025-0001_carrier_tracking.pdf' is the merchant's own order record, not a carrier document. The actual carrier proof is 'CB-2025-0001_delivery_confirmation.pdf'. Cite the Royal Mail document as the primary proof.\",\"The signature is recorded only as 'WHITFORD' (surname), and the cardholder name is not in the case metadata. Confirm the cardholder's name matches M. Whitford.\",\"The issuer says the cardholder contacted the merchant twice without resolution. Consider asking the merchant for that correspondence to confirm no claim of a lost, damaged or wrong item was raised that would undercut the delivery evidence.\",\"A signature image is described as 'on file' but not included. The Royal Mail signature capture could strengthen the file if the issuer pushes back.\"],\"model_confidence\":\"high\"}",
+        "type": "text",
+        "parsed_output": {
+          "reason_code_summary": "The issuer alleges the cardholder paid £189.99 for clothing ordered on 22 March 2025 and the package never arrived. To defend under Visa 13.1, the merchant must show carrier proof of delivery (tracking number, carrier, delivery confirmation to the cardholder's address). For services, it must show the service was rendered. It must also show delivery on or before the chargeback date (18 April 2025) to an address that materially matches the one given at purchase.",
+          "requirements": [
+            {
+              "requirement_id": 1,
+              "status": "satisfied",
+              "pointers": [
+                {
+                  "document": "CB-2025-0001_delivery_confirmation.pdf",
+                  "page": 1,
+                  "quote": "Royal Mail — Tracking & Delivery Confirmation"
+                },
+                {
+                  "document": "CB-2025-0001_delivery_confirmation.pdf",
+                  "page": 1,
+                  "quote": "Tracking number: RM98421144GB"
+                },
+                {
+                  "document": "CB-2025-0001_delivery_confirmation.pdf",
+                  "page": 1,
+                  "quote": "DELIVERED — signed by WHITFORD 24 Mar 2025 11:47 SW4 7QR"
+                }
+              ],
+              "reasoning": "The Royal Mail confirmation gives the carrier name and tracking number RM98421144GB. It records a signed delivery by WHITFORD to 22 Cavendish Court, London SW4 7QR, which is the cardholder's address."
+            },
+            {
+              "requirement_id": 2,
+              "status": "satisfied",
+              "pointers": [
+                {
+                  "document": "CB-2025-0001_carrier_tracking.pdf",
+                  "page": 1,
+                  "quote": "1× Heritage Wool Overcoat, charcoal, size L — £189.99"
+                }
+              ],
+              "reasoning": "This requirement does not apply: the transaction is for physical merchandise (an overcoat), not services. It is marked satisfied only because it is not applicable; no service-rendered evidence is needed."
+            },
+            {
+              "requirement_id": 3,
+              "status": "satisfied",
+              "pointers": [
+                {
+                  "document": "CB-2025-0001_delivery_confirmation.pdf",
+                  "page": 1,
+                  "quote": "This item was delivered to the address shown and signed for"
+                },
+                {
+                  "document": "CB-2025-0001_delivery_confirmation.pdf",
+                  "page": 1,
+                  "quote": "DELIVERED — signed by WHITFORD 24 Mar 2025 11:47 SW4 7QR"
+                }
+              ],
+              "reasoning": "Delivery occurred on 24 March 2025. That is 25 days before the 18 April 2025 chargeback date."
+            },
+            {
+              "requirement_id": 4,
+              "status": "satisfied",
+              "pointers": [
+                {
+                  "document": "CB-2025-0001_carrier_tracking.pdf",
+                  "page": 1,
+                  "quote": "Shipping address: 22 Cavendish Court, London SW4 7QR"
+                },
+                {
+                  "document": "CB-2025-0001_delivery_confirmation.pdf",
+                  "page": 1,
+                  "quote": "22 Cavendish Court"
+                }
+              ],
+              "reasoning": "The carrier's recipient address, 22 Cavendish Court, London SW4 7QR, matches the shipping and billing address on the order. The pre-checks independently confirm billing and shipping postcodes match (SW4 7QR) and AVS returned Y."
+            }
+          ],
+          "rationale": "The cardholder ordered one Heritage Wool Overcoat (£189.99) on 22 March 2025, order #NT-44912, with AVS Y, CVV M and 3DS authenticated. The merchant dispatched the item on 23 March 2025 via Royal Mail Tracked 24 under tracking number RM98421144GB. Royal Mail records delivery on 24 March 2025 at 11:47 to 22 Cavendish Court, London SW4 7QR, signed for by WHITFORD, which matches the cardholder's surname. The delivery address matches the billing and shipping address supplied at purchase, and delivery predates the 18 April 2025 chargeback by 25 days. The claim that the merchandise was not received is contradicted by signed carrier proof of delivery, and we request the chargeback be reversed.",
+          "recommended_action": "represent",
+          "action_justification": "Signed Royal Mail proof of delivery to the matching cardholder address, dated before the chargeback, meets all applicable 13.1 requirements; the services requirement does not apply.",
+          "evidence_to_request": [],
+          "caveats": [
+            "Requirement 2 (services) is not applicable to this physical-goods transaction. It is marked satisfied on that basis only; confirm your filing treats it as N/A.",
+            "The file names appear swapped or mislabelled. 'CB-2025-0001_carrier_tracking.pdf' is the merchant's own order record, not a carrier document. The actual carrier proof is 'CB-2025-0001_delivery_confirmation.pdf'. Cite the Royal Mail document as the primary proof.",
+            "The signature is recorded only as 'WHITFORD' (surname), and the cardholder name is not in the case metadata. Confirm the cardholder's name matches M. Whitford.",
+            "The issuer says the cardholder contacted the merchant twice without resolution. Consider asking the merchant for that correspondence to confirm no claim of a lost, damaged or wrong item was raised that would undercut the delivery evidence.",
+            "A signature image is described as 'on file' but not included. The Royal Mail signature capture could strengthen the file if the issuer pushes back."
+          ],
+          "model_confidence": "high"
+        }
+      }
+    ],
+    "model": "claude-opus-5-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "inference_geo": "global",
+      "input_tokens": 3940,
+      "output_tokens": 2260,
+      "output_tokens_details": {
+        "thinking_tokens": 489
+      },
+      "service_tier": "standard"
+    }
+  }
+}

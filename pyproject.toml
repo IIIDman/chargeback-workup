@@ -17,6 +17,10 @@ dev = [
     "ruff>=0.16.5",
 ]
 
+[tool.uv]
+# Reproducible resolution: ignore packages published after this date.
+exclude-newer = "2026-08-28T18:36:18Z"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]

@@ -79,3 +79,11 @@ def test_validate_pointers_accepts_clean_workup():
         RequirementAssessment(requirement_id=1, status=Status.missing, pointers=[], reasoning="none"),
     ], action=Action.request_more_evidence, ask=["tracking"])
     assert validate_pointers(w, {}, n_requirements=1) == []
+
+
+def test_validate_pointers_not_applicable_must_have_no_pointer():
+    w = _workup([
+        RequirementAssessment(requirement_id=1, status=Status.not_applicable,
+                              pointers=[EvidencePointer(document="a.pdf", page=1, quote="x")], reasoning="n/a"),
+    ])
+    assert any("not_applicable but has pointers" in p for p in validate_pointers(w, {"a.pdf": 1}, n_requirements=1))

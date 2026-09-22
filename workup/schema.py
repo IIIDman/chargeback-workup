@@ -56,6 +56,7 @@ class Status(str, Enum):
     satisfied = "satisfied"
     partial = "partial"
     missing = "missing"
+    not_applicable = "not_applicable"  # the requirement does not apply to this transaction type
 
 
 class Action(str, Enum):
@@ -78,7 +79,7 @@ class RequirementAssessment(BaseModel):
     status: Status
     pointers: list[EvidencePointer] = Field(
         description="Where the evidence is. Must be non-empty when status is satisfied or partial. "
-        "Empty when missing."
+        "Empty when missing or not_applicable."
     )
     reasoning: str = Field(description="One or two sentences: why this status, what is missing if partial.")
 
@@ -121,8 +122,8 @@ def validate_pointers(workup: Workup, case_docs: dict[str, int], n_requirements:
     for r in workup.requirements:
         if r.status in (Status.satisfied, Status.partial) and not r.pointers:
             problems.append(f"requirement {r.requirement_id} is {r.status.value} but has no pointers")
-        if r.status is Status.missing and r.pointers:
-            problems.append(f"requirement {r.requirement_id} is missing but has pointers")
+        if r.status in (Status.missing, Status.not_applicable) and r.pointers:
+            problems.append(f"requirement {r.requirement_id} is {r.status.value} but has pointers")
         for p in r.pointers:
             if p.document not in case_docs:
                 problems.append(f"requirement {r.requirement_id} points to unknown document {p.document!r}")

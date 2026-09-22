@@ -31,7 +31,9 @@ narrative, and the merchant's evidence documents as page-by-page text (images ar
 Rules for your assessment:
 1. Assess each requirement of the rule, in order, one entry per requirement.
    - satisfied: the evidence clearly meets it. partial: something relevant exists but a specific element is
-     missing or unproven. missing: nothing in the evidence addresses it.
+     missing or unproven. missing: nothing in the evidence addresses it. not_applicable: the requirement is
+     conditional on something that is not the case here (e.g. a services-only requirement on a physical-goods
+     order, a tip clause when no tip was added); say why in the reasoning and give no pointer.
    - Every satisfied or partial assessment needs at least one pointer: the exact document filename, the page,
      and a verbatim quote copied from that page. Never paraphrase inside a quote. If nothing quotable supports
      the status, the status is missing.
@@ -139,7 +141,7 @@ def request_workup(case: Case, rule: ReasonCode, prechecks: PreChecks, documents
     usage = response.usage.model_dump() if hasattr(response.usage, "model_dump") else dict(response.usage)
     return LLMResult(
         workup=workup,
-        raw_response=response.to_dict(),
+        raw_response=response.model_dump(mode="json", warnings=False),  # ParsedMessage carries extra fields
         usage=usage,
         attempts=attempts,
         validation_problems=problems,

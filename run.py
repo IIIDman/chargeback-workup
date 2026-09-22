@@ -23,7 +23,7 @@ from workup.schema import Status
 
 app = typer.Typer(add_completion=False)
 
-ICON = {Status.satisfied: "[x]", Status.partial: "[~]", Status.missing: "[ ]"}
+ICON = {Status.satisfied: "[x]", Status.partial: "[~]", Status.missing: "[ ]", Status.not_applicable: "[-]"}
 
 
 def render(r: CaseResult) -> str:
