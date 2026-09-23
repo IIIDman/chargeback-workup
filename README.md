@@ -29,7 +29,7 @@ To regenerate the workups (or run a new case) you need a key:
 
 ```bash
 cp .env.example .env                   # then set ANTHROPIC_API_KEY
-uv run python run.py --all             # all ten, about $0.63 on claude-opus-5-5
+uv run python run.py --all             # all ten, about $0.61 on claude-opus-5-5
 uv run python run.py CB-2025-0004 --recompute   # one case, ignoring its cache
 uv run python run.py CB-2025-0004 --dry-run     # print the exact prompt, make no call
 ```
@@ -44,9 +44,9 @@ pointer to the document, the page and a **verbatim quote**, and the reasoning. T
 recommended action, what to ask the merchant for, and caveats. Every case carries a confidence tier with
 the reasons that produced it.
 
-On the ten provided cases: **47 pointers, 41 verified verbatim against the extracted text, 0 not found**,
-6 pointing at images (not text-verifiable by design). Queue: 5 high, 3 medium, 2 needs review. Total cost
-of a full run: $0.63.
+On the ten provided cases: **46 pointers, 40 verified verbatim against the extracted text, 0 not found**,
+6 pointing at images (not text-verifiable by design). Queue: 6 high, 2 medium, 2 needs review. Total cost
+of a full run: $0.61.
 
 ## Design decisions
 
@@ -67,9 +67,12 @@ OCR step in `extract_pages`; there are none here, and I checked (tesseract outpu
 response format, so statuses and actions are enums rather than prose. What a JSON schema cannot express is
 checked afterwards in `validate_pointers`: the document must be one of this case's files, the page must
 exist in it, a satisfied requirement must carry a pointer. A failure sends the model its own answer plus the
-list of problems for one corrective round-trip. On the first full run that fired on two of ten cases and
-both passed; on the committed run every case validated first time. If problems survive the retry they are
-kept and the case is marked needs review rather than trusted.
+list of problems for one corrective round-trip. On the committed run that fired on two of ten cases: one
+answer carried a requirement id the rule does not have, the other returned one requirement of three and an
+empty request list under request_more_evidence. Both validated on the second attempt. If problems survive
+the retry they are kept and the case is marked needs review rather than trusted. An answer that does not
+parse at all is retried once from scratch and then raised as an error, never cached: one run produced JSON
+that degenerated into repeated asterisks mid-string, which is what that path is for.
 
 **Field order is the order the model writes in.** The rationale sits after the recommended action and the
 list of evidence still needed, so the filed text is written after the model has said what is missing. In
@@ -121,6 +124,10 @@ is dated 26 April while the booking says the rate was charged on 12 March, which
 possible. I also lowered the attention level I expected on one case after seeing that the output was a
 clean, actionable request list. All three edits keep the original value in `expected.json` with the
 reason, and `compare.py` prints `(key revised: ...)` on those rows.
+
+Current run: ten of ten on action, nine of ten on caution. The miss is a case where the tool says high on
+a request for evidence with one of four requirements satisfied, and I would have wanted medium. I left the
+tier rules alone rather than tune them to one case; the row is printed as a miss.
 
 ## Limitations
 
