@@ -7,7 +7,7 @@ code, a postcode mismatch, a date ordering) out of its hands.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import datetime
 
 from .rules import ReasonCode
 from .schema import Case
@@ -22,6 +22,8 @@ class PreChecks:
     cvv: str
     three_ds: str
     days_to_chargeback: int
+    avs_and_cvv_failed: bool = False
+    amount_mismatch: bool = False
     flags: list[str] = field(default_factory=list)  # things worth the analyst's attention
 
     def as_lines(self) -> list[str]:
@@ -58,7 +60,7 @@ def run_prechecks(case: Case, rule: ReasonCode) -> PreChecks:
     postcode_match = None if ship is None else (ship == bill)
 
     txn_day = datetime.fromisoformat(t.transaction_date.replace("Z", "+00:00")).date()
-    cb_day = date.fromisoformat(case.chargeback_date)
+    cb_day = datetime.fromisoformat(case.chargeback_date.replace("Z", "+00:00")).date()  # date or timestamp
     days = (cb_day - txn_day).days
 
     flags: list[str] = []
@@ -69,13 +71,15 @@ def run_prechecks(case: Case, rule: ReasonCode) -> PreChecks:
             f"shipping postcode {t.shipping_address_postcode} differs from billing postcode "
             f"{t.billing_address_postcode}; delivery-to-cardholder-address requirements are at risk"
         )
-    if t.avs_result == "N" and t.cvv_result == "N":
+    avs_and_cvv_failed = t.avs_result == "N" and t.cvv_result == "N"
+    if avs_and_cvv_failed:
         flags.append("both AVS and CVV failed on the disputed transaction")
     if t.three_ds_status == "not_attempted":
         flags.append("3DS was not attempted")
     if days < 0:
         flags.append("chargeback date precedes transaction date: data problem")
-    if (case.chargeback_amount.value, case.chargeback_amount.currency) != (t.amount.value, t.amount.currency):
+    amount_mismatch = (case.chargeback_amount.value, case.chargeback_amount.currency) != (t.amount.value, t.amount.currency)
+    if amount_mismatch:
         flags.append(
             f"chargeback amount {case.chargeback_amount.value} {case.chargeback_amount.currency} differs from "
             f"transaction amount {t.amount.value} {t.amount.currency}"
@@ -89,5 +93,7 @@ def run_prechecks(case: Case, rule: ReasonCode) -> PreChecks:
         cvv=CVV.get(t.cvv_result, t.cvv_result or "not run"),
         three_ds=t.three_ds_status,
         days_to_chargeback=days,
+        avs_and_cvv_failed=avs_and_cvv_failed,
+        amount_mismatch=amount_mismatch,
         flags=flags,
     )

@@ -49,7 +49,8 @@
     ],
     "tier": "high",
     "why": "Page 8 of the 10-page manifest: TF-9051 ref txn_7745MN collected from LS1 4DT and delivered to LS9 8AA on 22 Apr, before the 14 May chargeback.",
-    "note_on_alternative": "The tool argued request_more_evidence because TerraFreight is itself the carrier, so the manifest is self-attestation, and the POD image it references was not supplied. That is a fair reading of 'tracking + carrier confirmation', so it is listed as acceptable. The designed test here was finding page 8 among nine pages of filler, and it did."
+    "original_also_acceptable": [],
+    "revised_because": "The tool argued request_more_evidence because TerraFreight is itself the carrier, so the manifest is self-attestation, and the POD image it references was not supplied. That is a fair reading of 'tracking + carrier confirmation', so it is listed as acceptable. The designed test here was finding page 8 among nine pages of filler, and it did."
   },
   "CB-2025-0008": {
     "action": "request_more_evidence",

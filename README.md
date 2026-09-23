@@ -13,22 +13,25 @@ case ─┬─ scheme rule (encoded)      ─┐
 
 ## Run it
 
-```bash
-cp .env.example .env         # add your ANTHROPIC_API_KEY
-uv sync
+Needs [uv](https://docs.astral.sh/uv/) (`curl -LsSf https://astral.sh/uv/install.sh | sh`). Python 3.12 is
+fetched by uv if absent. No API key is needed for anything below: the ten workups are committed under
+`artifacts/` and every command serves from them.
 
-uv run streamlit run app.py  # the analyst UI, reads cached results, no API key needed
+```bash
+uv sync
+uv run pytest                          # tests, no network
+uv run python scripts/compare.py       # tool output vs my hand-written expectations
+uv run python run.py CB-2025-0001      # one case as markdown, from cache
+uv run streamlit run app.py            # the analyst UI
 ```
 
-Ten workups are committed under `artifacts/`, so the UI works offline and costs nothing. To regenerate:
+To regenerate the workups (or run a new case) you need a key:
 
 ```bash
-uv run python run.py CB-2025-0001      # one case, markdown to stdout
+cp .env.example .env                   # then set ANTHROPIC_API_KEY
 uv run python run.py --all             # all ten, about $0.63 on claude-opus-5-5
-uv run python run.py CB-2025-0004 --dry-run   # show the exact prompt, make no call
-
-uv run python scripts/compare.py       # tool output vs my hand-written expectations
-uv run pytest                          # 29 tests, no network
+uv run python run.py CB-2025-0004 --recompute   # one case, ignoring its cache
+uv run python run.py CB-2025-0004 --dry-run     # print the exact prompt, make no call
 ```
 
 `WORKUP_MODEL` in `.env` overrides the model. The model id is part of the cache key, so switching models
@@ -50,8 +53,9 @@ of a full run: $0.63.
 **Split the job between code and the model.** The model reads documents; code owns everything that can be
 decided without reading. The rule logic (`all` / `any two` / `any one` / non-representable) is encoded as
 data in `workup/rules.py`, and `workup/checks.py` computes AVS/CVV/3DS, postcode match, date ordering and
-amount agreement from the transaction record. So Visa 10.5 is accept-liability before any document is
-opened, and a merchant document cannot talk the tool out of a failed AVS.
+amount agreement from the transaction record. So the outcome for Visa 10.5 is fixed by code whatever the
+documents say (today the model is still called; skipping the call for rule-only codes is the first
+production change), and a merchant document cannot talk the tool out of a failed AVS.
 
 **Extract the text myself rather than posting PDFs to the model.** `workup/docs.py` pulls each page with
 `pdfplumber`, and the page arrives in the prompt inside `<document name= page= of=>`. That buys three
@@ -63,18 +67,24 @@ OCR step in `extract_pages`; there are none here, and I checked (tesseract outpu
 response format, so statuses and actions are enums rather than prose. What a JSON schema cannot express is
 checked afterwards in `validate_pointers`: the document must be one of this case's files, the page must
 exist in it, a satisfied requirement must carry a pointer. A failure sends the model its own answer plus the
-list of problems for one corrective round-trip. That fired on two of ten cases and both then passed.
+list of problems for one corrective round-trip. On the first full run that fired on two of ten cases and
+both passed; on the committed run every case validated first time. If problems survive the retry they are
+kept and the case is marked needs review rather than trusted.
 
-**Field order is generation order.** The rationale is the last thing the model writes, after it has
-committed to the statuses, the action and the evidence it still needs. In the first version the rationale
-came first, and on one case it asserted a proof-of-delivery image that the same response listed as missing.
+**Field order is the order the model writes in.** The rationale sits after the recommended action and the
+list of evidence still needed, so the filed text is written after the model has said what is missing. In
+the first version it came straight after the requirement statuses, and on one case it asserted a
+proof-of-delivery image that the same response asked the merchant for. I moved the field and, in the same
+change, added a prompt rule against exactly that; I did not test them separately, so I cannot say which one
+did the work. The reordering is the part that does not depend on the model following instructions.
 
 **Confidence is computed, not asked for.** The model's own confidence is one weak input among several in
 `workup/confidence.py`. The tier comes from things that can be checked: does the count of satisfied
 requirements meet the rule's logic, were the cited quotes actually on the cited pages, does a transaction
-fact cut against the recommendation, does a requirement rest on an image that code cannot read, and how
-big is the gap when more evidence is requested (asking is cheap for the tool and expensive for the analyst
-and the merchant). Two rules took a wrong turn first and are worth stating:
+fact cut against the recommendation, does a requirement rest on an image that code cannot read, how big is
+the gap when more evidence is requested (asking is cheap for the tool and expensive for the analyst and the
+merchant), and does the filed rationale mention something the same workup asks the merchant for. Two rules
+took a wrong turn first and are worth stating:
 
 - *Direction-neutral.* Accepting liability means the merchant eats the loss; it is a decision too, so
   conceding a case where requirements are partly met is `needs_review` in its own right.
@@ -105,11 +115,12 @@ at least as cautious as I was, plus the tier distribution, because "mark everyth
 score perfectly on caution while saving nobody any time.
 
 First run: agreement on eight of ten. Of the two disagreements, one is a fair judgement call (whether a
-freight company's own manifest counts as carrier confirmation when it is also the carrier), and on the
-other the tool was right and I was wrong: it noticed the hotel charge is dated 26 April while the booking
-says the rate was charged on 12 March, which makes a duplicate charge possible. I changed my answer, kept
-the original visible in `expected.json` with the reason, and `compare.py` prints `(key revised: ...)` on
-those rows.
+freight company's own manifest counts as carrier confirmation when it is also the carrier), which I added
+as an acceptable alternative. On the other the tool was right and I was wrong: it noticed the hotel charge
+is dated 26 April while the booking says the rate was charged on 12 March, which makes a duplicate charge
+possible. I also lowered the attention level I expected on one case after seeing that the output was a
+clean, actionable request list. All three edits keep the original value in `expected.json` with the
+reason, and `compare.py` prints `(key revised: ...)` on those rows.
 
 ## Limitations
 
@@ -119,8 +130,9 @@ those rows.
 - The rationale-consistency check matches identifier-shaped tokens and over-fires when a reference is used
   as context in a request; it raises the tier to medium and tells the analyst what to look at.
 - Ten cases is not an evaluation. It is enough to catch design errors, which it did, and not enough to
-  quote an accuracy number. Two confidence rules were added after seeing where the tool and I disagreed,
-  which is how a small set should be used, and also why a number from it means little.
+  quote an accuracy number. Four of the confidence rules were added or changed after seeing where the tool
+  and I disagreed, which is how a small set should be used, and also why a number from it means little.
+- The UI keeps an analyst's edits only until they switch case; approving records them.
 - No auth, no deployment, no concurrency, single-user decision log.
 
 ## If this were going into production

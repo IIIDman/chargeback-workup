@@ -87,3 +87,11 @@ def test_validate_pointers_not_applicable_must_have_no_pointer():
                               pointers=[EvidencePointer(document="a.pdf", page=1, quote="x")], reasoning="n/a"),
     ])
     assert any("not_applicable but has pointers" in p for p in validate_pointers(w, {"a.pdf": 1}, n_requirements=1))
+
+
+def test_compare_script_runs_from_any_cwd(tmp_path):
+    import subprocess, sys
+    script = Path(__file__).parent.parent / "scripts" / "compare.py"
+    out = subprocess.run([sys.executable, str(script)], cwd=tmp_path, capture_output=True, text=True, timeout=120)
+    assert out.returncode == 0, out.stderr
+    assert "action agreement" in out.stdout

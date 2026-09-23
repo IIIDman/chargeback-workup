@@ -18,6 +18,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from pydantic import ValidationError  # noqa: E402
+
 from workup.pipeline import ARTIFACTS, CaseResult, load_cases, run_case  # noqa: E402
 from workup.schema import Action, Status  # noqa: E402
 
@@ -49,7 +51,7 @@ def load_results() -> dict[str, CaseResult]:
             continue
         try:
             out[case_id] = run_case(case, allow_api=False)  # the UI never calls the API
-        except LookupError:
+        except (LookupError, ValidationError):
             stale.append(case_id)
     if stale:
         st.warning(f"Cached workups are stale for {', '.join(stale)} (the prompt changed since they were "
@@ -84,7 +86,7 @@ with st.sidebar:
     st.markdown("### Queue")
     open_count = sum(1 for cid in order if cid not in decided)
     st.caption(f"{open_count} open of {len(order)} · hardest first")
-    if "selected" not in st.session_state:
+    if st.session_state.get("selected") not in results:
         st.session_state.selected = order[0]
     for cid in order:
         r = results[cid]
@@ -99,9 +101,10 @@ with st.sidebar:
             st.rerun()
     st.divider()
     st.caption(f"Decisions recorded: {len(decided)}")
-    if decided and st.button("Export decisions as JSON", use_container_width=True):
-        st.download_button("Download", json.dumps(list(decided.values()), indent=2),
+    if decided:
+        st.download_button("Export decisions as JSON", json.dumps(list(decided.values()), indent=2),
                            "decisions.json", "application/json", use_container_width=True)
+    st.caption("Edits are kept per case only until you switch case; approve to record them.")
 
 # -------------------------------------------------------------------------- case header
 
@@ -160,8 +163,15 @@ if not rule.requirements:
     st.info(f"{rule.scheme.title()} {rule.code} is not representable under the simplified rules, so the "
             "merchant's evidence was not assessed. " + (rule.note or ""))
 overrides: dict[int, str] = {}
+seen_ids: set[int] = set()
 for ra in w.requirements:
-    req = next(x for x in rule.requirements if x.id == ra.requirement_id)
+    if ra.requirement_id in seen_ids:
+        continue  # a duplicated id would also duplicate widget keys
+    seen_ids.add(ra.requirement_id)
+    req = next((x for x in rule.requirements if x.id == ra.requirement_id), None)
+    if req is None:
+        st.warning(f"The model returned requirement {ra.requirement_id}, which this rule does not have. Ignored.")
+        continue
     v = ver[ra.requirement_id]
     default = v.effective_status.value
     saved = (prior or {}).get("requirement_overrides", {}).get(str(ra.requirement_id))
@@ -225,7 +235,6 @@ with dec_r:
                 "evidence_to_request": [x for x in ask.splitlines() if x.strip()],
                 "note": note,
             }, ensure_ascii=False) + "\n")
-        st.cache_resource.clear()
         nxt = [c for c in order if c != case.case_id and c not in decided]
         st.session_state.selected = nxt[0] if nxt else case.case_id
         st.rerun()

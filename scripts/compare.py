@@ -22,17 +22,21 @@ RANK = {"high": 0, "medium": 1, "needs_review": 2}
 
 
 def main() -> int:
-    expected = {k: v for k, v in json.loads(Path("expected.json").read_text()).items() if not k.startswith("_")}
+    root = Path(__file__).resolve().parent.parent
+    expected = {k: v for k, v in json.loads((root / "expected.json").read_text()).items() if not k.startswith("_")}
     cases = load_cases()
     rows, action_ok, tier_ok = [], 0, 0
     tiers: dict[str, int] = {"high": 0, "medium": 0, "needs_review": 0}
     for cid, exp in expected.items():
+        if cid not in cases:
+            rows.append((cid, "(in expected.json but not in cases.json)", "", "", ""))
+            continue
         if not (ARTIFACTS / f"{cid}.json").exists():
             rows.append((cid, "(no cached result: run `uv run python run.py --all` first)", "", "", ""))
             continue
         try:
             r = run_case(cases[cid], allow_api=False)  # never calls the API
-        except LookupError as e:
+        except (LookupError, Exception) as e:
             rows.append((cid, f"(stale cache: {e})", "", "", ""))
             continue
         got = r.assessment.final_action.value
@@ -43,12 +47,14 @@ def main() -> int:
         tier_ok += t_ok
         tiers[r.assessment.tier] += 1
         revised = ""
-        if exp.get("original") or exp.get("original_tier"):
-            bits = []
-            if exp.get("original"):
-                bits.append(f"action was {exp['original']}")
-            if exp.get("original_tier"):
-                bits.append(f"tier was {exp['original_tier']}")
+        bits = []
+        if "original" in exp:
+            bits.append(f"action was {exp['original']}")
+        if "original_tier" in exp:
+            bits.append(f"tier was {exp['original_tier']}")
+        if "original_also_acceptable" in exp:
+            bits.append(f"also_acceptable was {exp['original_also_acceptable'] or 'empty'}")
+        if bits:
             revised = f"  (key revised: {', '.join(bits)})"
         rows.append((
             cid,

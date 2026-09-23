@@ -5,10 +5,11 @@ A quote we cannot find is not proof of hallucination (extraction can mangle a ta
 the thing an analyst should not have to discover by opening the PDF. So:
 
 - a pointer is `verified=True` if its normalised quote is a substring of the normalised page text
-  (second attempt with punctuation stripped, to survive extraction quirks);
+  (second attempt with punctuation stripped, to survive extraction quirks), and the quote is long enough
+  to mean something (a single short token would match almost any page);
 - pointers into images are `verified=None`: we have no text to check against, the analyst must look;
-- a requirement marked satisfied with no verified text pointer is downgraded to partial, and the reason
-  is recorded so the UI can show it.
+- a requirement marked satisfied with no verified text pointer, including one with no pointer at all, is
+  downgraded to partial, and the reason is recorded so the UI can show it.
 """
 from __future__ import annotations
 
@@ -19,6 +20,8 @@ from .docs import Document, normalize
 from .schema import Status, Workup
 
 _PUNCT = re.compile(r"[^\w\s]")
+MIN_QUOTE_CHARS = 8   # a normalised quote shorter than this must have at least...
+MIN_QUOTE_WORDS = 2   # ...this many words to count ("ECI 02" passes, "not" does not)
 
 
 @dataclass
@@ -48,19 +51,23 @@ class RequirementVerification:
         return sum(1 for p in self.pointers if p.verified is False)
 
     @property
+    def image_count(self) -> int:
+        return sum(1 for p in self.pointers if p.verified is None)
+
+    @property
     def image_only(self) -> bool:
         return bool(self.pointers) and all(p.verified is None for p in self.pointers)
 
 
 def quote_in_text(quote: str, page_text: str) -> bool:
     q, t = normalize(quote), normalize(page_text)
-    if not q:
+    if len(q) < MIN_QUOTE_CHARS and len(q.split()) < MIN_QUOTE_WORDS:
         return False
     if q in t:
         return True
-    q2, t2 = _PUNCT.sub("", q), _PUNCT.sub("", t)
-    q2, t2 = re.sub(r"\s+", " ", q2).strip(), re.sub(r"\s+", " ", t2)
-    return bool(q2) and q2 in t2
+    q2 = re.sub(r"\s+", " ", _PUNCT.sub("", q)).strip()
+    t2 = re.sub(r"\s+", " ", _PUNCT.sub("", t))
+    return len(q2) >= MIN_QUOTE_CHARS // 2 and q2 in t2
 
 
 def verify_workup(workup: Workup, documents: list[Document]) -> list[RequirementVerification]:
@@ -82,11 +89,18 @@ def verify_workup(workup: Workup, documents: list[Document]) -> list[Requirement
                 ok = False
             rv.pointers.append(PointerCheck(p.document, p.page, p.quote, ok, "" if ok else "quote not found on that page"))
 
-        if r.status is Status.satisfied and rv.pointers and rv.verified_count == 0 and not rv.image_only:
+        text_backed = rv.verified_count > 0
+        if r.status is Status.satisfied and not text_backed and not rv.image_only:
             rv.effective_status = Status.partial
             rv.downgraded = True
-            rv.note = "downgraded satisfied -> partial: none of the cited quotes were found in the document text"
-        elif r.status is Status.partial and rv.pointers and rv.verified_count == 0 and not rv.image_only:
+            if not rv.pointers:
+                rv.note = "downgraded satisfied -> partial: no evidence pointer was given"
+            elif rv.image_count:
+                rv.note = ("downgraded satisfied -> partial: the text quotes were not found in the document; "
+                           "the remaining support is an image the analyst must view")
+            else:
+                rv.note = "downgraded satisfied -> partial: none of the cited quotes were found in the document text"
+        elif r.status is Status.partial and rv.pointers and not text_backed and not rv.image_only:
             rv.note = "partial, but none of the cited quotes were found in the document text"
         elif rv.image_only and r.status in (Status.satisfied, Status.partial):
             rv.note = "supported by an image only; not text-verifiable, analyst should view it"
@@ -96,11 +110,22 @@ def verify_workup(workup: Workup, documents: list[Document]) -> list[Requirement
 
 # ----------------------------------------------------------- rationale self-consistency
 
-# identifier-shaped tokens only: must contain a digit, so "non-refundable" and "pre-renewal" are ignored
-_IDENT = re.compile(r"\b(?=[A-Za-z0-9_-]*\d)[A-Za-z][A-Za-z0-9]*(?:[-_][A-Za-z0-9]+)+\b")
+# Identifier-shaped tokens: letters/digits joined by - or _, at least one digit, at least 5 characters.
+# Pure numbers (2025, postcodes' digit runs) and plain hyphenated words (non-refundable) are ignored.
+_TOKEN = re.compile(r"\b[A-Za-z0-9]+(?:[-_][A-Za-z0-9]+)*\b")
 
 
-def rationale_conflicts(workup: Workup) -> list[str]:
+def _identifiers(text: str) -> set[str]:
+    out = set()
+    for m in _TOKEN.finditer(text):
+        tok = m.group()
+        core = tok.replace("-", "").replace("_", "")
+        if len(tok) >= 5 and any(c.isdigit() for c in tok) and not core.isdigit():  # skips dates, pure numbers
+            out.add(tok.lower())
+    return out
+
+
+def rationale_conflicts(workup: Workup, ignore: set[str] | None = None) -> list[str]:
     """Catch a rationale that asserts evidence the same workup says is missing.
 
     Found on the first full run: case 7's rationale read "the signed proof of delivery POD-9051-img and
@@ -109,16 +134,16 @@ def rationale_conflicts(workup: Workup) -> list[str]:
     evidence to request. The rationale is the text that gets filed, so an assertion about evidence we do
     not hold is the most expensive kind of error here.
 
-    The check is a smoke alarm, not a verdict: it matches identifier-shaped tokens carrying a digit that
-    appear both in the rationale and in the list of things to ask for. It over-fires when a reference is
-    used as context in the ask ("the folio for booking MSP-2025-4488"), so the message tells the analyst
-    what to look at rather than asserting an error, and it raises the tier to medium, not needs_review.
+    The check is a smoke alarm, not a verdict: it matches identifier-shaped tokens that appear both in the
+    rationale and in the list of things to ask for. Identifiers from the case record itself (transaction id,
+    case id) are passed in `ignore`, because mentioning them is always legitimate. It still over-fires when
+    a reference is used as context in the ask ("the folio for booking MSP-2025-4488"), so the message tells
+    the analyst what to look at rather than asserting an error, and it raises the tier to medium only.
     """
     asks = " ".join(workup.evidence_to_request)
     if not asks.strip():
         return []
-    in_rationale = {m.group().lower() for m in _IDENT.finditer(workup.rationale)}
-    in_asks = {m.group().lower() for m in _IDENT.finditer(asks)}
-    overlap = sorted(in_rationale & in_asks)
+    skip = {s.lower() for s in (ignore or set())}
+    overlap = sorted((_identifiers(workup.rationale) & _identifiers(asks)) - skip)
     return [f"the rationale mentions {ident!r}, which the workup also asks the merchant to supply: check it "
             f"is not claimed as proof we already hold" for ident in overlap]

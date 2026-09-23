@@ -51,8 +51,11 @@ def render(r: CaseResult) -> str:
         "## Evidence assessment",
     ]
     for ra in w.requirements:
-        req = next(x for x in r.rule.requirements if x.id == ra.requirement_id)
+        req = next((x for x in r.rule.requirements if x.id == ra.requirement_id), None)
         v = ver[ra.requirement_id]
+        if req is None:
+            out.append(f"[?] {ra.requirement_id}. (not a requirement of this rule; ignored in the count)")
+            continue
         status_txt = v.effective_status.value + (f" (model said {ra.status.value})" if v.downgraded else "")
         out.append(f"{ICON[v.effective_status]} {ra.requirement_id}. {req.text}")
         out.append(f"    {status_txt}: {ra.reasoning}")
@@ -85,6 +88,8 @@ def main(
     dry_run: bool = typer.Option(False, "--dry-run", help="print the prompt and exit without calling the API"),
 ):
     cases = load_cases()
+    if not all_cases and case_id is None:
+        raise typer.BadParameter("give a case id (e.g. CB-2025-0001) or --all")
     ids = list(cases) if all_cases else [case_id]
     if not all_cases and case_id not in cases:
         raise typer.BadParameter(f"unknown case {case_id!r}; known: {list(cases)}")
@@ -105,7 +110,16 @@ def main(
                     typer.echo(f"[image block: {block['source']['media_type']}, {len(block['source']['data'])} b64 chars]")
             typer.echo(f"\n(rule text used: {len(rule_as_text(rule))} chars; docs: {[d.name for d in docs]})")
             continue
-        result = run_case(case, recompute=recompute)
+        try:
+            result = run_case(case, recompute=recompute)
+        except Exception as e:  # keep going on --all, say plainly what happened
+            typer.echo(f"# {cid}: FAILED: {type(e).__name__}: {e}", err=True)
+            if "api_key" in str(e).lower() or "authentication" in type(e).__name__.lower():
+                typer.echo("  no usable ANTHROPIC_API_KEY and no fresh cache for this case; "
+                           "set the key in .env or run with the committed artifacts", err=True)
+            if not all_cases:
+                raise typer.Exit(1)
+            continue
         typer.echo(render(result))
         if not result.from_cache:
             typer.echo(f"usage: {json.dumps(result.usage)}")

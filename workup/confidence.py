@@ -1,23 +1,26 @@
 """Confidence tier for the analyst queue, computed from checkable signals rather than the model's own opinion.
 
-Tier is one of high / medium / needs_review, always with the list of reasons that produced it. The signals:
+Tier is one of high / medium / needs_review, always with the list of reasons that produced it. The signal
+families, in the order they are applied:
 
-- rule coverage: how many requirements are effectively satisfied vs how many the rule needs
-- agreement between the model's recommended action and that coverage
-- quote verification results (downgrades, unverified pointers, image-only support)
-- deterministic pre-check flags, counted only where they cut against the recommendation
-- the size of the gap when more evidence is requested: asking is cheap for the tool, not for the analyst
-- non-representable codes, where the action is forced by rule and the evidence is irrelevant
-- the model's self-reported confidence, as a minor input
+1. the rule itself: a non-representable code fixes the action, whatever the model proposed
+2. coverage: how many requirements are effectively satisfied against what the rule's logic needs, and
+   whether the recommended action agrees with that count (including partials, conceding a partly-met case,
+   and asking for evidence when most of the file is absent)
+3. verification: downgrades, quotes not found, support that rests only on an image
+4. transaction pre-checks, counted only where they cut against the recommendation
+5. the rationale mentioning something the workup also asks the merchant for
+6. the model's self-reported confidence, as a minor input
+7. leftover validation problems: a workup that still failed structural validation after the retry
 
-Two principles worth stating, because both were wrong in the first version:
+Three principles worth stating, because two of them were wrong in the first version:
 
-1. **Direction-neutral.** accept_liability means the merchant eats the loss and request_more_evidence costs
-   days; they are decisions too. Escalation does not only apply to represent.
-2. **Whatever code cannot check, a human must.** A requirement supported only by an image is not
-   text-verifiable, so it goes to needs_review rather than being quietly accepted.
-3. **A signal only counts against the recommendation it undermines.** A failed AVS makes a represent
-   doubtful; on an accept_liability it is the reason the recommendation is right, so it is not a warning.
+- **Direction-neutral.** accept_liability means the merchant eats the loss and request_more_evidence costs
+  days; they are decisions too. Escalation does not only apply to represent.
+- **Whatever code cannot check, a human must.** A requirement supported only by an image is not
+  text-verifiable, so it goes to needs_review rather than being quietly accepted.
+- **A transaction fact only counts against the recommendation it undermines.** A failed AVS makes a
+  represent doubtful; on an accept_liability it is the reason the recommendation is right, not a warning.
 
 The queue is sorted by tier so that confident cases take a minute and doubtful ones get attention.
 """
@@ -48,21 +51,28 @@ class Assessment:
 
 
 def coverage(rule: ReasonCode, verifications: list[RequirementVerification]) -> tuple[bool, int, int, int]:
-    """Return (rule_met, satisfied, required, applicable) using effective (post-verification) statuses."""
-    statuses = {v.requirement_id: v.effective_status for v in verifications}
-    applicable = [s for s in statuses.values() if s is not Status.not_applicable]
-    satisfied = sum(1 for s in applicable if s is Status.satisfied)
+    """Return (rule_met, satisfied, required, applicable) using effective (post-verification) statuses.
+
+    Iterates over the rule's own requirement ids: one the model did not return counts as missing, and an
+    id the rule does not have is ignored, so a truncated or padded answer cannot inflate coverage.
+    """
     if rule.logic == "non_representable":
         return False, 0, 0, 0
+    by_id = {v.requirement_id: v.effective_status for v in verifications}
+    statuses = [by_id.get(r.id, Status.missing) for r in rule.requirements]
+    applicable = [s for s in statuses if s is not Status.not_applicable]
+    satisfied = sum(1 for s in applicable if s is Status.satisfied)
     if rule.logic == "all":
         required = len(applicable)
-        return (len(applicable) > 0 and satisfied == required), satisfied, required, len(applicable)
+        return (required > 0 and satisfied == required), satisfied, required, required
     required = rule.required_count
     return satisfied >= required, satisfied, required, len(applicable)
 
 
 def assess(rule: ReasonCode, prechecks: PreChecks, workup: Workup,
-           verifications: list[RequirementVerification]) -> Assessment:
+           verifications: list[RequirementVerification],
+           validation_problems: list[str] | None = None,
+           known_identifiers: set[str] | None = None) -> Assessment:
     a = Assessment(tier="high", final_action=workup.recommended_action)
     sev: list[Tier] = []
 
@@ -90,8 +100,17 @@ def assess(rule: ReasonCode, prechecks: PreChecks, workup: Workup,
     else:
         a.reasons.append(cov)
 
-    partials = [v.requirement_id for v in verifications if v.effective_status is Status.partial]
-    satisfied_or_partial = [v.requirement_id for v in verifications
+    known_ids = {r.id for r in rule.requirements}
+    returned = [v for v in verifications if v.requirement_id in known_ids]
+    missing_ids = sorted(known_ids - {v.requirement_id for v in returned})
+    if missing_ids:
+        add("needs_review", f"requirement(s) {missing_ids} were not assessed by the model; counted as missing")
+    na = [v.requirement_id for v in returned if v.effective_status is Status.not_applicable]
+    if na and rule.logic == "all":
+        a.reasons.append(f"requirement(s) {na} marked not applicable by the model and excluded from the count; confirm")
+
+    partials = [v.requirement_id for v in returned if v.effective_status is Status.partial]
+    satisfied_or_partial = [v.requirement_id for v in returned
                             if v.effective_status in (Status.satisfied, Status.partial)]
     if partials and workup.recommended_action is Action.represent:
         add("needs_review", f"represent recommended with partial requirement(s): {partials}")
@@ -100,14 +119,14 @@ def assess(rule: ReasonCode, prechecks: PreChecks, workup: Workup,
         add("needs_review", f"accept_liability although requirement(s) {satisfied_or_partial} are met or partly met")
     # Asking costs the analyst a follow-up and the merchant goodwill. When most of the file is absent
     # rather than incomplete, the request is unlikely to close the gap and accepting may be the faster call.
-    missing = [v.requirement_id for v in verifications if v.effective_status is Status.missing]
+    missing = [v.requirement_id for v in returned if v.effective_status is Status.missing] + missing_ids
     if (workup.recommended_action is Action.request_more_evidence
             and a.applicable_count and len(missing) > a.applicable_count / 2):
         add("medium", f"request_more_evidence, but {len(missing)} of {a.applicable_count} applicable "
                       f"requirement(s) are missing entirely: the merchant would have to supply most of the file")
 
     # 3. verification outcomes
-    for v in verifications:
+    for v in returned:
         if v.downgraded:
             add("needs_review", f"requirement {v.requirement_id}: {v.note}")
         elif v.unverified_count:
@@ -116,8 +135,7 @@ def assess(rule: ReasonCode, prechecks: PreChecks, workup: Workup,
         if v.image_only and v.effective_status in (Status.satisfied, Status.partial):
             add("needs_review", f"requirement {v.requirement_id} rests on an image only and cannot be text-verified; open it")
 
-    # 4. pre-check facts, but only where they cut AGAINST the recommendation. The same failed AVS that makes
-    #    a represent doubtful is the reason an accept_liability is right; flagging it there is noise.
+    # 4. transaction pre-check facts, only where they cut AGAINST the recommendation
     if workup.recommended_action is Action.represent:
         escalate: Tier | None = "needs_review"
     elif workup.recommended_action is Action.request_more_evidence:
@@ -127,20 +145,24 @@ def assess(rule: ReasonCode, prechecks: PreChecks, workup: Workup,
     if escalate:
         if prechecks.postcode_match is False:
             add(escalate, "shipping and billing postcodes differ; check the delivery-address requirement by hand")
-        if any("AVS and CVV failed" in f for f in prechecks.flags):
+        if prechecks.avs_and_cvv_failed:
             add(escalate, "AVS and CVV both failed on the disputed transaction")
-        if any("differs from" in f and "amount" in f for f in prechecks.flags):
+        if prechecks.amount_mismatch:
             add(escalate, "chargeback amount differs from the transaction amount")
 
     # 5. the rationale is the text that gets filed: it must not assert evidence we do not hold
-    for conflict in rationale_conflicts(workup):
+    for conflict in rationale_conflicts(workup, ignore=known_identifiers):
         add("medium", conflict)
 
-    # 6. model self-report, minor: only counted when something else is already shaky.
+    # 6. model self-report, minor: low on its own, medium only when something else is already shaky
     if workup.model_confidence == "low":
         add("medium", "model reports low confidence")
     elif workup.model_confidence == "medium" and partials:
         add("medium", f"model reports medium confidence and requirement(s) {partials} are partial")
+
+    # 7. structural problems the retry did not fix are never silently accepted
+    if validation_problems:
+        add("needs_review", f"workup failed structural validation after retry: {'; '.join(validation_problems)}")
 
     a.tier = max(sev, key=_RANK.get, default="high")
     return a

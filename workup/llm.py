@@ -20,6 +20,8 @@ from .schema import Case, Workup, validate_pointers
 
 # Override with WORKUP_MODEL in .env (e.g. claude-opus-5, claude-sonnet-5) to compare models.
 MODEL = os.environ.get("WORKUP_MODEL", "claude-opus-5-5")
+# Everything about the call that changes what the model does, kept in one place so the cache key can hash it.
+CALL_PARAMS = {"max_tokens": 16000, "thinking": {"type": "adaptive"}, "output_config": {"effort": "high"}}
 
 SYSTEM_PROMPT = """You are preparing a chargeback representment workup for a disputes analyst at a payment
 acquirer. The analyst decides; you lay the case out so the decision takes seconds instead of minutes.
@@ -126,13 +128,16 @@ def request_workup(case: Case, rule: ReasonCode, prechecks: PreChecks, documents
         attempts += 1
         response = client.messages.parse(
             model=MODEL,
-            max_tokens=16000,
             system=SYSTEM_PROMPT,
             messages=messages,
             output_format=Workup,
-            thinking={"type": "adaptive"},
-            output_config={"effort": "high"},
+            **CALL_PARAMS,
         )
+        if response.stop_reason != "end_turn" or response.parsed_output is None:
+            raise RuntimeError(
+                f"{case.case_id}: model stopped with {response.stop_reason!r} and "
+                f"{'no' if response.parsed_output is None else 'a'} parsed workup; not caching this response"
+            )
         workup: Workup = response.parsed_output
         problems = validate_pointers(workup, case_docs, len(rule.requirements))
         history.append(problems)

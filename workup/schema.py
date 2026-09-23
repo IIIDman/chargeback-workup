@@ -85,12 +85,14 @@ class RequirementAssessment(BaseModel):
 
 
 class Workup(BaseModel):
-    """Field order is deliberate: it is the generation order.
+    """Field order is deliberate: it is the order the model writes the answer in.
 
-    The rationale is written after the model has committed to the per-requirement statuses, the action and
-    the evidence it still needs, so it cannot argue a case the assessment does not support. In the first
-    version the rationale came first and one case produced a rationale asserting a proof-of-delivery image
-    that the same response listed as missing.
+    The rationale sits after the recommended action and the list of evidence still needed, so that by the
+    time the model writes the filed text it has already stated what is missing. In the first version the
+    rationale came straight after the requirement statuses and before the action and the ask list, and one
+    case produced a rationale asserting a proof-of-delivery image that the same response asked the merchant
+    for. The move and a prompt rule against exactly that were introduced together; the reordering is the
+    part that does not depend on the model following instructions.
     """
 
     reason_code_summary: str = Field(

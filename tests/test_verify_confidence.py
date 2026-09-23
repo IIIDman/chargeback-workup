@@ -190,3 +190,80 @@ def test_request_more_evidence_with_most_of_the_file_missing_is_medium():
     a = assess(rule, pre, w, verify_workup(w, docs))
     assert a.tier == "medium"
     assert any("most of the file" in r for r in a.reasons)
+
+
+# --------------------------------------------------- robustness to a bad model answer
+
+
+def test_satisfied_without_any_pointer_is_downgraded():
+    w = _workup([_req(1, Status.satisfied, [])])
+    v = verify_workup(w, [])[0]
+    assert v.effective_status is Status.partial and v.downgraded
+    assert "no evidence pointer" in v.note
+
+
+def test_subset_of_requirements_counts_missing_ones_and_flags_it():
+    """Visa 13.1 needs all four; the model returned only requirement 1."""
+    rule = get_rule("visa", "13.1")
+    docs = [_doc("a.pdf", "tracking RM1 delivered to SW4 7QR")]
+    ptr = [EvidencePointer(document="a.pdf", page=1, quote="delivered to SW4 7QR")]
+    w = _workup([_req(1, Status.satisfied, ptr)])
+    met, sat, req, _ = coverage(rule, verify_workup(w, docs))
+    assert not met and sat == 1 and req == 4
+    c = CASES["CB-2025-0001"]
+    a = assess(rule, run_prechecks(c, rule), w, verify_workup(w, docs))
+    assert a.tier == "needs_review"
+    assert any("not assessed by the model" in r for r in a.reasons)
+
+
+def test_unknown_requirement_id_is_ignored_not_counted():
+    rule = get_rule("mastercard", "4837")
+    docs = [_doc("a.pdf", "avs y cvv m")]
+    ptr = [EvidencePointer(document="a.pdf", page=1, quote="avs y cvv m")]
+    w = _workup([_req(1, Status.satisfied, ptr), _req(9, Status.satisfied, ptr),
+                 _req(2, Status.missing), _req(3, Status.missing), _req(4, Status.missing)])
+    met, sat, req, _ = coverage(rule, verify_workup(w, docs))
+    assert not met and sat == 1 and req == 2
+
+
+def test_leftover_validation_problems_force_needs_review():
+    c = CASES["CB-2025-0003"]
+    rule = get_rule(c.scheme, c.reason_code)
+    w = _workup([_req(i, Status.missing) for i in range(1, 5)], action=Action.accept_liability)
+    a = assess(rule, run_prechecks(c, rule), w, verify_workup(w, []),
+               validation_problems=["requirement 1 points to unknown document 'ghost.pdf'"])
+    assert a.tier == "needs_review" and any("structural validation" in r for r in a.reasons)
+
+
+def test_amount_mismatch_escalates_a_represent():
+    c = CASES["CB-2025-0001"].model_copy(deep=True)
+    c.chargeback_amount.value = 999.0
+    rule = get_rule(c.scheme, c.reason_code)
+    pre = run_prechecks(c, rule)
+    assert pre.amount_mismatch
+    docs = load_case_documents(c.merchant_evidence_documents, DOCS_DIR)
+    ptr = [EvidencePointer(document="CB-2025-0001_delivery_confirmation.pdf", page=1, quote="Tracking number: RM98421144GB")]
+    w = _workup([_req(1, Status.satisfied, ptr), _req(2, Status.not_applicable), _req(3, Status.satisfied, ptr),
+                 _req(4, Status.satisfied, ptr)])
+    a = assess(rule, pre, w, verify_workup(w, docs))
+    assert a.tier == "needs_review" and any("amount differs" in r for r in a.reasons)
+
+
+def test_quote_needs_minimum_substance():
+    page = "Delivery failed. ECI 02. cannot confirm"
+    assert not quote_in_text("a", page)
+    assert not quote_in_text("not", page)
+    assert quote_in_text("ECI 02", page)          # two words: enough
+    assert quote_in_text("Delivery failed", page)
+
+
+def test_identifier_regex_skips_plain_words_and_pure_numbers_and_ignores_case_ids():
+    w = _workup([_req(1, Status.missing)], action=Action.request_more_evidence,
+                ask=["POD image POD-9051-img for txn_7745MN", "pre-renewal notice dated 2025-04-20", "INV48213"])
+    w.rationale = "Non-refundable pre-renewal terms; POD-9051-img and INV48213 confirm; txn_7745MN; 2025-04-20."
+    found = rationale_conflicts(w, ignore={"txn_7745MN"})
+    idents = [f.split("'")[1] for f in found]
+    assert "pod-9051-img" in idents and "inv48213" in idents
+    assert "txn_7745mn" not in idents          # case record id, always legitimate to mention
+    assert not any("refundable" in i or "renewal" in i for i in idents)
+    assert "2025-04-20" not in idents          # dates are not evidence identifiers

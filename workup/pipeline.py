@@ -17,7 +17,9 @@ from pathlib import Path
 from .checks import PreChecks, run_prechecks
 from .confidence import Assessment, assess
 from .docs import Document, load_case_documents
-from .llm import MODEL, SYSTEM_PROMPT, LLMResult, build_user_content, request_workup
+from pydantic import ValidationError
+
+from .llm import CALL_PARAMS, MODEL, SYSTEM_PROMPT, LLMResult, build_user_content, request_workup
 from .rules import ReasonCode, get_rule, rule_as_text
 from .schema import Case, Workup
 from .verify import RequirementVerification, verify_workup
@@ -50,9 +52,14 @@ def load_cases(path: Path = DATA / "cases.json") -> dict[str, Case]:
 
 
 def prompt_fingerprint(case: Case, rule: ReasonCode, prechecks: PreChecks, documents: list[Document]) -> str:
-    """Hash of the model id plus everything the model sees. Image bytes are included via their base64 payload."""
+    """Hash of everything that shapes the answer: model id, call parameters, system prompt, the output schema
+    (field order and descriptions are part of the prompt the model sees) and the full user content, images
+    included via their base64 payload. Any change to any of these makes the cached answer stale."""
     content = build_user_content(case, rule, prechecks, documents)
-    canonical = json.dumps({"model": MODEL, "system": SYSTEM_PROMPT, "content": content}, sort_keys=True, separators=(",", ":"))
+    canonical = json.dumps({
+        "model": MODEL, "params": CALL_PARAMS, "system": SYSTEM_PROMPT,
+        "schema": Workup.model_json_schema(), "content": content,
+    }, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode()).hexdigest()[:16]
 
 
@@ -69,9 +76,14 @@ def run_case(case: Case, recompute: bool = False, allow_api: bool = True) -> Cas
     if cache_path.exists() and not recompute:
         cached = json.loads(cache_path.read_text())
         if cached.get("fingerprint") == fp:
-            return _finish(case, rule, prechecks, documents, Workup.model_validate(cached["workup"]),
-                           usage=cached.get("usage", {}), from_cache=True,
-                           attempts=cached.get("attempts", 1), problems=cached.get("validation_problems", []))
+            try:
+                workup = Workup.model_validate(cached["workup"])
+            except ValidationError:
+                workup = None  # schema moved on; treat as a cache miss
+            if workup is not None:
+                return _finish(case, rule, prechecks, documents, workup,
+                               usage=cached.get("usage", {}), from_cache=True,
+                               attempts=cached.get("attempts", 1), problems=cached.get("validation_problems", []))
 
     if not allow_api:
         raise LookupError(
@@ -100,7 +112,8 @@ def run_case(case: Case, recompute: bool = False, allow_api: bool = True) -> Cas
 def _finish(case: Case, rule: ReasonCode, prechecks: PreChecks, documents: list[Document], workup: Workup,
             *, usage: dict, from_cache: bool, attempts: int, problems: list[str]) -> CaseResult:
     verifications = verify_workup(workup, documents)
-    assessment = assess(rule, prechecks, workup, verifications)
+    known = {case.case_id, case.transaction.transaction_id, case.transaction.merchant_name}
+    assessment = assess(rule, prechecks, workup, verifications, validation_problems=problems, known_identifiers=known)
     return CaseResult(
         case=case, rule=rule, prechecks=prechecks, documents=documents, workup=workup,
         verifications=verifications, assessment=assessment,
