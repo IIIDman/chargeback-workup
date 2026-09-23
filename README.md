@@ -28,7 +28,7 @@ uv run python run.py --all             # all ten, about $0.63 on claude-opus-5-5
 uv run python run.py CB-2025-0004 --dry-run   # show the exact prompt, make no call
 
 uv run python scripts/compare.py       # tool output vs my hand-written expectations
-uv run pytest                          # 28 tests, no network
+uv run pytest                          # 29 tests, no network
 ```
 
 `WORKUP_MODEL` in `.env` overrides the model. The model id is part of the cache key, so switching models
