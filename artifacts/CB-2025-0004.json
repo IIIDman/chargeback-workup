@@ -1,43 +1,43 @@
 {
   "case_id": "CB-2025-0004",
-  "fingerprint": "37add03a83b7e37a",
+  "fingerprint": "bec59bd3e3b8a924",
   "model": "claude-opus-5-5",
   "workup": {
-    "reason_code_summary": "The issuer says the cardholder did not authorise this £87.40 card-not-present purchase from QuickStream Digital, had the card in their possession, and has no relationship with the merchant. To defend under Mastercard 4837, the merchant must show any two of four things: a full AVS match plus CVV match, successful 3D Secure authentication, two prior undisputed transactions from the same cardholder in the last 12 months with matching billing details, or signed proof of delivery to the billing address.",
+    "reason_code_summary": "The issuer says the cardholder did not authorise this £87.40 card-not-present digital purchase, had the card in their possession, and has no relationship with QuickStream Digital. To defend under Mastercard 4837, the merchant must satisfy any two of four requirements: a full AVS match plus a CVV match, successful 3DS authentication, two prior undisputed transactions with matching billing details in the past 12 months, or signed proof of delivery to the billing address.",
     "requirements": [
       {
         "requirement_id": 1,
         "status": "missing",
         "pointers": [],
-        "reasoning": "The transaction record shows AVS result N and CVV result N, so both checks failed on the disputed transaction. No merchant document can override this."
+        "reasoning": "The transaction record shows AVS result N and CVV result N, so both checks failed on the disputed transaction. No merchant document can override these pre-check facts."
       },
       {
         "requirement_id": 2,
         "status": "missing",
         "pointers": [],
-        "reasoning": "The transaction record shows 3DS was not attempted, so no SecureCode or Identity Check authentication exists for this transaction."
+        "reasoning": "The transaction record shows 3DS status 'not_attempted', so no Identity Check authentication took place."
       },
       {
         "requirement_id": 3,
         "status": "missing",
         "pointers": [],
-        "reasoning": "No prior transaction history was provided. The merchant's own fraud report lists 'Customer account age: New (first transaction)', which rules out prior undisputed transactions."
+        "reasoning": "No prior transaction history was supplied. The merchant's own report lists 'Customer account age New (first transaction)', which indicates there were no prior undisputed transactions with this cardholder."
       },
       {
         "requirement_id": 4,
         "status": "not_applicable",
         "pointers": [],
-        "reasoning": "MCC 5815 digital goods with no shipping postcode on file, so there was no physical delivery to prove with a signature."
+        "reasoning": "This is a digital goods or service transaction (MCC 5815) with no shipping address on file, so there was no physical delivery to prove with a signature."
       }
     ],
     "recommended_action": "accept_liability",
-    "action_justification": "None of the four requirements can be met: AVS and CVV failed, 3DS was not attempted, it was the customer's first transaction, and delivery proof does not apply to digital goods.",
+    "action_justification": "AVS/CVV failed and 3DS was not attempted, and both are fixed facts of record; the account was a first-time customer, so no combination of two requirements can be met.",
     "evidence_to_request": [],
-    "rationale": "Transaction txn_7762GH (£87.40, 29 Apr 2025) failed both AVS (N) and CVV (N), and 3D Secure was not attempted. Requirements 1 and 2 are therefore unmet on the transaction record. The merchant's internal fraud report states the customer account was new and this was its first transaction, so there is no qualifying prior undisputed history for requirement 3. Requirement 4 does not apply to this digital-goods sale. The only evidence supplied is an internal risk score and the merchant's own conclusion, which is not compelling evidence under 4837, so the case does not meet the two-of-four threshold and liability is accepted.",
+    "rationale": "The disputed transaction txn_7762GH failed both AVS (N) and CVV (N) and was processed without 3DS authentication, so requirements 1 and 2 cannot be met. The merchant's internal fraud report records the customer as new, making this their first transaction, so the prior-transaction requirement cannot be met either. Signed proof of delivery does not apply to this digital purchase. The only evidence supplied is the merchant's internal risk score and its own conclusion, which is not compelling evidence under 4837. Liability is accepted.",
     "caveats": [
-      "The merchant's fraud report is dated 12 May 2025, after the chargeback of 11 May 2025. It is a post-hoc internal assessment, and its LOW risk score (42/100) and confidence statement do not address any 4837 requirement.",
-      "The risk signals in the record point toward fraud, not legitimacy: a new device fingerprint (fp_new_unseen), a first-time customer account, and an off-peak 03:42 UTC transaction time alongside the failed AVS/CVV.",
-      "Check the geolocation of IP 45.227.255.103 against the GB card BIN country if the merchant contests this outcome."
+      "The internal fraud report was generated on 12 May 2025, after the chargeback of 11 May 2025. It reflects the merchant's own assessment and is not independent evidence.",
+      "The low risk score is based only on amount, MCC and time of day. It ignores the failed AVS/CVV, the new, unseen device fingerprint (fp_new_unseen) and the new customer account.",
+      "The transaction took place at 03:42 UTC from IP 45.227.255.103. Geolocation of this IP was not verified against the GB-issued card; the analyst may wish to check it, though it would not change the outcome."
     ],
     "model_confidence": "high"
   },
@@ -49,10 +49,10 @@
     "cache_creation_input_tokens": 0,
     "cache_read_input_tokens": 0,
     "inference_geo": "global",
-    "input_tokens": 4053,
-    "output_tokens": 1288,
+    "input_tokens": 4118,
+    "output_tokens": 1264,
     "output_tokens_details": {
-      "thinking_tokens": 279
+      "thinking_tokens": 306
     },
     "server_tool_use": null,
     "service_tier": "standard"
@@ -72,54 +72,54 @@
     "Flag: 3DS was not attempted"
   ],
   "raw_response": {
-    "id": "msg_011CfKDvePbxVrSNBk2drFCf",
+    "id": "msg_011CfLW9bK3Aum1H9UZxMxYW",
     "container": null,
     "content": [
       {
-        "signature": "CAQSnwoKEAgSGAI4AUIIdGhpbmtpbmcSDFVbeiUv99/jPDbOPBoMpNQugt1t2L+QTnJ1IjDvEvfnGD9DhUuH74h8Ch0boemxv7nMjaMoEotupS6vWBjpnhJjTRDLzWFIvp5QG88qvAl2Py38qgn7XpFsJPOWXDbhnnUI4ZBZ98yDmhzMBON2eqVnuUJYXFWtLOAlZzTy8YpcKZQY6q3aDQqEx8YLKCVgHY6aQvfu/i67ipOudT1i47m0KOqCru++NzMK201fRYubQC7wv5mrCxQvli4Gu3ieq6+biWF3f2Po/Lbp/gjKmArTSxIYMW0QXPXNbkk738nYNnv/9Hydro8tS1wb51VWS7CT+6arhbC2UDuL/cuj8AiIGBxeyMvB3S5ZU7QpsHC9T5Fq5/TjCLGUIFF7drBTXZdB9MF/zXd2hh2W3BOgXBkvsBeQqo302N0ZwTPQAqpeB2LOxOVi/9xbnRCpjXk2zhMe0hdifFDeyuQA4hFBwg4I6+pC1c/2A/1g7bXLHkoyDdrE9Mqlf+NTG57D+pzwHjV4WKuNSo0TyoNMVyUbq8XcXPphCewqG6eztJLRAOBHKaWC55YLeRZP3EZQss/oH72/VUUGXJHpxRo7VZP0S5oGK/PeZVcX/HeldDtIUwL5OmohdTJaORXzADu4aScLEho4wTWczlG7GbXhe0T4liytartrVNIj7/5+2bOp7fhYX/fqKXqup/78LDX+3ZblxP6dLeZ1KgJvLLIB4tbkb8qbzP7xAdTbcb/oAGOpTeG7BBhomydla0GwsBAUQ9+N07GUcWeAM5XQrlT9fBemGK6os8RRlqO+WJhqxAfSorMGnrU1FlEqE5RXtF36tr+9rHD9uHm3zEEXHCXiQjs+KTdazjLcl/t/SqKQLmxLOdycnHwLUvz/rJsZ5NpRmYUXFpi83hsZET/bbSTQDjRzCLla3i11gkK+1Nj+joeUXYoi/YCPr3lY2wlZuMNScAolnGKQMe6KuYeH7gmF4aqQrFgI2vSrITl8kEbD4mnuwE5nrv2swVBP99vbpW5BbhMzEBvfIU/lUH5hwNuu+RUYbLcmx+lwLubyj3yEXqVzv0dH+EDvtXCS+4PwYVyudaAiLkap7P9n5vnOmsB3hr9Fr//xHR6yeJg62ZZsT5jX6udof2JPM2M6GCLOehTxvoHBncr/0CDNQjCj0udgoF+TmLpTAQwZCP/rEo8LQILPDDpuE6j09Zc8FUZg+W3+LWOxI64huFdZh/IoCmNVYfD51fYASEd6b7Vrar060uK6sGX9kWYJapuodJLvQathdXgtXIxPcqIGsrM+tmy75jENotyAhreiTiML050aK81gvWlfwHV7IEqIW91zWEvaYB/lvVSe1UqALNAZXDlSmt/u7ek+cTGdazG31s+3mOSgY9ojOcgmMhnDDD0PfhCqC4P/IKoYol9R4PAj6IJaOh9qaNXg74rpLRIfXuyJVyom7iXqd0FNy3JUJ/iFWWifqwC5nExHQNYCHIpS3GCvx/kxKEvlQb9lruvVK7fCecZccVQjwXNEqarrhANLVAaAwd/K8YjbNDdzpOaCrDXRQFnZ4gvzeiB3ru9A4chnQY61nf7JL8/Q/Ri9NeyJu7HQg16fqrvQ2lzjKsHfHRutwlozWKbsj0kkT2LuLEEFb1Ye3KLeNz0AMpvXC54knr370cxiFGZcXLbvdnfdAQfTbsKNeuO/SO0z8AXxSX6/qxgMptyz66fXWf7MMbjjikQYAQ==",
+        "signature": "CAQS7woKEAgSGAI4AUIIdGhpbmtpbmcSDElZI3NQ6f8o3LA/uhoMn2NWtVRhuaH3MXh5IjBHcnWG/uTjo35mCqqvOSrXyuI9BWh06obRgf6EiaAZ1SQLcjuwnQFX+LcpHk0CUEQqjAokY/x/Y3amtpXNpi3+Ij7pb63SQjBEWqAILV/Y+3NV78F4Ezko5/m6X8RhzFdLv3ZaAR2f+J8Xs1Unv1sqYsLno+tow9eVgZgZ+iPK6X3uK3ZUuodJiOoBVivMgfnEFqR2f6k9CjoD2hvqzzx96EDO4zvUM2C0vDi5lO0B70nuV3UJzQSS8hIUuj1V2UIYGEa+a8qUEz+DHdzSz4VqrY8k0DfhqYfH/DiM64aprEIyTC34w0xRHDqKXu8VXdmXOTaFUb4z6d28bFjDACtm+9Gnouiwi0f0Arzb1Ce1eWYod0KZKywTjQFzh12ygpRh7unPv5dXLv30ZLMCoNmI8nqm0olDzAHhRCv/nvhK7/a9uCumj586BtvymsIOWJdDn7vEb7luVIbKkgFCeb2a1Nw56cKEyT5Ry7OhTbh8ktKRzAS1iTUMyPcxoW2OatCWibM15gCxwkTlHlDk12Rwui3UgC35ya1Q9gPT5FQ5n6YOKEQQ5Ev9b8yF44Ogq/8M7ZcErtDaB20htlrsB7zG6zzpH6MgRpKofK4jDf0hgERunkQH5uWLd+ohSWz6rjpAZnFp/JsYLinXZfr107yQrnZ0qIbZK/GrGZG4aDaVdg/hbYvsA6V0aZvUlZZAODl1pHWvCOnmBz+sPpRyKyP9GR8ne/I/hcW6/yCXScvsUZb5+lB4ZRMwu3oUM16Dq7DrbBI3ZHzO7E+X6uAFWyXO4Nj9eLOzo8xRRMMby3puDKoDuym6Y4YIO/y6JbwP8EiJ6sTLr9lpgU52uguGlJKUZsgF4nXZNmvikUBVRxHjrlKw7YY+RbPUvJ9X5xboPMnnJ6D8y9OoKqoqhHHpqrs0W2wOUqeKkRpqS6EAJopQ2hxT+ozJ/Kr6DoCqJfW+i83QZnDlDAGmidNUUrI3cFl+wnmI4GoG+ilxOkbluqFfJi0MCLYwKeRlXx8v7YueaFD0Ta8bczue8VUljzZV1m+gLfNWil/e7an+tFtWC8cO6b7ZvPvKOsC8+sqyQcpsYM0RnPuj3zrHO6UJysVtuMggH+lTjI9c/xe35gfHNEzIbOQpSAQtodfa4Yg+NSkol+l3HRc3Nej0U31GxUymmpNIix4T06eKxdmiU6SOx0WyiS/sL0OWqwbQht97p/7Q3zhNCpxXNr9vIVLZB5fvppmUGQ1H3OowwQ1JqKpKrYb56ohX/AQKTiAQg2pqwatcIjb4UyLk4w9ZAiiL9NaUhIlzBBecL+bEww+ukAJdmyZ4jTWPWxkbksCEnOxZ60S6R/T+YW4qQdt/Nqx7LO5B2qjE0J6uAt2Dgs+qh6hCsCdarI26ewPrTT9NamcELMg/Eoa5zeHFjKFUXDdxthoHEQFWcl8/6asMqMAhM0SUrZYzirOx1t/6roV5q2uFAt0kAfH8XAeepV8lPzKBq4YgBg+tQylEVGvzF113xq5qn9rUoBIbTWNY+8yzNpzlQZQTxJYmGKxTUS1BV4anUD8v+OQHonFn31vClFprkKqQU9J/Bj4VQagRZpDzqxrNl/yqBNtPZSd714S+SvGrwXYZjLsdgzJXdm1On3p2QEX53H486eOILqiadQ8QqI8lb7l8Q3IYvtaL0gU92SCH/vvu3Znu90KOfB8oRPoZSw6W4VyH8UbJzr4Ga2FoLOUHqux8rC3Q1eKmRMFpPUL2C3IdncIQmdUakH8qV0S84f2OlVND671nd0Xltqkpp+Q7qu8GlBgB",
         "thinking": "",
         "type": "thinking"
       },
       {
         "citations": null,
-        "text": "{\"reason_code_summary\":\"The issuer says the cardholder did not authorise this £87.40 card-not-present purchase from QuickStream Digital, had the card in their possession, and has no relationship with the merchant. To defend under Mastercard 4837, the merchant must show any two of four things: a full AVS match plus CVV match, successful 3D Secure authentication, two prior undisputed transactions from the same cardholder in the last 12 months with matching billing details, or signed proof of delivery to the billing address.\",\"requirements\":[{\"requirement_id\":1,\"status\":\"missing\",\"pointers\":[],\"reasoning\":\"The transaction record shows AVS result N and CVV result N, so both checks failed on the disputed transaction. No merchant document can override this.\"},{\"requirement_id\":2,\"status\":\"missing\",\"pointers\":[],\"reasoning\":\"The transaction record shows 3DS was not attempted, so no SecureCode or Identity Check authentication exists for this transaction.\"},{\"requirement_id\":3,\"status\":\"missing\",\"pointers\":[],\"reasoning\":\"No prior transaction history was provided. The merchant's own fraud report lists 'Customer account age: New (first transaction)', which rules out prior undisputed transactions.\"},{\"requirement_id\":4,\"status\":\"not_applicable\",\"pointers\":[],\"reasoning\":\"MCC 5815 digital goods with no shipping postcode on file, so there was no physical delivery to prove with a signature.\"}],\"recommended_action\":\"accept_liability\",\"action_justification\":\"None of the four requirements can be met: AVS and CVV failed, 3DS was not attempted, it was the customer's first transaction, and delivery proof does not apply to digital goods.\",\"evidence_to_request\":[],\"rationale\":\"Transaction txn_7762GH (£87.40, 29 Apr 2025) failed both AVS (N) and CVV (N), and 3D Secure was not attempted. Requirements 1 and 2 are therefore unmet on the transaction record. The merchant's internal fraud report states the customer account was new and this was its first transaction, so there is no qualifying prior undisputed history for requirement 3. Requirement 4 does not apply to this digital-goods sale. The only evidence supplied is an internal risk score and the merchant's own conclusion, which is not compelling evidence under 4837, so the case does not meet the two-of-four threshold and liability is accepted.\",\"caveats\":[\"The merchant's fraud report is dated 12 May 2025, after the chargeback of 11 May 2025. It is a post-hoc internal assessment, and its LOW risk score (42/100) and confidence statement do not address any 4837 requirement.\",\"The risk signals in the record point toward fraud, not legitimacy: a new device fingerprint (fp_new_unseen), a first-time customer account, and an off-peak 03:42 UTC transaction time alongside the failed AVS/CVV.\",\"Check the geolocation of IP 45.227.255.103 against the GB card BIN country if the merchant contests this outcome.\"],\"model_confidence\":\"high\"}",
+        "text": "{\"reason_code_summary\":\"The issuer says the cardholder did not authorise this £87.40 card-not-present digital purchase, had the card in their possession, and has no relationship with QuickStream Digital. To defend under Mastercard 4837, the merchant must satisfy any two of four requirements: a full AVS match plus a CVV match, successful 3DS authentication, two prior undisputed transactions with matching billing details in the past 12 months, or signed proof of delivery to the billing address.\",\"requirements\":[{\"requirement_id\":1,\"status\":\"missing\",\"pointers\":[],\"reasoning\":\"The transaction record shows AVS result N and CVV result N, so both checks failed on the disputed transaction. No merchant document can override these pre-check facts.\"},{\"requirement_id\":2,\"status\":\"missing\",\"pointers\":[],\"reasoning\":\"The transaction record shows 3DS status 'not_attempted', so no Identity Check authentication took place.\"},{\"requirement_id\":3,\"status\":\"missing\",\"pointers\":[],\"reasoning\":\"No prior transaction history was supplied. The merchant's own report lists 'Customer account age New (first transaction)', which indicates there were no prior undisputed transactions with this cardholder.\"},{\"requirement_id\":4,\"status\":\"not_applicable\",\"pointers\":[],\"reasoning\":\"This is a digital goods or service transaction (MCC 5815) with no shipping address on file, so there was no physical delivery to prove with a signature.\"}],\"recommended_action\":\"accept_liability\",\"action_justification\":\"AVS/CVV failed and 3DS was not attempted, and both are fixed facts of record; the account was a first-time customer, so no combination of two requirements can be met.\",\"evidence_to_request\":[],\"rationale\":\"The disputed transaction txn_7762GH failed both AVS (N) and CVV (N) and was processed without 3DS authentication, so requirements 1 and 2 cannot be met. The merchant's internal fraud report records the customer as new, making this their first transaction, so the prior-transaction requirement cannot be met either. Signed proof of delivery does not apply to this digital purchase. The only evidence supplied is the merchant's internal risk score and its own conclusion, which is not compelling evidence under 4837. Liability is accepted.\",\"caveats\":[\"The internal fraud report was generated on 12 May 2025, after the chargeback of 11 May 2025. It reflects the merchant's own assessment and is not independent evidence.\",\"The low risk score is based only on amount, MCC and time of day. It ignores the failed AVS/CVV, the new, unseen device fingerprint (fp_new_unseen) and the new customer account.\",\"The transaction took place at 03:42 UTC from IP 45.227.255.103. Geolocation of this IP was not verified against the GB-issued card; the analyst may wish to check it, though it would not change the outcome.\"],\"model_confidence\":\"high\"}",
         "type": "text",
         "parsed_output": {
-          "reason_code_summary": "The issuer says the cardholder did not authorise this £87.40 card-not-present purchase from QuickStream Digital, had the card in their possession, and has no relationship with the merchant. To defend under Mastercard 4837, the merchant must show any two of four things: a full AVS match plus CVV match, successful 3D Secure authentication, two prior undisputed transactions from the same cardholder in the last 12 months with matching billing details, or signed proof of delivery to the billing address.",
+          "reason_code_summary": "The issuer says the cardholder did not authorise this £87.40 card-not-present digital purchase, had the card in their possession, and has no relationship with QuickStream Digital. To defend under Mastercard 4837, the merchant must satisfy any two of four requirements: a full AVS match plus a CVV match, successful 3DS authentication, two prior undisputed transactions with matching billing details in the past 12 months, or signed proof of delivery to the billing address.",
           "requirements": [
             {
               "requirement_id": 1,
               "status": "missing",
               "pointers": [],
-              "reasoning": "The transaction record shows AVS result N and CVV result N, so both checks failed on the disputed transaction. No merchant document can override this."
+              "reasoning": "The transaction record shows AVS result N and CVV result N, so both checks failed on the disputed transaction. No merchant document can override these pre-check facts."
             },
             {
               "requirement_id": 2,
               "status": "missing",
               "pointers": [],
-              "reasoning": "The transaction record shows 3DS was not attempted, so no SecureCode or Identity Check authentication exists for this transaction."
+              "reasoning": "The transaction record shows 3DS status 'not_attempted', so no Identity Check authentication took place."
             },
             {
               "requirement_id": 3,
               "status": "missing",
               "pointers": [],
-              "reasoning": "No prior transaction history was provided. The merchant's own fraud report lists 'Customer account age: New (first transaction)', which rules out prior undisputed transactions."
+              "reasoning": "No prior transaction history was supplied. The merchant's own report lists 'Customer account age New (first transaction)', which indicates there were no prior undisputed transactions with this cardholder."
             },
             {
               "requirement_id": 4,
               "status": "not_applicable",
               "pointers": [],
-              "reasoning": "MCC 5815 digital goods with no shipping postcode on file, so there was no physical delivery to prove with a signature."
+              "reasoning": "This is a digital goods or service transaction (MCC 5815) with no shipping address on file, so there was no physical delivery to prove with a signature."
             }
           ],
           "recommended_action": "accept_liability",
-          "action_justification": "None of the four requirements can be met: AVS and CVV failed, 3DS was not attempted, it was the customer's first transaction, and delivery proof does not apply to digital goods.",
+          "action_justification": "AVS/CVV failed and 3DS was not attempted, and both are fixed facts of record; the account was a first-time customer, so no combination of two requirements can be met.",
           "evidence_to_request": [],
-          "rationale": "Transaction txn_7762GH (£87.40, 29 Apr 2025) failed both AVS (N) and CVV (N), and 3D Secure was not attempted. Requirements 1 and 2 are therefore unmet on the transaction record. The merchant's internal fraud report states the customer account was new and this was its first transaction, so there is no qualifying prior undisputed history for requirement 3. Requirement 4 does not apply to this digital-goods sale. The only evidence supplied is an internal risk score and the merchant's own conclusion, which is not compelling evidence under 4837, so the case does not meet the two-of-four threshold and liability is accepted.",
+          "rationale": "The disputed transaction txn_7762GH failed both AVS (N) and CVV (N) and was processed without 3DS authentication, so requirements 1 and 2 cannot be met. The merchant's internal fraud report records the customer as new, making this their first transaction, so the prior-transaction requirement cannot be met either. Signed proof of delivery does not apply to this digital purchase. The only evidence supplied is the merchant's internal risk score and its own conclusion, which is not compelling evidence under 4837. Liability is accepted.",
           "caveats": [
-            "The merchant's fraud report is dated 12 May 2025, after the chargeback of 11 May 2025. It is a post-hoc internal assessment, and its LOW risk score (42/100) and confidence statement do not address any 4837 requirement.",
-            "The risk signals in the record point toward fraud, not legitimacy: a new device fingerprint (fp_new_unseen), a first-time customer account, and an off-peak 03:42 UTC transaction time alongside the failed AVS/CVV.",
-            "Check the geolocation of IP 45.227.255.103 against the GB card BIN country if the merchant contests this outcome."
+            "The internal fraud report was generated on 12 May 2025, after the chargeback of 11 May 2025. It reflects the merchant's own assessment and is not independent evidence.",
+            "The low risk score is based only on amount, MCC and time of day. It ignores the failed AVS/CVV, the new, unseen device fingerprint (fp_new_unseen) and the new customer account.",
+            "The transaction took place at 03:42 UTC from IP 45.227.255.103. Geolocation of this IP was not verified against the GB-issued card; the analyst may wish to check it, though it would not change the outcome."
           ],
           "model_confidence": "high"
         }
@@ -139,10 +139,10 @@
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 0,
       "inference_geo": "global",
-      "input_tokens": 4053,
-      "output_tokens": 1288,
+      "input_tokens": 4118,
+      "output_tokens": 1264,
       "output_tokens_details": {
-        "thinking_tokens": 279
+        "thinking_tokens": 306
       },
       "server_tool_use": null,
       "service_tier": "standard"

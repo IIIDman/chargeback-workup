@@ -1,9 +1,9 @@
 {
   "case_id": "CB-2025-0007",
-  "fingerprint": "c6343e911d95adf9",
+  "fingerprint": "39b177d7c29e6d50",
   "model": "claude-opus-5-5",
   "workup": {
-    "reason_code_summary": "The issuer alleges the cardholder paid TerraFreight Logistics GBP 412.75 for a freight collection and delivery that was never collected and never delivered. To defend under Mastercard 4855, the merchant must meet all three requirements: proof the service was rendered (tracking plus carrier confirmation), a delivery date before the 2025-05-14 chargeback, and a delivery address that matches the cardholder's records.",
+    "reason_code_summary": "The issuer alleges the cardholder paid TerraFreight for a freight collection and delivery that was never collected or performed. To defend under Mastercard 4855, the merchant must prove all three requirements: (1) delivery or service rendered, backed by tracking and carrier confirmation; (2) a delivery or service date before the 14 May 2025 chargeback; and (3) a delivery address that matches the cardholder's records.",
     "requirements": [
       {
         "requirement_id": 1,
@@ -17,15 +17,15 @@
           {
             "document": "CB-2025-0007_consolidated_manifest.pdf",
             "page": 8,
-            "quote": "April 2025 and delivered to LS9 8AA at 17:14 the same day. Signed for by warehouse staff at"
+            "quote": "TF-9051 Stentor Bros LS1 4DT LS9 8AA DELIVERED 22 Apr 17:14 POD-9051-img"
           },
           {
             "document": "CB-2025-0007_consolidated_manifest.pdf",
             "page": 8,
-            "quote": "TF-9051 Stentor Bros LS1 4DT LS9 8AA DELIVERED 22 Apr 17:14 POD-9051-img"
+            "quote": "POD image on file."
           }
         ],
-        "reasoning": "Page 8 ties consignment TF-9051 to txn_7745MN and records collection and delivery, but it is only the merchant's own internal manifest entry. The POD image (POD-9051-img) is referenced but not supplied, the signatory is unnamed ('warehouse staff'), and there is no independent collection scan or telematics log to rebut the claim that the shipment was never collected."
+        "reasoning": "Page 8 ties consignment TF-9051 to txn_7745MN and records its collection and delivery, but this is the merchant's own internal manifest. The referenced POD image (POD-9051-img) was not supplied, and the signatory is described only as unnamed 'warehouse staff', so collection and delivery are asserted rather than evidenced. Pages 1-7, 9 and 10 are unrelated routine shipments."
       },
       {
         "requirement_id": 2,
@@ -34,10 +34,10 @@
           {
             "document": "CB-2025-0007_consolidated_manifest.pdf",
             "page": 8,
-            "quote": "April 2025 and delivered to LS9 8AA at 17:14 the same day. Signed for by warehouse staff at"
+            "quote": "April 2025 and delivered to LS9 8AA at 17:14 the same day."
           }
         ],
-        "reasoning": "The recorded delivery date is 22 April 2025, which is before the 14 May 2025 chargeback date. This holds only if the delivery itself is substantiated under requirement 1."
+        "reasoning": "The recorded delivery date of 22 April 2025 is before the 14 May 2025 chargeback date. This date rests on the same internal manifest entry as requirement 1."
       },
       {
         "requirement_id": 3,
@@ -49,27 +49,26 @@
             "quote": "TF-9051 Stentor Bros LS1 4DT LS9 8AA DELIVERED 22 Apr 17:14 POD-9051-img"
           }
         ],
-        "reasoning": "Delivery to LS9 8AA matches the shipping postcode on the transaction, and collection from LS1 4DT matches the AVS-verified billing postcode. However, the pre-check flags a shipping/billing mismatch, and nothing from the cardholder's own booking shows they specified LS9 8AA as the destination. The record is also in the name of 'Stentor Bros', not an identified cardholder."
+        "reasoning": "The collection postcode LS1 4DT matches the billing postcode, and the destination LS9 8AA matches the shipping postcode on the transaction record. However, the pre-check flags a billing/shipping mismatch, and no booking record shows the cardholder specified LS9 8AA as the destination or that 'Stentor Bros' is the cardholder."
       }
     ],
     "recommended_action": "request_more_evidence",
-    "action_justification": "The manifest links TF-9051 to the transaction, but proof of delivery rests on an internal log whose POD image, collection evidence and booking record are obtainable yet unsupplied.",
+    "action_justification": "The merchant has a plausible case tied to txn_7745MN, but the POD, independent collection proof and the cardholder's booking instructions are obtainable items not yet supplied.",
     "evidence_to_request": [
-      "POD image POD-9051-img for consignment TF-9051, showing the delivery at LS9 8AA on 22 April 2025 with signature and printed name of the recipient",
-      "Driver telematics/on-board log or collection scan for TF-9051 showing pickup at LS1 4DT at 11:30 on 22 April 2025 (directly rebuts the 'never collected' claim)",
-      "The cardholder's booking confirmation or order record for txn_7745MN showing the collection address (LS1 4DT) and delivery address (LS9 8AA) the cardholder specified",
-      "Confirmation of how 'Stentor Bros' relates to the cardholder (e.g. account holder or booking contact details matching the cardholder name and email)",
-      "Any tracking/status notifications sent to the cardholder for TF-9051 (collection and delivery emails/SMS)"
+      "The POD image POD-9051-img for consignment TF-9051, showing the signature, the signatory's printed name, and the delivery date and time at LS9 8AA",
+      "Driver telematics or GPS logs for the TF-9051 vehicle showing arrival at LS1 4DT for collection and at LS9 8AA for delivery on 22 April 2025",
+      "The booking confirmation or order record for txn_7745MN showing the cardholder specified collection at LS1 4DT and delivery to LS9 8AA",
+      "Confirmation linking the booking customer 'Stentor Bros' to the cardholder or card account used for txn_7745MN",
+      "Any collection receipt or driver collection scan for TF-9051 at LS1 4DT"
     ],
-    "rationale": "The cardholder disputes a GBP 412.75 freight booking with TerraFreight Logistics, stating the shipment was never collected. The merchant's consolidated manifest (page 8) records consignment TF-9051, referenced to txn_7745MN, with a pickup postcode of LS1 4DT and delivery to LS9 8AA on 22 April 2025, before the 14 May 2025 chargeback. This is an internal log only: the referenced POD image, an independent collection record, and the cardholder's booking showing the specified addresses have not been supplied. Proof of service and the address match are unproven, and the merchant has been asked for these items before representment is decided.",
+    "rationale": "The merchant's consolidated manifest, page 8, records consignment TF-9051 against txn_7745MN with collection from LS1 4DT and delivery to LS9 8AA on 22 April 2025. That date is before the 14 May 2025 chargeback. The record is an internal manifest, and the referenced proof-of-delivery image has not been provided, so collection and delivery remain unproven against the cardholder's claim that the shipment was never collected. The destination postcode differs from the billing postcode, and no booking record yet shows the cardholder designated LS9 8AA. The case is pending receipt of the POD, telematics records and the booking confirmation.",
     "caveats": [
-      "Pages 1-7 are seven identical copies of an unrelated routine shipments table (TF-9001 to TF-9008), and pages 9-10 contain no records. Only page 8 relates to this transaction.",
-      "Page 8 is headed 'selected'. Three consignments (TF-9051, TF-9053, TF-9054) show the identical LS1 4DT to LS9 8AA route on the same day for different customers. Confirm TF-9051 is the correct consignment and that the txn_7745MN reference is part of the original record, not added for the dispute.",
-      "The customer is recorded as 'Stentor Bros' (a business name). The link between this business and the cardholder is not shown.",
-      "Timing check: the transaction is timestamped 10:55:19Z. If the manifest's 11:30 collection time is UK local time (BST, UTC+1), the collection would be 10:30 UTC, before payment. Confirm the time zone used in the manifest.",
-      "The shipping/billing postcode mismatch is flagged in pre-checks. Delivery to LS9 8AA supports the claim only if the cardholder booked that destination.",
-      "AVS Y, CVV M and 3DS authenticated support that the cardholder made the booking, but they do not prove the service was rendered.",
-      "The 'signed for by warehouse staff' entry names no individual, which weakens it as delivery confirmation."
+      "Timing conflict: the transaction timestamp is 10:55 UTC (11:55 BST), while the manifest records collection at 11:30. If that time is local, collection would precede payment. Confirm the time zone used in the manifest.",
+      "Consignments TF-9053 (Mason & Co) and TF-9054 (FurnitureRUs) show the identical route LS1 4DT to LS9 8AA on the same day under different customer names. Check that TF-9051 is correctly attributed to this cardholder's transaction.",
+      "The customer name 'Stentor Bros' may not match the cardholder name. Verify it against the issuer's cardholder details.",
+      "Pages 1-7 repeat the same unrelated routine shipment table, and pages 9-10 contain no relevant content. Only page 8 relates to this case.",
+      "The pre-check flags a shipping/billing postcode mismatch (LS9 8AA vs LS1 4DT). For a freight service a different destination is expected, but the issuer may still challenge requirement 3 without a booking record.",
+      "AVS Y, CVV M and 3DS authenticated support that the cardholder made the booking, but they do not prove the service was rendered."
     ],
     "model_confidence": "medium"
   },
@@ -81,17 +80,21 @@
     "cache_creation_input_tokens": 0,
     "cache_read_input_tokens": 0,
     "inference_geo": "global",
-    "input_tokens": 6897,
-    "output_tokens": 3384,
+    "input_tokens": 7480,
+    "output_tokens": 2937,
     "output_tokens_details": {
-      "thinking_tokens": 1346
+      "thinking_tokens": 1061
     },
     "server_tool_use": null,
     "service_tier": "standard"
   },
-  "attempts": 1,
+  "attempts": 2,
   "validation_problems": [],
   "problems_per_attempt": [
+    [
+      "requirements must be exactly ids [1, 2, 3] in order, got [1]",
+      "request_more_evidence requires a non-empty evidence_to_request list"
+    ],
     []
   ],
   "rule_text": "Mastercard 4855 - Goods / Services Not Provided\nIssuer claim: Paid for goods or services that were never delivered or rendered.\nLogic: ALL 3 requirements must be satisfied.\nCompelling evidence requirements:\n  1. Proof of delivery (tracking + carrier confirmation) or proof of service rendered (access logs, attendance, completed booking)\n  2. Date of delivery / service is before the chargeback date\n  3. Delivery address matches the cardholder's records",
@@ -103,20 +106,20 @@
     "Flag: shipping postcode LS9 8AA differs from billing postcode LS1 4DT; delivery-to-cardholder-address requirements are at risk"
   ],
   "raw_response": {
-    "id": "msg_011CfKDzmUsGQSY5b8TNk1zX",
+    "id": "msg_011CfLWMJpC29y4KyLx2kKWT",
     "container": null,
     "content": [
       {
-        "signature": "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",
+        "signature": "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",
         "thinking": "",
         "type": "thinking"
       },
       {
         "citations": null,
-        "text": "{\"reason_code_summary\":\"The issuer alleges the cardholder paid TerraFreight Logistics GBP 412.75 for a freight collection and delivery that was never collected and never delivered. To defend under Mastercard 4855, the merchant must meet all three requirements: proof the service was rendered (tracking plus carrier confirmation), a delivery date before the 2025-05-14 chargeback, and a delivery address that matches the cardholder's records.\",\"requirements\":[{\"requirement_id\":1,\"status\":\"partial\",\"pointers\":[{\"document\":\"CB-2025-0007_consolidated_manifest.pdf\",\"page\":8,\"quote\":\"Consignment TF-9051 (Stentor Bros, ref txn_7745MN): Collected from LS1 4DT at 11:30 on 22\"},{\"document\":\"CB-2025-0007_consolidated_manifest.pdf\",\"page\":8,\"quote\":\"April 2025 and delivered to LS9 8AA at 17:14 the same day. Signed for by warehouse staff at\"},{\"document\":\"CB-2025-0007_consolidated_manifest.pdf\",\"page\":8,\"quote\":\"TF-9051 Stentor Bros LS1 4DT LS9 8AA DELIVERED 22 Apr 17:14 POD-9051-img\"}],\"reasoning\":\"Page 8 ties consignment TF-9051 to txn_7745MN and records collection and delivery, but it is only the merchant's own internal manifest entry. The POD image (POD-9051-img) is referenced but not supplied, the signatory is unnamed ('warehouse staff'), and there is no independent collection scan or telematics log to rebut the claim that the shipment was never collected.\"},{\"requirement_id\":2,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0007_consolidated_manifest.pdf\",\"page\":8,\"quote\":\"April 2025 and delivered to LS9 8AA at 17:14 the same day. Signed for by warehouse staff at\"}],\"reasoning\":\"The recorded delivery date is 22 April 2025, which is before the 14 May 2025 chargeback date. This holds only if the delivery itself is substantiated under requirement 1.\"},{\"requirement_id\":3,\"status\":\"partial\",\"pointers\":[{\"document\":\"CB-2025-0007_consolidated_manifest.pdf\",\"page\":8,\"quote\":\"TF-9051 Stentor Bros LS1 4DT LS9 8AA DELIVERED 22 Apr 17:14 POD-9051-img\"}],\"reasoning\":\"Delivery to LS9 8AA matches the shipping postcode on the transaction, and collection from LS1 4DT matches the AVS-verified billing postcode. However, the pre-check flags a shipping/billing mismatch, and nothing from the cardholder's own booking shows they specified LS9 8AA as the destination. The record is also in the name of 'Stentor Bros', not an identified cardholder.\"}],\"recommended_action\":\"request_more_evidence\",\"action_justification\":\"The manifest links TF-9051 to the transaction, but proof of delivery rests on an internal log whose POD image, collection evidence and booking record are obtainable yet unsupplied.\",\"evidence_to_request\":[\"POD image POD-9051-img for consignment TF-9051, showing the delivery at LS9 8AA on 22 April 2025 with signature and printed name of the recipient\",\"Driver telematics/on-board log or collection scan for TF-9051 showing pickup at LS1 4DT at 11:30 on 22 April 2025 (directly rebuts the 'never collected' claim)\",\"The cardholder's booking confirmation or order record for txn_7745MN showing the collection address (LS1 4DT) and delivery address (LS9 8AA) the cardholder specified\",\"Confirmation of how 'Stentor Bros' relates to the cardholder (e.g. account holder or booking contact details matching the cardholder name and email)\",\"Any tracking/status notifications sent to the cardholder for TF-9051 (collection and delivery emails/SMS)\"],\"rationale\":\"The cardholder disputes a GBP 412.75 freight booking with TerraFreight Logistics, stating the shipment was never collected. The merchant's consolidated manifest (page 8) records consignment TF-9051, referenced to txn_7745MN, with a pickup postcode of LS1 4DT and delivery to LS9 8AA on 22 April 2025, before the 14 May 2025 chargeback. This is an internal log only: the referenced POD image, an independent collection record, and the cardholder's booking showing the specified addresses have not been supplied. Proof of service and the address match are unproven, and the merchant has been asked for these items before representment is decided.\",\"caveats\":[\"Pages 1-7 are seven identical copies of an unrelated routine shipments table (TF-9001 to TF-9008), and pages 9-10 contain no records. Only page 8 relates to this transaction.\",\"Page 8 is headed 'selected'. Three consignments (TF-9051, TF-9053, TF-9054) show the identical LS1 4DT to LS9 8AA route on the same day for different customers. Confirm TF-9051 is the correct consignment and that the txn_7745MN reference is part of the original record, not added for the dispute.\",\"The customer is recorded as 'Stentor Bros' (a business name). The link between this business and the cardholder is not shown.\",\"Timing check: the transaction is timestamped 10:55:19Z. If the manifest's 11:30 collection time is UK local time (BST, UTC+1), the collection would be 10:30 UTC, before payment. Confirm the time zone used in the manifest.\",\"The shipping/billing postcode mismatch is flagged in pre-checks. Delivery to LS9 8AA supports the claim only if the cardholder booked that destination.\",\"AVS Y, CVV M and 3DS authenticated support that the cardholder made the booking, but they do not prove the service was rendered.\",\"The 'signed for by warehouse staff' entry names no individual, which weakens it as delivery confirmation.\"],\"model_confidence\":\"medium\"}",
+        "text": "{\"reason_code_summary\":\"The issuer alleges the cardholder paid TerraFreight for a freight collection and delivery that was never collected or performed. To defend under Mastercard 4855, the merchant must prove all three requirements: (1) delivery or service rendered, backed by tracking and carrier confirmation; (2) a delivery or service date before the 14 May 2025 chargeback; and (3) a delivery address that matches the cardholder's records.\",\"requirements\":[{\"requirement_id\":1,\"status\":\"partial\",\"pointers\":[{\"document\":\"CB-2025-0007_consolidated_manifest.pdf\",\"page\":8,\"quote\":\"Consignment TF-9051 (Stentor Bros, ref txn_7745MN): Collected from LS1 4DT at 11:30 on 22\"},{\"document\":\"CB-2025-0007_consolidated_manifest.pdf\",\"page\":8,\"quote\":\"TF-9051 Stentor Bros LS1 4DT LS9 8AA DELIVERED 22 Apr 17:14 POD-9051-img\"},{\"document\":\"CB-2025-0007_consolidated_manifest.pdf\",\"page\":8,\"quote\":\"POD image on file.\"}],\"reasoning\":\"Page 8 ties consignment TF-9051 to txn_7745MN and records its collection and delivery, but this is the merchant's own internal manifest. The referenced POD image (POD-9051-img) was not supplied, and the signatory is described only as unnamed 'warehouse staff', so collection and delivery are asserted rather than evidenced. Pages 1-7, 9 and 10 are unrelated routine shipments.\"},{\"requirement_id\":2,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0007_consolidated_manifest.pdf\",\"page\":8,\"quote\":\"April 2025 and delivered to LS9 8AA at 17:14 the same day.\"}],\"reasoning\":\"The recorded delivery date of 22 April 2025 is before the 14 May 2025 chargeback date. This date rests on the same internal manifest entry as requirement 1.\"},{\"requirement_id\":3,\"status\":\"partial\",\"pointers\":[{\"document\":\"CB-2025-0007_consolidated_manifest.pdf\",\"page\":8,\"quote\":\"TF-9051 Stentor Bros LS1 4DT LS9 8AA DELIVERED 22 Apr 17:14 POD-9051-img\"}],\"reasoning\":\"The collection postcode LS1 4DT matches the billing postcode, and the destination LS9 8AA matches the shipping postcode on the transaction record. However, the pre-check flags a billing/shipping mismatch, and no booking record shows the cardholder specified LS9 8AA as the destination or that 'Stentor Bros' is the cardholder.\"}],\"recommended_action\":\"request_more_evidence\",\"action_justification\":\"The merchant has a plausible case tied to txn_7745MN, but the POD, independent collection proof and the cardholder's booking instructions are obtainable items not yet supplied.\",\"evidence_to_request\":[\"The POD image POD-9051-img for consignment TF-9051, showing the signature, the signatory's printed name, and the delivery date and time at LS9 8AA\",\"Driver telematics or GPS logs for the TF-9051 vehicle showing arrival at LS1 4DT for collection and at LS9 8AA for delivery on 22 April 2025\",\"The booking confirmation or order record for txn_7745MN showing the cardholder specified collection at LS1 4DT and delivery to LS9 8AA\",\"Confirmation linking the booking customer 'Stentor Bros' to the cardholder or card account used for txn_7745MN\",\"Any collection receipt or driver collection scan for TF-9051 at LS1 4DT\"],\"rationale\":\"The merchant's consolidated manifest, page 8, records consignment TF-9051 against txn_7745MN with collection from LS1 4DT and delivery to LS9 8AA on 22 April 2025. That date is before the 14 May 2025 chargeback. The record is an internal manifest, and the referenced proof-of-delivery image has not been provided, so collection and delivery remain unproven against the cardholder's claim that the shipment was never collected. The destination postcode differs from the billing postcode, and no booking record yet shows the cardholder designated LS9 8AA. The case is pending receipt of the POD, telematics records and the booking confirmation.\",\"caveats\":[\"Timing conflict: the transaction timestamp is 10:55 UTC (11:55 BST), while the manifest records collection at 11:30. If that time is local, collection would precede payment. Confirm the time zone used in the manifest.\",\"Consignments TF-9053 (Mason & Co) and TF-9054 (FurnitureRUs) show the identical route LS1 4DT to LS9 8AA on the same day under different customer names. Check that TF-9051 is correctly attributed to this cardholder's transaction.\",\"The customer name 'Stentor Bros' may not match the cardholder name. Verify it against the issuer's cardholder details.\",\"Pages 1-7 repeat the same unrelated routine shipment table, and pages 9-10 contain no relevant content. Only page 8 relates to this case.\",\"The pre-check flags a shipping/billing postcode mismatch (LS9 8AA vs LS1 4DT). For a freight service a different destination is expected, but the issuer may still challenge requirement 3 without a booking record.\",\"AVS Y, CVV M and 3DS authenticated support that the cardholder made the booking, but they do not prove the service was rendered.\"],\"model_confidence\":\"medium\"}",
         "type": "text",
         "parsed_output": {
-          "reason_code_summary": "The issuer alleges the cardholder paid TerraFreight Logistics GBP 412.75 for a freight collection and delivery that was never collected and never delivered. To defend under Mastercard 4855, the merchant must meet all three requirements: proof the service was rendered (tracking plus carrier confirmation), a delivery date before the 2025-05-14 chargeback, and a delivery address that matches the cardholder's records.",
+          "reason_code_summary": "The issuer alleges the cardholder paid TerraFreight for a freight collection and delivery that was never collected or performed. To defend under Mastercard 4855, the merchant must prove all three requirements: (1) delivery or service rendered, backed by tracking and carrier confirmation; (2) a delivery or service date before the 14 May 2025 chargeback; and (3) a delivery address that matches the cardholder's records.",
           "requirements": [
             {
               "requirement_id": 1,
@@ -130,15 +133,15 @@
                 {
                   "document": "CB-2025-0007_consolidated_manifest.pdf",
                   "page": 8,
-                  "quote": "April 2025 and delivered to LS9 8AA at 17:14 the same day. Signed for by warehouse staff at"
+                  "quote": "TF-9051 Stentor Bros LS1 4DT LS9 8AA DELIVERED 22 Apr 17:14 POD-9051-img"
                 },
                 {
                   "document": "CB-2025-0007_consolidated_manifest.pdf",
                   "page": 8,
-                  "quote": "TF-9051 Stentor Bros LS1 4DT LS9 8AA DELIVERED 22 Apr 17:14 POD-9051-img"
+                  "quote": "POD image on file."
                 }
               ],
-              "reasoning": "Page 8 ties consignment TF-9051 to txn_7745MN and records collection and delivery, but it is only the merchant's own internal manifest entry. The POD image (POD-9051-img) is referenced but not supplied, the signatory is unnamed ('warehouse staff'), and there is no independent collection scan or telematics log to rebut the claim that the shipment was never collected."
+              "reasoning": "Page 8 ties consignment TF-9051 to txn_7745MN and records its collection and delivery, but this is the merchant's own internal manifest. The referenced POD image (POD-9051-img) was not supplied, and the signatory is described only as unnamed 'warehouse staff', so collection and delivery are asserted rather than evidenced. Pages 1-7, 9 and 10 are unrelated routine shipments."
             },
             {
               "requirement_id": 2,
@@ -147,10 +150,10 @@
                 {
                   "document": "CB-2025-0007_consolidated_manifest.pdf",
                   "page": 8,
-                  "quote": "April 2025 and delivered to LS9 8AA at 17:14 the same day. Signed for by warehouse staff at"
+                  "quote": "April 2025 and delivered to LS9 8AA at 17:14 the same day."
                 }
               ],
-              "reasoning": "The recorded delivery date is 22 April 2025, which is before the 14 May 2025 chargeback date. This holds only if the delivery itself is substantiated under requirement 1."
+              "reasoning": "The recorded delivery date of 22 April 2025 is before the 14 May 2025 chargeback date. This date rests on the same internal manifest entry as requirement 1."
             },
             {
               "requirement_id": 3,
@@ -162,27 +165,26 @@
                   "quote": "TF-9051 Stentor Bros LS1 4DT LS9 8AA DELIVERED 22 Apr 17:14 POD-9051-img"
                 }
               ],
-              "reasoning": "Delivery to LS9 8AA matches the shipping postcode on the transaction, and collection from LS1 4DT matches the AVS-verified billing postcode. However, the pre-check flags a shipping/billing mismatch, and nothing from the cardholder's own booking shows they specified LS9 8AA as the destination. The record is also in the name of 'Stentor Bros', not an identified cardholder."
+              "reasoning": "The collection postcode LS1 4DT matches the billing postcode, and the destination LS9 8AA matches the shipping postcode on the transaction record. However, the pre-check flags a billing/shipping mismatch, and no booking record shows the cardholder specified LS9 8AA as the destination or that 'Stentor Bros' is the cardholder."
             }
           ],
           "recommended_action": "request_more_evidence",
-          "action_justification": "The manifest links TF-9051 to the transaction, but proof of delivery rests on an internal log whose POD image, collection evidence and booking record are obtainable yet unsupplied.",
+          "action_justification": "The merchant has a plausible case tied to txn_7745MN, but the POD, independent collection proof and the cardholder's booking instructions are obtainable items not yet supplied.",
           "evidence_to_request": [
-            "POD image POD-9051-img for consignment TF-9051, showing the delivery at LS9 8AA on 22 April 2025 with signature and printed name of the recipient",
-            "Driver telematics/on-board log or collection scan for TF-9051 showing pickup at LS1 4DT at 11:30 on 22 April 2025 (directly rebuts the 'never collected' claim)",
-            "The cardholder's booking confirmation or order record for txn_7745MN showing the collection address (LS1 4DT) and delivery address (LS9 8AA) the cardholder specified",
-            "Confirmation of how 'Stentor Bros' relates to the cardholder (e.g. account holder or booking contact details matching the cardholder name and email)",
-            "Any tracking/status notifications sent to the cardholder for TF-9051 (collection and delivery emails/SMS)"
+            "The POD image POD-9051-img for consignment TF-9051, showing the signature, the signatory's printed name, and the delivery date and time at LS9 8AA",
+            "Driver telematics or GPS logs for the TF-9051 vehicle showing arrival at LS1 4DT for collection and at LS9 8AA for delivery on 22 April 2025",
+            "The booking confirmation or order record for txn_7745MN showing the cardholder specified collection at LS1 4DT and delivery to LS9 8AA",
+            "Confirmation linking the booking customer 'Stentor Bros' to the cardholder or card account used for txn_7745MN",
+            "Any collection receipt or driver collection scan for TF-9051 at LS1 4DT"
           ],
-          "rationale": "The cardholder disputes a GBP 412.75 freight booking with TerraFreight Logistics, stating the shipment was never collected. The merchant's consolidated manifest (page 8) records consignment TF-9051, referenced to txn_7745MN, with a pickup postcode of LS1 4DT and delivery to LS9 8AA on 22 April 2025, before the 14 May 2025 chargeback. This is an internal log only: the referenced POD image, an independent collection record, and the cardholder's booking showing the specified addresses have not been supplied. Proof of service and the address match are unproven, and the merchant has been asked for these items before representment is decided.",
+          "rationale": "The merchant's consolidated manifest, page 8, records consignment TF-9051 against txn_7745MN with collection from LS1 4DT and delivery to LS9 8AA on 22 April 2025. That date is before the 14 May 2025 chargeback. The record is an internal manifest, and the referenced proof-of-delivery image has not been provided, so collection and delivery remain unproven against the cardholder's claim that the shipment was never collected. The destination postcode differs from the billing postcode, and no booking record yet shows the cardholder designated LS9 8AA. The case is pending receipt of the POD, telematics records and the booking confirmation.",
           "caveats": [
-            "Pages 1-7 are seven identical copies of an unrelated routine shipments table (TF-9001 to TF-9008), and pages 9-10 contain no records. Only page 8 relates to this transaction.",
-            "Page 8 is headed 'selected'. Three consignments (TF-9051, TF-9053, TF-9054) show the identical LS1 4DT to LS9 8AA route on the same day for different customers. Confirm TF-9051 is the correct consignment and that the txn_7745MN reference is part of the original record, not added for the dispute.",
-            "The customer is recorded as 'Stentor Bros' (a business name). The link between this business and the cardholder is not shown.",
-            "Timing check: the transaction is timestamped 10:55:19Z. If the manifest's 11:30 collection time is UK local time (BST, UTC+1), the collection would be 10:30 UTC, before payment. Confirm the time zone used in the manifest.",
-            "The shipping/billing postcode mismatch is flagged in pre-checks. Delivery to LS9 8AA supports the claim only if the cardholder booked that destination.",
-            "AVS Y, CVV M and 3DS authenticated support that the cardholder made the booking, but they do not prove the service was rendered.",
-            "The 'signed for by warehouse staff' entry names no individual, which weakens it as delivery confirmation."
+            "Timing conflict: the transaction timestamp is 10:55 UTC (11:55 BST), while the manifest records collection at 11:30. If that time is local, collection would precede payment. Confirm the time zone used in the manifest.",
+            "Consignments TF-9053 (Mason & Co) and TF-9054 (FurnitureRUs) show the identical route LS1 4DT to LS9 8AA on the same day under different customer names. Check that TF-9051 is correctly attributed to this cardholder's transaction.",
+            "The customer name 'Stentor Bros' may not match the cardholder name. Verify it against the issuer's cardholder details.",
+            "Pages 1-7 repeat the same unrelated routine shipment table, and pages 9-10 contain no relevant content. Only page 8 relates to this case.",
+            "The pre-check flags a shipping/billing postcode mismatch (LS9 8AA vs LS1 4DT). For a freight service a different destination is expected, but the issuer may still challenge requirement 3 without a booking record.",
+            "AVS Y, CVV M and 3DS authenticated support that the cardholder made the booking, but they do not prove the service was rendered."
           ],
           "model_confidence": "medium"
         }
@@ -202,10 +204,10 @@
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 0,
       "inference_geo": "global",
-      "input_tokens": 6897,
-      "output_tokens": 3384,
+      "input_tokens": 7480,
+      "output_tokens": 2937,
       "output_tokens_details": {
-        "thinking_tokens": 1346
+        "thinking_tokens": 1061
       },
       "server_tool_use": null,
       "service_tier": "standard"

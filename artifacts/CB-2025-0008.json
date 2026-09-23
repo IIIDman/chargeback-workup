@@ -1,9 +1,9 @@
 {
   "case_id": "CB-2025-0008",
-  "fingerprint": "d3b46cf65dd2acad",
+  "fingerprint": "e051e2207ca6e89e",
   "model": "claude-opus-5-5",
   "workup": {
-    "reason_code_summary": "The issuer alleges the cardholder cancelled their FluxFit Online subscription on 18 March 2025 but was still charged £29.99 on 20 April 2025. To defend under Visa 13.2, the merchant must prove all four: (1) terms disclosing the recurring billing and how to cancel, (2) advance notice of the upcoming charge where the amount exceeds the threshold, (3) no record of a cancellation request before the billing date, and (4) the cardholder's original opt-in to recurring billing.",
+    "reason_code_summary": "The issuer alleges the cardholder cancelled their FluxFit subscription on 18 March 2025 and was still billed GBP 29.99 on 20 April 2025. To defend under Visa 13.2 the merchant must prove all four of the following: terms disclosing recurring billing and how to cancel, advance notice of the upcoming charge, no cancellation request before the billing date, and the cardholder's original opt-in to recurring billing.",
     "requirements": [
       {
         "requirement_id": 1,
@@ -12,48 +12,56 @@
           {
             "document": "CB-2025-0008_subscription_terms.pdf",
             "page": 1,
-            "quote": "Subscriptions auto-renew\nmonthly at the rate disclosed at signup until cancelled. Members may cancel at any time via their\naccount dashboard or by emailing support@fluxfit.example."
+            "quote": "Subscriptions auto-renew monthly at the rate disclosed at signup until cancelled. Members may cancel at any time via their account dashboard or by emailing support@fluxfit.example."
           }
         ],
-        "reasoning": "The published terms disclose monthly auto-renewal and two cancellation methods (dashboard or email). This proves only what the terms say. It does not prove the cardholder saw or accepted them, which falls under requirement 4."
+        "reasoning": "The terms disclose monthly auto-renewal and two cancellation methods. They are version terms_v3.2, published February 2025, and nothing shows this version was in force when the cardholder signed up."
       },
       {
         "requirement_id": 2,
-        "status": "missing",
-        "pointers": [],
-        "reasoning": "The terms state a policy of emailing members at least 5 days before renewal, but no notification email, send log or delivery record for this cardholder's 20 April renewal was supplied. A policy is not proof the notice was sent. The stated 5-day window is also shorter than the typical 7-day expectation."
+        "status": "partial",
+        "pointers": [
+          {
+            "document": "CB-2025-0008_subscription_terms.pdf",
+            "page": 1,
+            "quote": "Members will be notified by email at least 5 days prior to each renewal."
+          }
+        ],
+        "reasoning": "This is a policy statement only. There is no email, send log or delivery record showing a reminder was sent to this cardholder before the 20 April 2025 charge, and the stated 5-day window is shorter than the typical 7+ days. Whether GBP 29.99 is above the notification threshold is not established."
       },
       {
         "requirement_id": 3,
         "status": "missing",
         "pointers": [],
-        "reasoning": "No account activity log, dashboard cancellation history or support-inbox search was provided. Nothing addresses the cardholder's claim of a cancellation on 18 March 2025."
+        "reasoning": "The merchant has supplied no account history, cancellation log or support-ticket search showing that no cancellation was received before 20 April 2025. The cardholder specifically claims to have cancelled on 18 March 2025."
       },
       {
         "requirement_id": 4,
         "status": "missing",
         "pointers": [],
-        "reasoning": "No signup record, checkbox or consent log, timestamp, or initial transaction record shows this cardholder opted in to recurring billing. The terms' statement 'By subscribing to FluxFit Online, members agree' is generic policy, not evidence of this cardholder's consent."
+        "reasoning": "There is no signup record, checkbox or consent log, or initial transaction evidence showing the cardholder opted in to recurring billing. The generic terms document does not prove this cardholder accepted it."
       }
     ],
     "recommended_action": "request_more_evidence",
-    "action_justification": "Only the terms requirement is met; the other three rest on account and email records the merchant should hold and can supply.",
+    "action_justification": "Only one of four required elements is satisfied, and the missing items (cancellation log, reminder email record, opt-in record) are system records the merchant should be able to supply.",
     "evidence_to_request": [
-      "Account activity/audit log for the cardholder covering at least 1 March 2025 to 20 April 2025, showing no cancellation via the dashboard, with timestamps",
-      "Search results of the support@fluxfit.example inbox and ticketing system for any contact or cancellation request from the cardholder's email address before 20 April 2025",
-      "Email send/delivery log and a copy of the renewal notification sent to the cardholder before the 20 April 2025 charge, showing send date and recipient address",
-      "Original signup record: date and time, the recurring-billing consent checkbox or acknowledgement, the terms version presented, and the initial transaction reference",
-      "Confirmation of the cardholder's billing cycle anchor date and full billing history for the subscription"
+      "Full account activity and cancellation log for the cardholder's account, covering signup to the present, showing no cancellation via the dashboard before 20 April 2025.",
+      "Search results from the support@fluxfit.example mailbox and ticketing system for any contact from the cardholder between 1 March and 20 April 2025, specifically around 18 March 2025.",
+      "The renewal reminder email sent for the 20 April 2025 charge, with send timestamp, recipient address and delivery status from the email platform log.",
+      "The signup/opt-in record: signup date, IP and timestamp, the recurring-billing consent checkbox or acceptance record, and the terms version accepted at signup.",
+      "If signup predates February 2025, the terms version in force at signup showing the recurring billing and cancellation disclosures.",
+      "The cardholder's billing history (prior renewal dates and amounts), to establish the billing cycle."
     ],
-    "rationale": "The merchant has supplied only its published Membership Terms (terms_v3.2), which disclose monthly auto-renewal and the dashboard and email cancellation methods. There is no evidence that a renewal notice was sent to this cardholder before the 20 April 2025 charge. There is no record addressing the cardholder's stated cancellation on 18 March 2025, and no record of the cardholder's original opt-in to recurring billing. Visa 13.2 requires all four requirements, so the case cannot be represented on the current file. The merchant has been asked for account logs, support-inbox records, notification send logs and the signup consent record.",
+    "rationale": "FluxFit Online's published terms (terms_v3.2) disclose monthly auto-renewal and cancellation via the account dashboard or email. The merchant has not provided evidence that a renewal notice was sent to this cardholder before the 20 April 2025 charge. It has not provided a record showing that no cancellation was received before that date. It has not provided the cardholder's original opt-in to recurring billing. The case does not meet the all-four requirement of Visa 13.2 and is pending the merchant's account, cancellation, notification and signup records.",
     "caveats": [
-      "The cardholder claims cancellation on 18 March 2025. Under the merchant's own terms, cancellations take effect at the end of the current billing period, so if the billing anchor is the 20th, a 18 March cancellation would have stopped the 20 April renewal. The merchant's evidence must show no cancellation occurred, not merely that one was deferred.",
-      "The terms promise 5 days' renewal notice, below the typical 7-day expectation. Confirm whether £29.99 falls above or below the applicable notification threshold.",
-      "The terms document is version 3.2, published February 2025. Confirm which terms version was in force and presented at the cardholder's original signup, which may predate February 2025.",
-      "AVS Y, CVV M and frictionless 3DS confirm the cardholder's card and authentication on the transaction. These are not relevant to a cancellation dispute and do not substitute for any 13.2 requirement.",
-      "The terms clause that failure to receive a notification is not grounds for refund does not override the scheme's notification requirement."
+      "The cardholder cites a specific cancellation date (18 March 2025). If the merchant's logs or support inbox show any contact on or around that date, the charge is indefensible and liability should be accepted.",
+      "The terms say cancellations take effect at the end of the current billing period. If billing runs on the 20th, a 18 March cancellation would end the subscription around 20 March, so the 20 April charge would still be after cancellation. This clause does not help the merchant here.",
+      "The terms promise only 5 days' notice, not the typical 7+ days. Confirm the applicable notification threshold for a GBP 29.99 UK transaction.",
+      "The terms document was published February 2025 and states it applies to all members. It is a policy document, not proof this cardholder saw or accepted it. Signup may predate this version.",
+      "AVS Y, CVV M and frictionless 3DS confirm card authentication but are not relevant to whether the subscription was cancelled.",
+      "The transaction timestamp of 2025-04-20T00:00:01Z indicates an automated renewal run, which is consistent with a recurring charge."
     ],
-    "model_confidence": "medium"
+    "model_confidence": "high"
   },
   "usage": {
     "cache_creation": {
@@ -63,10 +71,10 @@
     "cache_creation_input_tokens": 0,
     "cache_read_input_tokens": 0,
     "inference_geo": "global",
-    "input_tokens": 3937,
-    "output_tokens": 2201,
+    "input_tokens": 4002,
+    "output_tokens": 2140,
     "output_tokens_details": {
-      "thinking_tokens": 617
+      "thinking_tokens": 493
     },
     "server_tool_use": null,
     "service_tier": "standard"
@@ -84,20 +92,20 @@
     "Chargeback raised 15 days after the transaction"
   ],
   "raw_response": {
-    "id": "msg_011CfKE2zmdJX236DDxJdyQo",
+    "id": "msg_011CfLWPXbgppwL9iY16o6BQ",
     "container": null,
     "content": [
       {
-        "signature": "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",
+        "signature": "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",
         "thinking": "",
         "type": "thinking"
       },
       {
         "citations": null,
-        "text": "{\"reason_code_summary\":\"The issuer alleges the cardholder cancelled their FluxFit Online subscription on 18 March 2025 but was still charged £29.99 on 20 April 2025. To defend under Visa 13.2, the merchant must prove all four: (1) terms disclosing the recurring billing and how to cancel, (2) advance notice of the upcoming charge where the amount exceeds the threshold, (3) no record of a cancellation request before the billing date, and (4) the cardholder's original opt-in to recurring billing.\",\"requirements\":[{\"requirement_id\":1,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0008_subscription_terms.pdf\",\"page\":1,\"quote\":\"Subscriptions auto-renew\\nmonthly at the rate disclosed at signup until cancelled. Members may cancel at any time via their\\naccount dashboard or by emailing support@fluxfit.example.\"}],\"reasoning\":\"The published terms disclose monthly auto-renewal and two cancellation methods (dashboard or email). This proves only what the terms say. It does not prove the cardholder saw or accepted them, which falls under requirement 4.\"},{\"requirement_id\":2,\"status\":\"missing\",\"pointers\":[],\"reasoning\":\"The terms state a policy of emailing members at least 5 days before renewal, but no notification email, send log or delivery record for this cardholder's 20 April renewal was supplied. A policy is not proof the notice was sent. The stated 5-day window is also shorter than the typical 7-day expectation.\"},{\"requirement_id\":3,\"status\":\"missing\",\"pointers\":[],\"reasoning\":\"No account activity log, dashboard cancellation history or support-inbox search was provided. Nothing addresses the cardholder's claim of a cancellation on 18 March 2025.\"},{\"requirement_id\":4,\"status\":\"missing\",\"pointers\":[],\"reasoning\":\"No signup record, checkbox or consent log, timestamp, or initial transaction record shows this cardholder opted in to recurring billing. The terms' statement 'By subscribing to FluxFit Online, members agree' is generic policy, not evidence of this cardholder's consent.\"}],\"recommended_action\":\"request_more_evidence\",\"action_justification\":\"Only the terms requirement is met; the other three rest on account and email records the merchant should hold and can supply.\",\"evidence_to_request\":[\"Account activity/audit log for the cardholder covering at least 1 March 2025 to 20 April 2025, showing no cancellation via the dashboard, with timestamps\",\"Search results of the support@fluxfit.example inbox and ticketing system for any contact or cancellation request from the cardholder's email address before 20 April 2025\",\"Email send/delivery log and a copy of the renewal notification sent to the cardholder before the 20 April 2025 charge, showing send date and recipient address\",\"Original signup record: date and time, the recurring-billing consent checkbox or acknowledgement, the terms version presented, and the initial transaction reference\",\"Confirmation of the cardholder's billing cycle anchor date and full billing history for the subscription\"],\"rationale\":\"The merchant has supplied only its published Membership Terms (terms_v3.2), which disclose monthly auto-renewal and the dashboard and email cancellation methods. There is no evidence that a renewal notice was sent to this cardholder before the 20 April 2025 charge. There is no record addressing the cardholder's stated cancellation on 18 March 2025, and no record of the cardholder's original opt-in to recurring billing. Visa 13.2 requires all four requirements, so the case cannot be represented on the current file. The merchant has been asked for account logs, support-inbox records, notification send logs and the signup consent record.\",\"caveats\":[\"The cardholder claims cancellation on 18 March 2025. Under the merchant's own terms, cancellations take effect at the end of the current billing period, so if the billing anchor is the 20th, a 18 March cancellation would have stopped the 20 April renewal. The merchant's evidence must show no cancellation occurred, not merely that one was deferred.\",\"The terms promise 5 days' renewal notice, below the typical 7-day expectation. Confirm whether £29.99 falls above or below the applicable notification threshold.\",\"The terms document is version 3.2, published February 2025. Confirm which terms version was in force and presented at the cardholder's original signup, which may predate February 2025.\",\"AVS Y, CVV M and frictionless 3DS confirm the cardholder's card and authentication on the transaction. These are not relevant to a cancellation dispute and do not substitute for any 13.2 requirement.\",\"The terms clause that failure to receive a notification is not grounds for refund does not override the scheme's notification requirement.\"],\"model_confidence\":\"medium\"}",
+        "text": "{\"reason_code_summary\":\"The issuer alleges the cardholder cancelled their FluxFit subscription on 18 March 2025 and was still billed GBP 29.99 on 20 April 2025. To defend under Visa 13.2 the merchant must prove all four of the following: terms disclosing recurring billing and how to cancel, advance notice of the upcoming charge, no cancellation request before the billing date, and the cardholder's original opt-in to recurring billing.\",\"requirements\":[{\"requirement_id\":1,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0008_subscription_terms.pdf\",\"page\":1,\"quote\":\"Subscriptions auto-renew monthly at the rate disclosed at signup until cancelled. Members may cancel at any time via their account dashboard or by emailing support@fluxfit.example.\"}],\"reasoning\":\"The terms disclose monthly auto-renewal and two cancellation methods. They are version terms_v3.2, published February 2025, and nothing shows this version was in force when the cardholder signed up.\"},{\"requirement_id\":2,\"status\":\"partial\",\"pointers\":[{\"document\":\"CB-2025-0008_subscription_terms.pdf\",\"page\":1,\"quote\":\"Members will be notified by email at least 5 days prior to each renewal.\"}],\"reasoning\":\"This is a policy statement only. There is no email, send log or delivery record showing a reminder was sent to this cardholder before the 20 April 2025 charge, and the stated 5-day window is shorter than the typical 7+ days. Whether GBP 29.99 is above the notification threshold is not established.\"},{\"requirement_id\":3,\"status\":\"missing\",\"pointers\":[],\"reasoning\":\"The merchant has supplied no account history, cancellation log or support-ticket search showing that no cancellation was received before 20 April 2025. The cardholder specifically claims to have cancelled on 18 March 2025.\"},{\"requirement_id\":4,\"status\":\"missing\",\"pointers\":[],\"reasoning\":\"There is no signup record, checkbox or consent log, or initial transaction evidence showing the cardholder opted in to recurring billing. The generic terms document does not prove this cardholder accepted it.\"}],\"recommended_action\":\"request_more_evidence\",\"action_justification\":\"Only one of four required elements is satisfied, and the missing items (cancellation log, reminder email record, opt-in record) are system records the merchant should be able to supply.\",\"evidence_to_request\":[\"Full account activity and cancellation log for the cardholder's account, covering signup to the present, showing no cancellation via the dashboard before 20 April 2025.\",\"Search results from the support@fluxfit.example mailbox and ticketing system for any contact from the cardholder between 1 March and 20 April 2025, specifically around 18 March 2025.\",\"The renewal reminder email sent for the 20 April 2025 charge, with send timestamp, recipient address and delivery status from the email platform log.\",\"The signup/opt-in record: signup date, IP and timestamp, the recurring-billing consent checkbox or acceptance record, and the terms version accepted at signup.\",\"If signup predates February 2025, the terms version in force at signup showing the recurring billing and cancellation disclosures.\",\"The cardholder's billing history (prior renewal dates and amounts), to establish the billing cycle.\"],\"rationale\":\"FluxFit Online's published terms (terms_v3.2) disclose monthly auto-renewal and cancellation via the account dashboard or email. The merchant has not provided evidence that a renewal notice was sent to this cardholder before the 20 April 2025 charge. It has not provided a record showing that no cancellation was received before that date. It has not provided the cardholder's original opt-in to recurring billing. The case does not meet the all-four requirement of Visa 13.2 and is pending the merchant's account, cancellation, notification and signup records.\",\"caveats\":[\"The cardholder cites a specific cancellation date (18 March 2025). If the merchant's logs or support inbox show any contact on or around that date, the charge is indefensible and liability should be accepted.\",\"The terms say cancellations take effect at the end of the current billing period. If billing runs on the 20th, a 18 March cancellation would end the subscription around 20 March, so the 20 April charge would still be after cancellation. This clause does not help the merchant here.\",\"The terms promise only 5 days' notice, not the typical 7+ days. Confirm the applicable notification threshold for a GBP 29.99 UK transaction.\",\"The terms document was published February 2025 and states it applies to all members. It is a policy document, not proof this cardholder saw or accepted it. Signup may predate this version.\",\"AVS Y, CVV M and frictionless 3DS confirm card authentication but are not relevant to whether the subscription was cancelled.\",\"The transaction timestamp of 2025-04-20T00:00:01Z indicates an automated renewal run, which is consistent with a recurring charge.\"],\"model_confidence\":\"high\"}",
         "type": "text",
         "parsed_output": {
-          "reason_code_summary": "The issuer alleges the cardholder cancelled their FluxFit Online subscription on 18 March 2025 but was still charged £29.99 on 20 April 2025. To defend under Visa 13.2, the merchant must prove all four: (1) terms disclosing the recurring billing and how to cancel, (2) advance notice of the upcoming charge where the amount exceeds the threshold, (3) no record of a cancellation request before the billing date, and (4) the cardholder's original opt-in to recurring billing.",
+          "reason_code_summary": "The issuer alleges the cardholder cancelled their FluxFit subscription on 18 March 2025 and was still billed GBP 29.99 on 20 April 2025. To defend under Visa 13.2 the merchant must prove all four of the following: terms disclosing recurring billing and how to cancel, advance notice of the upcoming charge, no cancellation request before the billing date, and the cardholder's original opt-in to recurring billing.",
           "requirements": [
             {
               "requirement_id": 1,
@@ -106,48 +114,56 @@
                 {
                   "document": "CB-2025-0008_subscription_terms.pdf",
                   "page": 1,
-                  "quote": "Subscriptions auto-renew\nmonthly at the rate disclosed at signup until cancelled. Members may cancel at any time via their\naccount dashboard or by emailing support@fluxfit.example."
+                  "quote": "Subscriptions auto-renew monthly at the rate disclosed at signup until cancelled. Members may cancel at any time via their account dashboard or by emailing support@fluxfit.example."
                 }
               ],
-              "reasoning": "The published terms disclose monthly auto-renewal and two cancellation methods (dashboard or email). This proves only what the terms say. It does not prove the cardholder saw or accepted them, which falls under requirement 4."
+              "reasoning": "The terms disclose monthly auto-renewal and two cancellation methods. They are version terms_v3.2, published February 2025, and nothing shows this version was in force when the cardholder signed up."
             },
             {
               "requirement_id": 2,
-              "status": "missing",
-              "pointers": [],
-              "reasoning": "The terms state a policy of emailing members at least 5 days before renewal, but no notification email, send log or delivery record for this cardholder's 20 April renewal was supplied. A policy is not proof the notice was sent. The stated 5-day window is also shorter than the typical 7-day expectation."
+              "status": "partial",
+              "pointers": [
+                {
+                  "document": "CB-2025-0008_subscription_terms.pdf",
+                  "page": 1,
+                  "quote": "Members will be notified by email at least 5 days prior to each renewal."
+                }
+              ],
+              "reasoning": "This is a policy statement only. There is no email, send log or delivery record showing a reminder was sent to this cardholder before the 20 April 2025 charge, and the stated 5-day window is shorter than the typical 7+ days. Whether GBP 29.99 is above the notification threshold is not established."
             },
             {
               "requirement_id": 3,
               "status": "missing",
               "pointers": [],
-              "reasoning": "No account activity log, dashboard cancellation history or support-inbox search was provided. Nothing addresses the cardholder's claim of a cancellation on 18 March 2025."
+              "reasoning": "The merchant has supplied no account history, cancellation log or support-ticket search showing that no cancellation was received before 20 April 2025. The cardholder specifically claims to have cancelled on 18 March 2025."
             },
             {
               "requirement_id": 4,
               "status": "missing",
               "pointers": [],
-              "reasoning": "No signup record, checkbox or consent log, timestamp, or initial transaction record shows this cardholder opted in to recurring billing. The terms' statement 'By subscribing to FluxFit Online, members agree' is generic policy, not evidence of this cardholder's consent."
+              "reasoning": "There is no signup record, checkbox or consent log, or initial transaction evidence showing the cardholder opted in to recurring billing. The generic terms document does not prove this cardholder accepted it."
             }
           ],
           "recommended_action": "request_more_evidence",
-          "action_justification": "Only the terms requirement is met; the other three rest on account and email records the merchant should hold and can supply.",
+          "action_justification": "Only one of four required elements is satisfied, and the missing items (cancellation log, reminder email record, opt-in record) are system records the merchant should be able to supply.",
           "evidence_to_request": [
-            "Account activity/audit log for the cardholder covering at least 1 March 2025 to 20 April 2025, showing no cancellation via the dashboard, with timestamps",
-            "Search results of the support@fluxfit.example inbox and ticketing system for any contact or cancellation request from the cardholder's email address before 20 April 2025",
-            "Email send/delivery log and a copy of the renewal notification sent to the cardholder before the 20 April 2025 charge, showing send date and recipient address",
-            "Original signup record: date and time, the recurring-billing consent checkbox or acknowledgement, the terms version presented, and the initial transaction reference",
-            "Confirmation of the cardholder's billing cycle anchor date and full billing history for the subscription"
+            "Full account activity and cancellation log for the cardholder's account, covering signup to the present, showing no cancellation via the dashboard before 20 April 2025.",
+            "Search results from the support@fluxfit.example mailbox and ticketing system for any contact from the cardholder between 1 March and 20 April 2025, specifically around 18 March 2025.",
+            "The renewal reminder email sent for the 20 April 2025 charge, with send timestamp, recipient address and delivery status from the email platform log.",
+            "The signup/opt-in record: signup date, IP and timestamp, the recurring-billing consent checkbox or acceptance record, and the terms version accepted at signup.",
+            "If signup predates February 2025, the terms version in force at signup showing the recurring billing and cancellation disclosures.",
+            "The cardholder's billing history (prior renewal dates and amounts), to establish the billing cycle."
           ],
-          "rationale": "The merchant has supplied only its published Membership Terms (terms_v3.2), which disclose monthly auto-renewal and the dashboard and email cancellation methods. There is no evidence that a renewal notice was sent to this cardholder before the 20 April 2025 charge. There is no record addressing the cardholder's stated cancellation on 18 March 2025, and no record of the cardholder's original opt-in to recurring billing. Visa 13.2 requires all four requirements, so the case cannot be represented on the current file. The merchant has been asked for account logs, support-inbox records, notification send logs and the signup consent record.",
+          "rationale": "FluxFit Online's published terms (terms_v3.2) disclose monthly auto-renewal and cancellation via the account dashboard or email. The merchant has not provided evidence that a renewal notice was sent to this cardholder before the 20 April 2025 charge. It has not provided a record showing that no cancellation was received before that date. It has not provided the cardholder's original opt-in to recurring billing. The case does not meet the all-four requirement of Visa 13.2 and is pending the merchant's account, cancellation, notification and signup records.",
           "caveats": [
-            "The cardholder claims cancellation on 18 March 2025. Under the merchant's own terms, cancellations take effect at the end of the current billing period, so if the billing anchor is the 20th, a 18 March cancellation would have stopped the 20 April renewal. The merchant's evidence must show no cancellation occurred, not merely that one was deferred.",
-            "The terms promise 5 days' renewal notice, below the typical 7-day expectation. Confirm whether £29.99 falls above or below the applicable notification threshold.",
-            "The terms document is version 3.2, published February 2025. Confirm which terms version was in force and presented at the cardholder's original signup, which may predate February 2025.",
-            "AVS Y, CVV M and frictionless 3DS confirm the cardholder's card and authentication on the transaction. These are not relevant to a cancellation dispute and do not substitute for any 13.2 requirement.",
-            "The terms clause that failure to receive a notification is not grounds for refund does not override the scheme's notification requirement."
+            "The cardholder cites a specific cancellation date (18 March 2025). If the merchant's logs or support inbox show any contact on or around that date, the charge is indefensible and liability should be accepted.",
+            "The terms say cancellations take effect at the end of the current billing period. If billing runs on the 20th, a 18 March cancellation would end the subscription around 20 March, so the 20 April charge would still be after cancellation. This clause does not help the merchant here.",
+            "The terms promise only 5 days' notice, not the typical 7+ days. Confirm the applicable notification threshold for a GBP 29.99 UK transaction.",
+            "The terms document was published February 2025 and states it applies to all members. It is a policy document, not proof this cardholder saw or accepted it. Signup may predate this version.",
+            "AVS Y, CVV M and frictionless 3DS confirm card authentication but are not relevant to whether the subscription was cancelled.",
+            "The transaction timestamp of 2025-04-20T00:00:01Z indicates an automated renewal run, which is consistent with a recurring charge."
           ],
-          "model_confidence": "medium"
+          "model_confidence": "high"
         }
       }
     ],
@@ -165,10 +181,10 @@
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 0,
       "inference_geo": "global",
-      "input_tokens": 3937,
-      "output_tokens": 2201,
+      "input_tokens": 4002,
+      "output_tokens": 2140,
       "output_tokens_details": {
-        "thinking_tokens": 617
+        "thinking_tokens": 493
       },
       "server_tool_use": null,
       "service_tier": "standard"

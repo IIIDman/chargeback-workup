@@ -1,9 +1,9 @@
 {
   "case_id": "CB-2025-0009",
-  "fingerprint": "f3094acef2318ba4",
+  "fingerprint": "1bfbf66b02c9e553",
   "model": "claude-opus-5-5",
   "workup": {
-    "reason_code_summary": "The issuer says the cardholder was charged EUR 215 as a hotel no-show fee and disputes it. To defend a Mastercard 4859 dispute, the merchant must prove all four of the following: the original reservation, the no-show or cancellation policy as disclosed at booking, that the guest failed to show or cancelled outside the policy window, and that the fee charged matches the disclosed policy.",
+    "reason_code_summary": "The issuer says the cardholder disputes a 215 EUR no-show fee from Hotel Marais Saint-Paul. To defend under Mastercard 4859, the merchant must prove all four of the following: the original booking, the no-show/cancellation policy as disclosed at booking, that the guest failed to show or cancelled outside the policy window, and that the fee charged matches the disclosed policy.",
     "requirements": [
       {
         "requirement_id": 1,
@@ -20,11 +20,11 @@
             "quote": "Check-in Saturday 26 April 2025 (from 15:00)"
           }
         ],
-        "reasoning": "The booking confirmation identifies the guest, the booking date, the stay dates, the room, the rate and the Mastercard used, which establishes the reservation."
+        "reasoning": "The booking confirmation identifies booking MSP-2025-4488 for guest K. Adler, booked 12 March 2025, for one night on 26 April 2025, paid with Mastercard **** 4421."
       },
       {
         "requirement_id": 2,
-        "status": "satisfied",
+        "status": "partial",
         "pointers": [
           {
             "document": "CB-2025-0009_booking_confirmation.pdf",
@@ -34,15 +34,10 @@
           {
             "document": "CB-2025-0009_cancellation_policy.pdf",
             "page": 1,
-            "quote": "No refund will be issued for cancellation, modification, no-show, or early departure."
-          },
-          {
-            "document": "CB-2025-0009_cancellation_policy.pdf",
-            "page": 1,
             "quote": "Guest accepted this policy on 12 March 2025 at 09:14 CET via tick-box consent on the booking page (consent_id: cns_4488a)."
           }
         ],
-        "reasoning": "The confirmation issued to the guest states the rate is non-refundable, and the policy text covers no-show. The policy document cites a timestamped consent ID. The consent statement is the merchant's own assertion inside a policy document, not an extract from the consent system, but the confirmation independently shows the non-refundable term was communicated at booking."
+        "reasoning": "The confirmation labels the rate non-refundable, and the policy document states the non-refundable terms. However, the claimed tick-box acceptance is the merchant's own assertion inside the policy document, not a consent log or a capture of the booking page. The policy text proves what the policy says, not that it was shown to and accepted by this cardholder at booking."
       },
       {
         "requirement_id": 3,
@@ -51,49 +46,49 @@
           {
             "document": "CB-2025-0009_front_desk_log.pdf",
             "page": 1,
-            "quote": "Guest not arrived. No contact from guest."
+            "quote": "26 Apr 2025 22:00 Guest not arrived. No contact from guest. S. Bernard"
           },
           {
             "document": "CB-2025-0009_front_desk_log.pdf",
             "page": 1,
-            "quote": "Room held until midnight cut-off per policy. Marked NO-SHOW."
+            "quote": "27 Apr 2025 00:30 Room held until midnight cut-off per policy. Marked NO-SHOW. S. Bernard"
           }
         ],
-        "reasoning": "The contemporaneous front desk log records that the guest did not arrive or make contact and was marked as a no-show after the midnight cut-off. Nothing in the file indicates a cancellation."
+        "reasoning": "The dated front desk log for booking MSP-2025-4488 records that the guest did not arrive, made no contact, and was marked no-show after the midnight cut-off."
       },
       {
         "requirement_id": 4,
         "status": "partial",
         "pointers": [
           {
-            "document": "CB-2025-0009_booking_confirmation.pdf",
-            "page": 1,
-            "quote": "Payment Mastercard **** 4421, charged at booking"
-          },
-          {
             "document": "CB-2025-0009_cancellation_policy.pdf",
             "page": 1,
             "quote": "Non-refundable bookings are charged in full at the time of booking."
+          },
+          {
+            "document": "CB-2025-0009_booking_confirmation.pdf",
+            "page": 1,
+            "quote": "Payment Mastercard **** 4421, charged at booking"
           }
         ],
-        "reasoning": "The EUR 215 disputed amount equals the non-refundable rate. However, the policy and confirmation say the full rate was charged at booking on 12 March 2025, while the disputed transaction is dated 26 April 2025 11:00 UTC. That is before the 15:00 check-in and before any no-show could occur, so the charge does not match the disclosed charging terms and a possible duplicate charge has not been ruled out."
+        "reasoning": "The 215 EUR amount matches the non-refundable rate. However, both the policy and the confirmation say the charge was taken at booking (12 March 2025), while the disputed transaction txn_9967QR is dated 26 April 2025 11:00 UTC. That is either a second charge or a charge timing that departs from the disclosed policy, and it is not reconciled."
       }
     ],
     "recommended_action": "request_more_evidence",
-    "action_justification": "Requirements 1-3 are met. The fee amount matches, but the dispute can only be defended once the merchant explains why the charge is dated 26 April instead of at booking and proves it is the only charge on the reservation.",
+    "action_justification": "The booking and the no-show are proven, but acceptance of the policy is only asserted and the disputed 26 April charge does not match the disclosed charge-at-booking terms; both gaps can be closed with merchant records.",
     "evidence_to_request": [
-      "Full guest folio / payment ledger for booking MSP-2025-4488 showing every authorisation, capture and refund on Mastercard **** 4421, with dates and amounts",
-      "Explanation of transaction txn_9967QR dated 26 April 2025 11:00 UTC, given that the confirmation and policy state the non-refundable rate was 'charged at booking' on 12 March 2025, and confirmation that no separate EUR 215 charge was taken on 12 March 2025",
-      "System extract or screenshot of the booking-page consent record cns_4488a (timestamp, policy text displayed, tick-box accepted)"
+      "Folio or payment ledger for booking MSP-2025-4488 listing every charge, authorisation, capture and refund on Mastercard **** 4421. It should show whether a 215 EUR charge was taken on 12 March 2025 and whether txn_9967QR (26 April 2025, 215 EUR) is that same booking payment (e.g. a delayed capture) or a separate charge.",
+      "System consent log entry for consent_id cns_4488a with timestamp, IP address and the booking session it belongs to.",
+      "Screenshot or archived copy of the booking page as shown on 12 March 2025, displaying the non-refundable / no-show terms next to the tick-box.",
+      "Copy of the booking confirmation email as sent to the guest's address, with send timestamp, showing the non-refundable terms."
     ],
-    "rationale": "Booking MSP-2025-4488 for K. Adler was made on 12 March 2025 for one night on 26 April 2025 at a non-refundable rate of EUR 215.00, and the confirmation issued to the guest states the rate is non-refundable. The front desk log records that the guest did not arrive or make contact and was marked a no-show after the midnight cut-off. The disputed amount equals the disclosed rate. The merchant's own documents state the rate was charged at booking, yet the disputed transaction is dated 26 April 2025 at 11:00 UTC, before check-in opened and before the no-show was recorded. The case is on hold pending the folio and charge history that establish this transaction as the single, policy-compliant charge.",
+    "rationale": "Booking MSP-2025-4488 for K. Adler (one night, check-in 26 April 2025, 215.00 EUR non-refundable rate) is documented by the merchant's booking confirmation. The front desk log records that the guest did not arrive, made no contact, and was marked no-show at 00:30 on 27 April 2025. Acceptance of the non-refundable policy is so far supported only by the merchant's own statement of a tick-box consent, with no consent log or booking-page capture. The disputed transaction is dated 26 April 2025, yet the confirmation and policy state the rate was charged at booking on 12 March 2025, so the link between the disputed charge and the disclosed terms is unproven. The case is pending the merchant's payment ledger and consent records before a representment decision.",
     "caveats": [
-      "Timing contradiction: the confirmation says 'charged at booking' (12 March 2025), but the transaction date is 26 April 2025 11:00 UTC (13:00 Paris time). That is before the 15:00 check-in and before the 00:30 no-show marking, so the charge predates the no-show it is described as.",
-      "Possible duplicate charge: if EUR 215 was taken on 12 March and again on 26 April, the cardholder's dispute may be valid. Confirm with the charge history before representing.",
-      "The front desk log says the fee was 'retained', which is consistent with a prepaid booking, not a new charge on 26 April. Reconcile this with the transaction record.",
-      "The tick-box consent claim (consent_id cns_4488a) appears only inside the merchant's policy document. No system record of it is supplied.",
-      "The guest name (K. Adler) and the masked card (**** 4421) appear on the confirmation. Confirm they match the disputed card and cardholder. The device fingerprint suffix '4421ab87' is coincidental and is not evidence.",
-      "AVS Y, CVV M and 3DS authenticated support that the cardholder made the booking, but authorisation is not the issue under 4859."
+      "Timing conflict: the confirmation says 'charged at booking' (12 March 2025), but txn_9967QR is dated 2025-04-26T11:00:00Z. If a 215 EUR charge was also taken on 12 March, the disputed transaction could be a duplicate charge, which would undermine any representment.",
+      "The disputed charge (11:00 UTC on 26 April) was taken before check-in opened (15:00) and before the no-show was recorded (00:30 on 27 April). It cannot be a no-show fee charged in response to the no-show, despite the log saying the fee was 'retained'.",
+      "The consent claim (cns_4488a, 12 March 09:14 CET) appears only inside the merchant-authored policy document; treat it as an assertion until a system log is supplied.",
+      "Confirm the card on the transaction record ends in 4421, matching the confirmation. The last four digits are not in the case metadata.",
+      "AVS Y, CVV M and authenticated 3DS support that the cardholder made the transaction, but they do not address the validity of a no-show fee."
     ],
     "model_confidence": "medium"
   },
@@ -105,10 +100,10 @@
     "cache_creation_input_tokens": 0,
     "cache_read_input_tokens": 0,
     "inference_geo": "global",
-    "input_tokens": 4381,
-    "output_tokens": 3350,
+    "input_tokens": 4446,
+    "output_tokens": 3303,
     "output_tokens_details": {
-      "thinking_tokens": 1226
+      "thinking_tokens": 1175
     },
     "server_tool_use": null,
     "service_tier": "standard"
@@ -126,20 +121,20 @@
     "Chargeback raised 16 days after the transaction"
   ],
   "raw_response": {
-    "id": "msg_011CfKE4ZoWSj9W83U6ZmNvK",
+    "id": "msg_011CfLWR4YZWXsHRR2wu2tbK",
     "container": null,
     "content": [
       {
-        "signature": "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",
+        "signature": "CAQS5x0KEAgSGAI4AUIIdGhpbmtpbmcSDCp3kL+qYNW/Sb0LZhoM0liwBUYYvWOSMCM4IjDBHLZ+c6YYD9EgzqLwEmgfNX4PT4KDGNZT5P/QnclLvMHTBTuhHtyN4mg7AKM9lWEqhB046Nf8towBDQ8zVAGC+3LA4itEdtdTToa+ExU5Fn2SjWxiVEU2Cy4/zXPDKdGGoabRjGyXc9BuKKMs3U/PgqywKo4CoxZIwGLi8or1KQCtimxLaiNMZZXy1Pl4NUFqlmcG+6km+tlPjYg+jh6kE1OOjDJ2jDenVoqqgNFIqurK2H7ydaAVHwry2DnlZ0QZ0gVuH3bgrIjzjy+wuY86Xf5RUib3YMwHtifLJsN+9m4FBI9ZdbgZrMFT6Gq778lxgP/IwaZcOIUQUPV0eizL5rBdJCHnWoybaWbXVqdjltgNo2qF5XM1Mq2eVujJW7eCxSSt7Mn1Z48k8CdqkHSWZt9WbjSVGt+r3KHgHbJBKdMDBGBfyDMFs4L9JOgY4SM7BWRPwH3TbUtSIXaSC662fD9WPh5oYemvL6WOpY+imp8ngO34o3pNlPqEkVkvaGzg2Xm/e356psqKuZMmzSAvUAMSvYQJCGpwP6B52Es8pxQ18v1WkZf9P0yDxFomIZLhNh2Q42EpPjuXNucfJtndLdIUvfOHabCm72MS4zmYcdrOSwF6JWR77yUcdP8KaRxLamL9TTuFR4gMdS9FrKu25y9ifamvFNHlDUCZ4AULdhUruxLkoW+cNE+UgHbO6Q5lKH8Wh1Tj6y17m8RElOUwVc9OGMFOhk7l3bk9D1XjvRw8RBCxxOoG1KuXu2SfhjMBdYTczHSt0rzRfC38mhzoCKc+G+IsBURnojsEPIPY82G2tKkF/FgVNk0F0SoGdSaS5YE0yQ18bNBW0g0+xOfUsAgtsW4VSV3NORwYZYRvlYeJ3Y36pnxN4JDriTQTTSD5C8o10i4oRAw4fLKM3eZrUo0KZMgCWRV2njw2u1C5DeN9HSv/bpSwkzVOIDy2XPCMYwrCiexlcYLQJE5cWcJfgB+TXcyRMwJ4/b1XPnyazmPNdF41E+OWd5fTczu7Y/o/FTR/E7ncnxX/RkWOPdtbOf5M+bp0tt7jcVkXcB5Uuv3LBzwzMx8XB82kO8YMOFYHexZVbC+bUYbmuhnyEk58KnULFi3IXS+8FGBdnk/54WcOjJjDXc+66OC25E+BTIXtkNR4G7Upsgx8ICsCUzIgz2o/ijlfR39Bdb1cvGFB7Dv55L1b8SR2F5F7Tvg5/Tl9NCO09SWVEeZ8FDsDxLw+nTaXSDMVPqhR07VW0JC0fY2CgfMtiJCrJnnQSThWLaELnbyYxjq1p10jwrepsa3fRKibEIFf98iraAWHVmQLhubSrL8JvfYwn+RkS/mxmXVShqssGsP8KQuQB/uiGhZsTGI6jA0SM38PrHYH4SiDdlocKpk2rvmCXqQwg4o7yPTWmIJ8fxnO0UM4v9xBB7UFxIOflUpl2lEQ/TNYFmhQHe1rS3D+rmG8u0H2xkeGVFVTMNHpceSiS2TyrZMa+YWqhP0JUCxfbVj8tGlpdBjr7ZNsUPIjx9Pq7cFSyELWU73B2Xccga3flCCnCmmpXKfC6vjTkOZHax76nH9gA/c4pKHgXlMFWebWj4pJF1g+FOtldh/MBQ7sQ6hXYKSuefJ07CyrIisuG5EB0gwBY7b6+WRJ2ZDn5CSNfKgRUnoLF5S9axgXpZhO8/gZaWhBB3OoX74PAkNPG1IeyDKJ+pZhPPwzYrc9p6ik+xVnwJw4aXr+ChTgNnXnK4bnMjWbRBxAJ/6Z+ZzTU0Dg5WAXW2bqrkW6O2sUGZm3R9mtAF1BWX4rvmXb8LHxBObDxjenny9J6Jt/ndxwLr0B5IyIn9fDHEXQwHD32YqT9E5ZIh8UYKAnNfB07CYnP9rMw7i9NvT57sPA+RGih9SpbnTYDhWRPW5qJACwda6MZXCe6j7MQAFovMw1akxE36/Zbdia2FQYwAuqnLvaAXVVGdk0TPWHqLP/jIOLwDSOvRVYsHfgKGaFag3MCGX8f5Z+gt42N3j1E94TgGood1dPLzPxMawiM/H/f1DWuDlmrinccPLKJpmT+lDASW4tiEJZKJS4ymwoqvfPDlkyWv8Ze+yFjZi4BPtNJBI7AExKlLQUu51/HKxGphmQHirgUqrhNrrOXLL6Qf8ZBWa35nJOzgliFNlZ/voohA4lHYC1eCGuVk8JMobcnwNeKhGyEyhKR/fxa6r53fJepFoT3jLVTOZyEKWVeNoL3JnP5FiTwtTqIJjL1y6uxHsIE8Rl5F5h/XClu6nlncTz4xk2l9QX8ZHUtMiSJm7yK/Olu3PmtA+FxSCHpsT1SDiVOrVmX8txgudspdJ6myc7kZdxnUJDy+Z5Uwp68Fba4oR3fyRLM42f1CGAoW/szQ/7LYCVFBgjiEJfnwYSpkAtiNOfBB1BPHu9igrUbL2YhYNRwyWHyADHah8ronAMCFTvqz3/2PPoD+XN5K1la6W/dP1T0c67QM0CE9IempQ+bRENhu6F1pVw7CWuHydGZB+PPdr3vme7QbJ7JOYQX4Y4UhnqBSFoAY9UN2lkACmi1iLRfi+80AuNO+UIxBe36WPEn9kyv0UzqspWZj05e1Ri5XvRSrY2GPts5+Jy4QoimE2p8IrGa15YIkLMD4oK9CSijO4VaEvnjz21his2nkdEbFgHFRWjZ6n4+dEATOcBOrbr1q1rqwKzYTsfBw8u+uRc92dR+wCWZdgemutdbod6YTz8lmrHKHYaliHeEJ3/UEQgBWeT+co2ai/hbeYe+fSqezzRJ+0xgwfbYP4Gi4objfXpmbBRpDxe0A4ZA1e9YSecrNFco8f0y5o7mgRtnKYox3LS8faXyL8hQgXBRd09MvrNNHKp+4N7kYqzwv3Eu02yxIS7Xkdu0gHKVNPuLDIyKKEobzSTlgWgcaRZV8raJ4be/nkVJVqN6hi/V4/B/PS850flzmQS9HORC4a8GVrmfnrGF6bLyORaBawJNKSc9OBgCEmjIM3ViQYUW4ItE8XIcQfvo8pXWDGshvyfGMkKlTz6DOxol5T4ybzauqmMducf3gQzjZF+FK8AYB5mDICdVb7tRcNhYs/4nnCgcxNJYMUW+xY1MKzNPQJeM9tij+Qc+U+ECD/wjruZXjTrS3hD9f4RYZHa+v7ue+4OxDb2QoiwCdiHoUmjWElApXu6R4NtDtkIibDjwpqBI48LAik6Kq6AzQRwfOzlbBE7ZfwAOMIBuyHBm9evGvkjGSNST4RSMwg5OJxAMgbc/ZRBgWmCFBeZPLYPT12qi9nDXyjnG1Q9FoszHEm66flkCsLcaZ0jU325swYizsZaeOEnKiwU+eU51EH+1egDPf253A/GSb/PU9MEJCZHIF9e9T1vlDnS894TuybJmQs56jNZo9lGeLqIe6ngosg9mIbz8L/SCxEToWo3/gtswBZHijdvLSpRO0cFlGO65DVUj7OT13FjzxH8r41ZzExvAQHr5QV1NgD6XCwSOTVQqldzatwhGH4Qd3ouKOA5Cnt39ITihY8+ZL0v/TmKLqZNJFRSRv3QaDBeI5wOsHUV8KzL7c6hZRC9KUivlf0ozybkcttkMCPrBuPi2G8dys7t6WmsfhzMNnWp8kSRtFkNct7MT4jLVWHyPWLKf6txeegHMM0TD7zZjVxVfPwpr2VwF9oRBYGHEeTY90yMs+lzIIxvtyqmj84Z+nHbdkx0GpFP8cWvOM2LDGzmaJOZp22LjmhoeqvNpVrUE25v6chRuyAjZUloe096zk2zhLu4eX3sLgZ1BiOzUbM9xiUKOGzxo1o+GsVAfWJ/BE1aaAjtRH4U3RM3+ojTv3YTmULLRacEZfToJ/fgCDTZth95+bK+JK4n7JLLVJvid2ELLI9q8llDwfTtChTxUI4V4P8+FDhMFlScqOAZW3A5puXRaz8cQper9rUYx0nBy15aqLcsMy/gq/uaxSpkLz8yWJs7qTrdn64vEjkd98pCHHVRTrE5KGIqgd+JNHGw+dbn4Dl9UBNpFI/+jAT+e/4FZiwzdbXDnyfYMwz/CN+u+d5gYoh0+U6Nipq0xUPk4MU7p9hhqLP8hz8BQ1Ns3qrtHTxITa8dPOvWOwuSEnY2rJuR+a6uFh0jPe/TBh1PUPH2hZBl3WtdBl0BvngxMpzv0JTKF/POBoAZQ0Cj9Liju3J1g5TTzpJNVd+K/VKftVpfTd3E3vUAX98A6hCG/jK4RQ4wl7dnfkLnRUAX9FzU5NrgpsvXi9O15/oKFoXJWjL4AZYpvZ/745mS1LKe+WatElkaaesxxHcq/DecdvSDiKercb3ac69aOYeQGkoKJUdp36SYr4y3UeltuQ8FjBQ7FrfqVLLLvNVjwwmMiPLBlJUFpMrFypmOn7GvPnrHE4F9YJXCqz3j1axG9C81O1pXsUBT0ojdiEeIZQKrLzFxLNVhozDKfHmkR4ewHqjkaSqbVf566PuXBScBKorVhl5PCUDLZHFWtzKofY6w76dIqP5orZ9xKKLMAfxYzIEt9URa16yCpjOAwnTcTZLj9YXqRcVEAOYk/eB330Q5FsQK59B3yFU6XXQtnka8cO1XDNaXceexev/4pe6sFmiNbYej8Wrnie6mq7fJ1hdr26ZbYBilAZlk4sJsb3h6nNg7jYfKqMdo5UqqOviG7FyNSEprYGbu8iAF5NQVBuN/v+Vitn1MMlZezodf3c69FBjjrssDpycnRYgQfb5XxXFRwmcqqnwvHDI13r7rkkuB6RA14OSKgcPPKNClQisoATMdh0ZrIxy0xiXFHuP0yRRDZhoEQxRgtx95h3+Y9r6pg+fqmQvDWqNBAa5pofTdl+rpwWiqb2Pya5+kvnWHB980G1hwWT6nXcDG0Z/pYLcgeSAKEIQLsAgFjHTyqgS+gFfH78VasmuCMg1vz75qLFFh8GMe8Ee0r6s/v2himRpEbV5Q+apO5CbLDzxTvKPSkIdApdJXxZITIBMx1b23T0fU0wsXFaBmtruFRViMiRLnhnc28jK31XFuOSg1dA3TJ/hqHBYg9kPkrXErgz7HpwJZjBgB",
         "thinking": "",
         "type": "thinking"
       },
       {
         "citations": null,
-        "text": "{\"reason_code_summary\":\"The issuer says the cardholder was charged EUR 215 as a hotel no-show fee and disputes it. To defend a Mastercard 4859 dispute, the merchant must prove all four of the following: the original reservation, the no-show or cancellation policy as disclosed at booking, that the guest failed to show or cancelled outside the policy window, and that the fee charged matches the disclosed policy.\",\"requirements\":[{\"requirement_id\":1,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0009_booking_confirmation.pdf\",\"page\":1,\"quote\":\"Booking reference MSP-2025-4488\"},{\"document\":\"CB-2025-0009_booking_confirmation.pdf\",\"page\":1,\"quote\":\"Check-in Saturday 26 April 2025 (from 15:00)\"}],\"reasoning\":\"The booking confirmation identifies the guest, the booking date, the stay dates, the room, the rate and the Mastercard used, which establishes the reservation.\"},{\"requirement_id\":2,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0009_booking_confirmation.pdf\",\"page\":1,\"quote\":\"Rate 215.00 EUR (non-refundable)\"},{\"document\":\"CB-2025-0009_cancellation_policy.pdf\",\"page\":1,\"quote\":\"No refund will be issued for cancellation, modification, no-show, or early departure.\"},{\"document\":\"CB-2025-0009_cancellation_policy.pdf\",\"page\":1,\"quote\":\"Guest accepted this policy on 12 March 2025 at 09:14 CET via tick-box consent on the booking page (consent_id: cns_4488a).\"}],\"reasoning\":\"The confirmation issued to the guest states the rate is non-refundable, and the policy text covers no-show. The policy document cites a timestamped consent ID. The consent statement is the merchant's own assertion inside a policy document, not an extract from the consent system, but the confirmation independently shows the non-refundable term was communicated at booking.\"},{\"requirement_id\":3,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0009_front_desk_log.pdf\",\"page\":1,\"quote\":\"Guest not arrived. No contact from guest.\"},{\"document\":\"CB-2025-0009_front_desk_log.pdf\",\"page\":1,\"quote\":\"Room held until midnight cut-off per policy. Marked NO-SHOW.\"}],\"reasoning\":\"The contemporaneous front desk log records that the guest did not arrive or make contact and was marked as a no-show after the midnight cut-off. Nothing in the file indicates a cancellation.\"},{\"requirement_id\":4,\"status\":\"partial\",\"pointers\":[{\"document\":\"CB-2025-0009_booking_confirmation.pdf\",\"page\":1,\"quote\":\"Payment Mastercard **** 4421, charged at booking\"},{\"document\":\"CB-2025-0009_cancellation_policy.pdf\",\"page\":1,\"quote\":\"Non-refundable bookings are charged in full at the time of booking.\"}],\"reasoning\":\"The EUR 215 disputed amount equals the non-refundable rate. However, the policy and confirmation say the full rate was charged at booking on 12 March 2025, while the disputed transaction is dated 26 April 2025 11:00 UTC. That is before the 15:00 check-in and before any no-show could occur, so the charge does not match the disclosed charging terms and a possible duplicate charge has not been ruled out.\"}],\"recommended_action\":\"request_more_evidence\",\"action_justification\":\"Requirements 1-3 are met. The fee amount matches, but the dispute can only be defended once the merchant explains why the charge is dated 26 April instead of at booking and proves it is the only charge on the reservation.\",\"evidence_to_request\":[\"Full guest folio / payment ledger for booking MSP-2025-4488 showing every authorisation, capture and refund on Mastercard **** 4421, with dates and amounts\",\"Explanation of transaction txn_9967QR dated 26 April 2025 11:00 UTC, given that the confirmation and policy state the non-refundable rate was 'charged at booking' on 12 March 2025, and confirmation that no separate EUR 215 charge was taken on 12 March 2025\",\"System extract or screenshot of the booking-page consent record cns_4488a (timestamp, policy text displayed, tick-box accepted)\"],\"rationale\":\"Booking MSP-2025-4488 for K. Adler was made on 12 March 2025 for one night on 26 April 2025 at a non-refundable rate of EUR 215.00, and the confirmation issued to the guest states the rate is non-refundable. The front desk log records that the guest did not arrive or make contact and was marked a no-show after the midnight cut-off. The disputed amount equals the disclosed rate. The merchant's own documents state the rate was charged at booking, yet the disputed transaction is dated 26 April 2025 at 11:00 UTC, before check-in opened and before the no-show was recorded. The case is on hold pending the folio and charge history that establish this transaction as the single, policy-compliant charge.\",\"caveats\":[\"Timing contradiction: the confirmation says 'charged at booking' (12 March 2025), but the transaction date is 26 April 2025 11:00 UTC (13:00 Paris time). That is before the 15:00 check-in and before the 00:30 no-show marking, so the charge predates the no-show it is described as.\",\"Possible duplicate charge: if EUR 215 was taken on 12 March and again on 26 April, the cardholder's dispute may be valid. Confirm with the charge history before representing.\",\"The front desk log says the fee was 'retained', which is consistent with a prepaid booking, not a new charge on 26 April. Reconcile this with the transaction record.\",\"The tick-box consent claim (consent_id cns_4488a) appears only inside the merchant's policy document. No system record of it is supplied.\",\"The guest name (K. Adler) and the masked card (**** 4421) appear on the confirmation. Confirm they match the disputed card and cardholder. The device fingerprint suffix '4421ab87' is coincidental and is not evidence.\",\"AVS Y, CVV M and 3DS authenticated support that the cardholder made the booking, but authorisation is not the issue under 4859.\"],\"model_confidence\":\"medium\"}",
+        "text": "{\"reason_code_summary\":\"The issuer says the cardholder disputes a 215 EUR no-show fee from Hotel Marais Saint-Paul. To defend under Mastercard 4859, the merchant must prove all four of the following: the original booking, the no-show/cancellation policy as disclosed at booking, that the guest failed to show or cancelled outside the policy window, and that the fee charged matches the disclosed policy.\",\"requirements\":[{\"requirement_id\":1,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0009_booking_confirmation.pdf\",\"page\":1,\"quote\":\"Booking reference MSP-2025-4488\"},{\"document\":\"CB-2025-0009_booking_confirmation.pdf\",\"page\":1,\"quote\":\"Check-in Saturday 26 April 2025 (from 15:00)\"}],\"reasoning\":\"The booking confirmation identifies booking MSP-2025-4488 for guest K. Adler, booked 12 March 2025, for one night on 26 April 2025, paid with Mastercard **** 4421.\"},{\"requirement_id\":2,\"status\":\"partial\",\"pointers\":[{\"document\":\"CB-2025-0009_booking_confirmation.pdf\",\"page\":1,\"quote\":\"Rate 215.00 EUR (non-refundable)\"},{\"document\":\"CB-2025-0009_cancellation_policy.pdf\",\"page\":1,\"quote\":\"Guest accepted this policy on 12 March 2025 at 09:14 CET via tick-box consent on the booking page (consent_id: cns_4488a).\"}],\"reasoning\":\"The confirmation labels the rate non-refundable, and the policy document states the non-refundable terms. However, the claimed tick-box acceptance is the merchant's own assertion inside the policy document, not a consent log or a capture of the booking page. The policy text proves what the policy says, not that it was shown to and accepted by this cardholder at booking.\"},{\"requirement_id\":3,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0009_front_desk_log.pdf\",\"page\":1,\"quote\":\"26 Apr 2025 22:00 Guest not arrived. No contact from guest. S. Bernard\"},{\"document\":\"CB-2025-0009_front_desk_log.pdf\",\"page\":1,\"quote\":\"27 Apr 2025 00:30 Room held until midnight cut-off per policy. Marked NO-SHOW. S. Bernard\"}],\"reasoning\":\"The dated front desk log for booking MSP-2025-4488 records that the guest did not arrive, made no contact, and was marked no-show after the midnight cut-off.\"},{\"requirement_id\":4,\"status\":\"partial\",\"pointers\":[{\"document\":\"CB-2025-0009_cancellation_policy.pdf\",\"page\":1,\"quote\":\"Non-refundable bookings are charged in full at the time of booking.\"},{\"document\":\"CB-2025-0009_booking_confirmation.pdf\",\"page\":1,\"quote\":\"Payment Mastercard **** 4421, charged at booking\"}],\"reasoning\":\"The 215 EUR amount matches the non-refundable rate. However, both the policy and the confirmation say the charge was taken at booking (12 March 2025), while the disputed transaction txn_9967QR is dated 26 April 2025 11:00 UTC. That is either a second charge or a charge timing that departs from the disclosed policy, and it is not reconciled.\"}],\"recommended_action\":\"request_more_evidence\",\"action_justification\":\"The booking and the no-show are proven, but acceptance of the policy is only asserted and the disputed 26 April charge does not match the disclosed charge-at-booking terms; both gaps can be closed with merchant records.\",\"evidence_to_request\":[\"Folio or payment ledger for booking MSP-2025-4488 listing every charge, authorisation, capture and refund on Mastercard **** 4421. It should show whether a 215 EUR charge was taken on 12 March 2025 and whether txn_9967QR (26 April 2025, 215 EUR) is that same booking payment (e.g. a delayed capture) or a separate charge.\",\"System consent log entry for consent_id cns_4488a with timestamp, IP address and the booking session it belongs to.\",\"Screenshot or archived copy of the booking page as shown on 12 March 2025, displaying the non-refundable / no-show terms next to the tick-box.\",\"Copy of the booking confirmation email as sent to the guest's address, with send timestamp, showing the non-refundable terms.\"],\"rationale\":\"Booking MSP-2025-4488 for K. Adler (one night, check-in 26 April 2025, 215.00 EUR non-refundable rate) is documented by the merchant's booking confirmation. The front desk log records that the guest did not arrive, made no contact, and was marked no-show at 00:30 on 27 April 2025. Acceptance of the non-refundable policy is so far supported only by the merchant's own statement of a tick-box consent, with no consent log or booking-page capture. The disputed transaction is dated 26 April 2025, yet the confirmation and policy state the rate was charged at booking on 12 March 2025, so the link between the disputed charge and the disclosed terms is unproven. The case is pending the merchant's payment ledger and consent records before a representment decision.\",\"caveats\":[\"Timing conflict: the confirmation says 'charged at booking' (12 March 2025), but txn_9967QR is dated 2025-04-26T11:00:00Z. If a 215 EUR charge was also taken on 12 March, the disputed transaction could be a duplicate charge, which would undermine any representment.\",\"The disputed charge (11:00 UTC on 26 April) was taken before check-in opened (15:00) and before the no-show was recorded (00:30 on 27 April). It cannot be a no-show fee charged in response to the no-show, despite the log saying the fee was 'retained'.\",\"The consent claim (cns_4488a, 12 March 09:14 CET) appears only inside the merchant-authored policy document; treat it as an assertion until a system log is supplied.\",\"Confirm the card on the transaction record ends in 4421, matching the confirmation. The last four digits are not in the case metadata.\",\"AVS Y, CVV M and authenticated 3DS support that the cardholder made the transaction, but they do not address the validity of a no-show fee.\"],\"model_confidence\":\"medium\"}",
         "type": "text",
         "parsed_output": {
-          "reason_code_summary": "The issuer says the cardholder was charged EUR 215 as a hotel no-show fee and disputes it. To defend a Mastercard 4859 dispute, the merchant must prove all four of the following: the original reservation, the no-show or cancellation policy as disclosed at booking, that the guest failed to show or cancelled outside the policy window, and that the fee charged matches the disclosed policy.",
+          "reason_code_summary": "The issuer says the cardholder disputes a 215 EUR no-show fee from Hotel Marais Saint-Paul. To defend under Mastercard 4859, the merchant must prove all four of the following: the original booking, the no-show/cancellation policy as disclosed at booking, that the guest failed to show or cancelled outside the policy window, and that the fee charged matches the disclosed policy.",
           "requirements": [
             {
               "requirement_id": 1,
@@ -156,11 +151,11 @@
                   "quote": "Check-in Saturday 26 April 2025 (from 15:00)"
                 }
               ],
-              "reasoning": "The booking confirmation identifies the guest, the booking date, the stay dates, the room, the rate and the Mastercard used, which establishes the reservation."
+              "reasoning": "The booking confirmation identifies booking MSP-2025-4488 for guest K. Adler, booked 12 March 2025, for one night on 26 April 2025, paid with Mastercard **** 4421."
             },
             {
               "requirement_id": 2,
-              "status": "satisfied",
+              "status": "partial",
               "pointers": [
                 {
                   "document": "CB-2025-0009_booking_confirmation.pdf",
@@ -170,15 +165,10 @@
                 {
                   "document": "CB-2025-0009_cancellation_policy.pdf",
                   "page": 1,
-                  "quote": "No refund will be issued for cancellation, modification, no-show, or early departure."
-                },
-                {
-                  "document": "CB-2025-0009_cancellation_policy.pdf",
-                  "page": 1,
                   "quote": "Guest accepted this policy on 12 March 2025 at 09:14 CET via tick-box consent on the booking page (consent_id: cns_4488a)."
                 }
               ],
-              "reasoning": "The confirmation issued to the guest states the rate is non-refundable, and the policy text covers no-show. The policy document cites a timestamped consent ID. The consent statement is the merchant's own assertion inside a policy document, not an extract from the consent system, but the confirmation independently shows the non-refundable term was communicated at booking."
+              "reasoning": "The confirmation labels the rate non-refundable, and the policy document states the non-refundable terms. However, the claimed tick-box acceptance is the merchant's own assertion inside the policy document, not a consent log or a capture of the booking page. The policy text proves what the policy says, not that it was shown to and accepted by this cardholder at booking."
             },
             {
               "requirement_id": 3,
@@ -187,49 +177,49 @@
                 {
                   "document": "CB-2025-0009_front_desk_log.pdf",
                   "page": 1,
-                  "quote": "Guest not arrived. No contact from guest."
+                  "quote": "26 Apr 2025 22:00 Guest not arrived. No contact from guest. S. Bernard"
                 },
                 {
                   "document": "CB-2025-0009_front_desk_log.pdf",
                   "page": 1,
-                  "quote": "Room held until midnight cut-off per policy. Marked NO-SHOW."
+                  "quote": "27 Apr 2025 00:30 Room held until midnight cut-off per policy. Marked NO-SHOW. S. Bernard"
                 }
               ],
-              "reasoning": "The contemporaneous front desk log records that the guest did not arrive or make contact and was marked as a no-show after the midnight cut-off. Nothing in the file indicates a cancellation."
+              "reasoning": "The dated front desk log for booking MSP-2025-4488 records that the guest did not arrive, made no contact, and was marked no-show after the midnight cut-off."
             },
             {
               "requirement_id": 4,
               "status": "partial",
               "pointers": [
                 {
-                  "document": "CB-2025-0009_booking_confirmation.pdf",
-                  "page": 1,
-                  "quote": "Payment Mastercard **** 4421, charged at booking"
-                },
-                {
                   "document": "CB-2025-0009_cancellation_policy.pdf",
                   "page": 1,
                   "quote": "Non-refundable bookings are charged in full at the time of booking."
+                },
+                {
+                  "document": "CB-2025-0009_booking_confirmation.pdf",
+                  "page": 1,
+                  "quote": "Payment Mastercard **** 4421, charged at booking"
                 }
               ],
-              "reasoning": "The EUR 215 disputed amount equals the non-refundable rate. However, the policy and confirmation say the full rate was charged at booking on 12 March 2025, while the disputed transaction is dated 26 April 2025 11:00 UTC. That is before the 15:00 check-in and before any no-show could occur, so the charge does not match the disclosed charging terms and a possible duplicate charge has not been ruled out."
+              "reasoning": "The 215 EUR amount matches the non-refundable rate. However, both the policy and the confirmation say the charge was taken at booking (12 March 2025), while the disputed transaction txn_9967QR is dated 26 April 2025 11:00 UTC. That is either a second charge or a charge timing that departs from the disclosed policy, and it is not reconciled."
             }
           ],
           "recommended_action": "request_more_evidence",
-          "action_justification": "Requirements 1-3 are met. The fee amount matches, but the dispute can only be defended once the merchant explains why the charge is dated 26 April instead of at booking and proves it is the only charge on the reservation.",
+          "action_justification": "The booking and the no-show are proven, but acceptance of the policy is only asserted and the disputed 26 April charge does not match the disclosed charge-at-booking terms; both gaps can be closed with merchant records.",
           "evidence_to_request": [
-            "Full guest folio / payment ledger for booking MSP-2025-4488 showing every authorisation, capture and refund on Mastercard **** 4421, with dates and amounts",
-            "Explanation of transaction txn_9967QR dated 26 April 2025 11:00 UTC, given that the confirmation and policy state the non-refundable rate was 'charged at booking' on 12 March 2025, and confirmation that no separate EUR 215 charge was taken on 12 March 2025",
-            "System extract or screenshot of the booking-page consent record cns_4488a (timestamp, policy text displayed, tick-box accepted)"
+            "Folio or payment ledger for booking MSP-2025-4488 listing every charge, authorisation, capture and refund on Mastercard **** 4421. It should show whether a 215 EUR charge was taken on 12 March 2025 and whether txn_9967QR (26 April 2025, 215 EUR) is that same booking payment (e.g. a delayed capture) or a separate charge.",
+            "System consent log entry for consent_id cns_4488a with timestamp, IP address and the booking session it belongs to.",
+            "Screenshot or archived copy of the booking page as shown on 12 March 2025, displaying the non-refundable / no-show terms next to the tick-box.",
+            "Copy of the booking confirmation email as sent to the guest's address, with send timestamp, showing the non-refundable terms."
           ],
-          "rationale": "Booking MSP-2025-4488 for K. Adler was made on 12 March 2025 for one night on 26 April 2025 at a non-refundable rate of EUR 215.00, and the confirmation issued to the guest states the rate is non-refundable. The front desk log records that the guest did not arrive or make contact and was marked a no-show after the midnight cut-off. The disputed amount equals the disclosed rate. The merchant's own documents state the rate was charged at booking, yet the disputed transaction is dated 26 April 2025 at 11:00 UTC, before check-in opened and before the no-show was recorded. The case is on hold pending the folio and charge history that establish this transaction as the single, policy-compliant charge.",
+          "rationale": "Booking MSP-2025-4488 for K. Adler (one night, check-in 26 April 2025, 215.00 EUR non-refundable rate) is documented by the merchant's booking confirmation. The front desk log records that the guest did not arrive, made no contact, and was marked no-show at 00:30 on 27 April 2025. Acceptance of the non-refundable policy is so far supported only by the merchant's own statement of a tick-box consent, with no consent log or booking-page capture. The disputed transaction is dated 26 April 2025, yet the confirmation and policy state the rate was charged at booking on 12 March 2025, so the link between the disputed charge and the disclosed terms is unproven. The case is pending the merchant's payment ledger and consent records before a representment decision.",
           "caveats": [
-            "Timing contradiction: the confirmation says 'charged at booking' (12 March 2025), but the transaction date is 26 April 2025 11:00 UTC (13:00 Paris time). That is before the 15:00 check-in and before the 00:30 no-show marking, so the charge predates the no-show it is described as.",
-            "Possible duplicate charge: if EUR 215 was taken on 12 March and again on 26 April, the cardholder's dispute may be valid. Confirm with the charge history before representing.",
-            "The front desk log says the fee was 'retained', which is consistent with a prepaid booking, not a new charge on 26 April. Reconcile this with the transaction record.",
-            "The tick-box consent claim (consent_id cns_4488a) appears only inside the merchant's policy document. No system record of it is supplied.",
-            "The guest name (K. Adler) and the masked card (**** 4421) appear on the confirmation. Confirm they match the disputed card and cardholder. The device fingerprint suffix '4421ab87' is coincidental and is not evidence.",
-            "AVS Y, CVV M and 3DS authenticated support that the cardholder made the booking, but authorisation is not the issue under 4859."
+            "Timing conflict: the confirmation says 'charged at booking' (12 March 2025), but txn_9967QR is dated 2025-04-26T11:00:00Z. If a 215 EUR charge was also taken on 12 March, the disputed transaction could be a duplicate charge, which would undermine any representment.",
+            "The disputed charge (11:00 UTC on 26 April) was taken before check-in opened (15:00) and before the no-show was recorded (00:30 on 27 April). It cannot be a no-show fee charged in response to the no-show, despite the log saying the fee was 'retained'.",
+            "The consent claim (cns_4488a, 12 March 09:14 CET) appears only inside the merchant-authored policy document; treat it as an assertion until a system log is supplied.",
+            "Confirm the card on the transaction record ends in 4421, matching the confirmation. The last four digits are not in the case metadata.",
+            "AVS Y, CVV M and authenticated 3DS support that the cardholder made the transaction, but they do not address the validity of a no-show fee."
           ],
           "model_confidence": "medium"
         }
@@ -249,10 +239,10 @@
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 0,
       "inference_geo": "global",
-      "input_tokens": 4381,
-      "output_tokens": 3350,
+      "input_tokens": 4446,
+      "output_tokens": 3303,
       "output_tokens_details": {
-        "thinking_tokens": 1226
+        "thinking_tokens": 1175
       },
       "server_tool_use": null,
       "service_tier": "standard"

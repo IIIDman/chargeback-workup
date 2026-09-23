@@ -1,18 +1,18 @@
 {
   "case_id": "CB-2025-0010",
-  "fingerprint": "219f73b8a62a1b43",
+  "fingerprint": "46c6c7f40da05c24",
   "model": "claude-opus-5-5",
   "workup": {
-    "reason_code_summary": "The issuer is charging back under Visa 10.5, a transaction flagged under the Visa Fraud Monitoring Program. Under the simplified rules this reason code is non-representable. The only possible route is proof that the issuer miscoded the dispute.",
+    "reason_code_summary": "The issuer has charged back this transaction under Visa 10.5 because it was flagged under the Visa Fraud Monitoring Program. Under the simplified rules this code cannot be represented. The only exception is if the merchant can prove the issuer miscoded the transaction.",
     "requirements": [],
     "recommended_action": "accept_liability",
     "action_justification": "Visa 10.5 is non-representable, and nothing in the file shows the issuer miscoded the chargeback.",
     "evidence_to_request": [],
-    "rationale": "Case CB-2025-0010 was raised under Visa 10.5 (Visa Fraud Monitoring Program), which is non-representable under the applicable rules. The transaction record shows AVS Y, CVV M, 3DS authenticated, and matching billing and shipping postcodes. The merchant also supplied a Visa Secure authentication record and a delivery confirmation. None of this evidence shows that the issuer miscoded the dispute, so it does not change the outcome. Liability for GBP 78.50 is accepted.",
+    "rationale": "Case CB-2025-0010 was charged back under Visa 10.5 (Visa Fraud Monitoring Program), which is non-representable under the applicable rules. The merchant's 3DS authentication record and delivery confirmation do not change the outcome for this reason code. No evidence shows the issuer miscoded the chargeback. Liability for GBP 78.50 is accepted.",
     "caveats": [
-      "The transaction has strong authentication indicators: 3DS authenticated (ECI 05), full AVS match, CVV match, a signed delivery to the billing postcode, and a returning customer. If the merchant believes the issuer should have used a standard fraud code (e.g. 10.4) instead of 10.5, check whether a miscoding argument or an issuer inquiry is available before closing.",
-      "The 3DS authentication timestamp (22:14:51 UTC) precedes the transaction timestamp (22:14:55 UTC), which is consistent.",
-      "The merchant may be enrolled in or approaching VFMP thresholds; flag the account to risk and monitoring teams, since further 10.5 chargebacks are likely."
+      "The transaction record shows 3DS authenticated, AVS Y, CVV M and matching billing/shipping postcodes. The merchant also supplied an ECI 05 Visa Secure record and a signed delivery. This is strong fraud-defence evidence, but it is irrelevant under 10.5 unless a miscoding is established.",
+      "If the analyst suspects the issuer applied 10.5 to a transaction that was not actually VFMP-identified, confirm with the issuer or through the scheme before closing. That is the only route to challenge.",
+      "This evidence was not assessed against requirements because the code is non-representable."
     ],
     "model_confidence": "high"
   },
@@ -24,10 +24,10 @@
     "cache_creation_input_tokens": 0,
     "cache_read_input_tokens": 0,
     "inference_geo": "global",
-    "input_tokens": 3955,
-    "output_tokens": 598,
+    "input_tokens": 4020,
+    "output_tokens": 712,
     "output_tokens_details": {
-      "thinking_tokens": 0
+      "thinking_tokens": 191
     },
     "server_tool_use": null,
     "service_tier": "standard"
@@ -46,24 +46,29 @@
     "Flag: Visa 10.5 is non-representable: evidence does not change the outcome"
   ],
   "raw_response": {
-    "id": "msg_011CfKE6sVgUFXdXra2P6CzV",
+    "id": "msg_011CfLWTDa64WFQ15GnCVT2P",
     "container": null,
     "content": [
       {
+        "signature": "CAQS6AgKEAgSGAI4AUIIdGhpbmtpbmcSDDFs7NMN+LLDmhVV/hoMz8iMfX26c9Izg5aKIjDjZifx+lG7og90iqIpK58u9JnPzze5KdqHyqkTtGs0qVVHSenRtvTVGSoE9i5we68qhQjatpU1GGejYf4fFwbKZXIueksJpFaYyElE3zyz07DgUFN395XD32XxjKXwQvbY2/eu/VOyV/7VBi9G4PvkcGfItv7Ybl46vBEShnKjHl605zJwKtSjoQzIg9xTolBTPvPR36OihV7ZUwHyU9mkqTKgR2rp1q4P6iwaebmI5hVdHXaCE1Yxfw0gFItIqeY3T2RGrEuBEnF+ru3wWB/rZRH3M49m7pwLoWaCKOmvqGhFiC91K4izSa5/HUxDWK0enQkhq3AHOxhFJCpOeA8ivT/v8qrMj1pyyk1xR1RhooM3TFKo4oNaMf9BbnPCvRF44CfGJaBp5rlG/Z/7+2X3h0aSgO4QaNcn5WIK0im+J07s0V2rw3kcB24O2HB0Q0wlf0YbXXstnv9xljC1+41huwbsNs6YuFEKshbjDkVYJwMXpTbiCc9vm2gYvHLimbnLkMwkwyFD8cMs7S7sYTqcUuaWwNvnAv9mkVm48lt9FGMSu9bQvNB0pfITfe3uWlt19G2P1ewtmY4rtVCriwObHmi7rOm9AzxrEm8KV5dj8NLthI23o5wcqOPYAgHtFyjWdRdPG15djQ1PZaI7uwjTdz77x/3/wOkn5jnOINToH9WHZrTOGRP9QcfhuROQx6R/d6rHerv3JDcSt0ghnUS1GGToAUPzpTuQbHH7rdCkGMG5G/Dg4LGIF7XoAsqt4UmPt0+TqlFJAcRRhMHyM4AC356Z0AsYNu/Wc2ClAt+EauCNr7shIM8dej25jGSnCLtLUBgwMXzPgkH3x8F6LMtUXP7tp1wTkZrYMQLSU720+FZYxrAGQPuffj33IeMtn/fHgqZRAOZugDur0B9AK2jreHPXw1CTwGvKUOAgRmjrkisL5uqMmVmC0XoxJPzuf512NomjxDaUmL3+xOv1zSW+kzqjjlXk0tQXcn5YVZIOykAMrxNBv3jdAXCw/lOptLitcXFIXfbaX1AhGvr19AOipKAeMxnR5rQdX2q92UdB+ZN74ChO6sFcCYSFUMzZ0D4LCDNKC7yKQc3R2tGPTdMRgG/2UTLVY0IBtdBP806FnYTn1MS8LMgabq5UBfZUMIUhH/oB/5B7sgmwec5PRqYotqvnPVc3qfMdTUPeZphUUAg34FybcTlujPfULuUavqRsoRb6V1W2mH7USBFJUZ5bHd3/jo3CtOSKHn+EDb3M1OhWhr6ix+sfrNQKR9wc32h1h7c6GD0GXkM5rTMPvRMo2k1BVnuRgBS+LQ66HW6FTkDp8de2wDhizcx41+++PG9tFtecOIaxFA3CSmvQnldilzx21yIp5kUDtEC9knGmafw/GW/ESCCE0H6KkdhjCbSXdQbnHZ46DCYNwhAd+RZiiGdLgvX0/0kYAQ==",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
         "citations": null,
-        "text": "{\"reason_code_summary\":\"The issuer is charging back under Visa 10.5, a transaction flagged under the Visa Fraud Monitoring Program. Under the simplified rules this reason code is non-representable. The only possible route is proof that the issuer miscoded the dispute.\",\"requirements\":[],\"recommended_action\":\"accept_liability\",\"action_justification\":\"Visa 10.5 is non-representable, and nothing in the file shows the issuer miscoded the chargeback.\",\"evidence_to_request\":[],\"rationale\":\"Case CB-2025-0010 was raised under Visa 10.5 (Visa Fraud Monitoring Program), which is non-representable under the applicable rules. The transaction record shows AVS Y, CVV M, 3DS authenticated, and matching billing and shipping postcodes. The merchant also supplied a Visa Secure authentication record and a delivery confirmation. None of this evidence shows that the issuer miscoded the dispute, so it does not change the outcome. Liability for GBP 78.50 is accepted.\",\"caveats\":[\"The transaction has strong authentication indicators: 3DS authenticated (ECI 05), full AVS match, CVV match, a signed delivery to the billing postcode, and a returning customer. If the merchant believes the issuer should have used a standard fraud code (e.g. 10.4) instead of 10.5, check whether a miscoding argument or an issuer inquiry is available before closing.\",\"The 3DS authentication timestamp (22:14:51 UTC) precedes the transaction timestamp (22:14:55 UTC), which is consistent.\",\"The merchant may be enrolled in or approaching VFMP thresholds; flag the account to risk and monitoring teams, since further 10.5 chargebacks are likely.\"],\"model_confidence\":\"high\"}",
+        "text": "{\"reason_code_summary\":\"The issuer has charged back this transaction under Visa 10.5 because it was flagged under the Visa Fraud Monitoring Program. Under the simplified rules this code cannot be represented. The only exception is if the merchant can prove the issuer miscoded the transaction.\",\"requirements\":[],\"recommended_action\":\"accept_liability\",\"action_justification\":\"Visa 10.5 is non-representable, and nothing in the file shows the issuer miscoded the chargeback.\",\"evidence_to_request\":[],\"rationale\":\"Case CB-2025-0010 was charged back under Visa 10.5 (Visa Fraud Monitoring Program), which is non-representable under the applicable rules. The merchant's 3DS authentication record and delivery confirmation do not change the outcome for this reason code. No evidence shows the issuer miscoded the chargeback. Liability for GBP 78.50 is accepted.\",\"caveats\":[\"The transaction record shows 3DS authenticated, AVS Y, CVV M and matching billing/shipping postcodes. The merchant also supplied an ECI 05 Visa Secure record and a signed delivery. This is strong fraud-defence evidence, but it is irrelevant under 10.5 unless a miscoding is established.\",\"If the analyst suspects the issuer applied 10.5 to a transaction that was not actually VFMP-identified, confirm with the issuer or through the scheme before closing. That is the only route to challenge.\",\"This evidence was not assessed against requirements because the code is non-representable.\"],\"model_confidence\":\"high\"}",
         "type": "text",
         "parsed_output": {
-          "reason_code_summary": "The issuer is charging back under Visa 10.5, a transaction flagged under the Visa Fraud Monitoring Program. Under the simplified rules this reason code is non-representable. The only possible route is proof that the issuer miscoded the dispute.",
+          "reason_code_summary": "The issuer has charged back this transaction under Visa 10.5 because it was flagged under the Visa Fraud Monitoring Program. Under the simplified rules this code cannot be represented. The only exception is if the merchant can prove the issuer miscoded the transaction.",
           "requirements": [],
           "recommended_action": "accept_liability",
           "action_justification": "Visa 10.5 is non-representable, and nothing in the file shows the issuer miscoded the chargeback.",
           "evidence_to_request": [],
-          "rationale": "Case CB-2025-0010 was raised under Visa 10.5 (Visa Fraud Monitoring Program), which is non-representable under the applicable rules. The transaction record shows AVS Y, CVV M, 3DS authenticated, and matching billing and shipping postcodes. The merchant also supplied a Visa Secure authentication record and a delivery confirmation. None of this evidence shows that the issuer miscoded the dispute, so it does not change the outcome. Liability for GBP 78.50 is accepted.",
+          "rationale": "Case CB-2025-0010 was charged back under Visa 10.5 (Visa Fraud Monitoring Program), which is non-representable under the applicable rules. The merchant's 3DS authentication record and delivery confirmation do not change the outcome for this reason code. No evidence shows the issuer miscoded the chargeback. Liability for GBP 78.50 is accepted.",
           "caveats": [
-            "The transaction has strong authentication indicators: 3DS authenticated (ECI 05), full AVS match, CVV match, a signed delivery to the billing postcode, and a returning customer. If the merchant believes the issuer should have used a standard fraud code (e.g. 10.4) instead of 10.5, check whether a miscoding argument or an issuer inquiry is available before closing.",
-            "The 3DS authentication timestamp (22:14:51 UTC) precedes the transaction timestamp (22:14:55 UTC), which is consistent.",
-            "The merchant may be enrolled in or approaching VFMP thresholds; flag the account to risk and monitoring teams, since further 10.5 chargebacks are likely."
+            "The transaction record shows 3DS authenticated, AVS Y, CVV M and matching billing/shipping postcodes. The merchant also supplied an ECI 05 Visa Secure record and a signed delivery. This is strong fraud-defence evidence, but it is irrelevant under 10.5 unless a miscoding is established.",
+            "If the analyst suspects the issuer applied 10.5 to a transaction that was not actually VFMP-identified, confirm with the issuer or through the scheme before closing. That is the only route to challenge.",
+            "This evidence was not assessed against requirements because the code is non-representable."
           ],
           "model_confidence": "high"
         }
@@ -83,10 +88,10 @@
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 0,
       "inference_geo": "global",
-      "input_tokens": 3955,
-      "output_tokens": 598,
+      "input_tokens": 4020,
+      "output_tokens": 712,
       "output_tokens_details": {
-        "thinking_tokens": 0
+        "thinking_tokens": 191
       },
       "server_tool_use": null,
       "service_tier": "standard"

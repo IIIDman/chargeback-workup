@@ -12,6 +12,7 @@ import os
 from dataclasses import dataclass
 
 import anthropic
+from pydantic import ValidationError
 
 from .checks import PreChecks
 from .docs import Document
@@ -124,15 +125,27 @@ def request_workup(case: Case, rule: ReasonCode, prechecks: PreChecks, documents
     attempts = 0
     problems: list[str] = []
     history: list[list[str]] = []
+    unparseable = 0
     while True:
         attempts += 1
-        response = client.messages.parse(
-            model=MODEL,
-            system=SYSTEM_PROMPT,
-            messages=messages,
-            output_format=Workup,
-            **CALL_PARAMS,
-        )
+        try:
+            response = client.messages.parse(
+                model=MODEL,
+                system=SYSTEM_PROMPT,
+                messages=messages,
+                output_format=Workup,
+                **CALL_PARAMS,
+            )
+        except ValidationError as e:
+            # The SDK could not parse the text as a Workup: a truncated or degenerate answer (seen once on
+            # case 6, where the output collapsed into repeated "***" and was cut off). Non-deterministic,
+            # so one clean retry of the same request; a second failure is reported, never cached.
+            unparseable += 1
+            history.append([f"unparseable answer: {str(e).splitlines()[0]}"])
+            if unparseable >= 2:
+                raise RuntimeError(f"{case.case_id}: the model returned an unparseable answer twice; "
+                                   f"not caching. Last error: {str(e).splitlines()[0]}") from e
+            continue
         if response.stop_reason != "end_turn" or response.parsed_output is None:
             raise RuntimeError(
                 f"{case.case_id}: model stopped with {response.stop_reason!r} and "
@@ -141,7 +154,7 @@ def request_workup(case: Case, rule: ReasonCode, prechecks: PreChecks, documents
         workup: Workup = response.parsed_output
         problems = validate_pointers(workup, case_docs, len(rule.requirements))
         history.append(problems)
-        if not problems or attempts >= 2:
+        if not problems or attempts - unparseable >= 2:
             break
         # One corrective round-trip: show the model its own answer and the concrete problems.
         messages = messages + [
