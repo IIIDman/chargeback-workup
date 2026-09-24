@@ -93,5 +93,6 @@ def test_compare_script_runs_from_any_cwd(tmp_path):
     import subprocess, sys
     script = Path(__file__).parent.parent / "scripts" / "compare.py"
     out = subprocess.run([sys.executable, str(script)], cwd=tmp_path, capture_output=True, text=True, timeout=120)
-    assert out.returncode == 0, out.stderr
-    assert "action agreement" in out.stdout
+    assert "action agreement" in out.stdout, out.stderr
+    # exit 0 with a fresh cache; exit 1, never a crash, when a case had to be skipped (stale or missing cache)
+    assert out.returncode == (1 if "skipped" in out.stdout else 0), out.stderr
