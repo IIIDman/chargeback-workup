@@ -1,32 +1,11 @@
-"""Confidence tier for the analyst queue, computed from checkable signals rather than the model's own opinion.
+"""Confidence tier for the analyst queue: high / medium / needs_review, always with the reasons.
 
-Tier is one of high / medium / needs_review, always with the list of reasons that produced it. The signal
-families, in the order they are applied:
-
-1. the rule itself: a non-representable code fixes the action, whatever the model proposed
-2. coverage: how many requirements are effectively satisfied against what the rule's logic needs, and
-   whether the recommended action agrees with that count (including partials, conceding a partly-met case,
-   and asking for evidence when most of the file is absent)
-3. verification: downgrades, quotes not found, support that rests only on an image
-4. transaction pre-checks, counted only where they cut against the recommendation
-5. the rationale mentioning something the workup also asks the merchant for
-6. the model's self-reported confidence, as a minor input
-7. leftover validation problems: a workup that still failed structural validation after the retry
-
-Before any of that, requirements the transaction record answers by itself (AVS/CVV and 3DS under
-Mastercard 4837 and 4863) are checked against the record: a satisfied that the record contradicts is
-downgraded to missing, so a merchant document cannot talk the tool out of a failed AVS.
-
-Three principles worth stating, because two of them were wrong in the first version:
-
-- **Direction-neutral.** accept_liability means the merchant eats the loss and request_more_evidence costs
-  days; they are decisions too. Escalation does not only apply to represent.
-- **Whatever code cannot check, a human must.** A requirement supported only by an image is not
-  text-verifiable, so it goes to needs_review rather than being quietly accepted.
-- **A transaction fact only counts against the recommendation it undermines.** A failed AVS makes a
-  represent doubtful; on an accept_liability it is the reason the recommendation is right, not a warning.
-
-The queue is sorted by tier so that confident cases take a minute and doubtful ones get attention.
+Computed from what code can check, not from the model's self-report: coverage against the rule's logic
+and whether the action agrees with it, quote verification outcomes, pre-checks that cut against the
+recommendation, a rationale that mentions something the workup also requests, leftover validation
+problems. Requirements the transaction record answers by itself (AVS/CVV, 3DS) are checked against it
+first. Escalation is direction-neutral (conceding a partly met case is a decision too), and a pre-check
+counts only against the recommendation it undermines.
 """
 from __future__ import annotations
 

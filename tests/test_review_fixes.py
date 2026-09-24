@@ -1,16 +1,13 @@
 """Regression tests for the issues found in the pre-submission review (verification, pre-checks, tiering,
 cache robustness, usage accounting). Each test names the failure it guards against."""
-import json
-from pathlib import Path
 
 import pytest
-from pydantic import ValidationError
 
 import workup.pipeline as pipeline
 from workup.checks import run_prechecks
 from workup.confidence import apply_transaction_facts, assess
 from workup.docs import Document, Page, normalize
-from workup.llm import request_workup, sum_usage
+from workup.llm import sum_usage
 from workup.pipeline import load_cases, run_case
 from workup.rules import get_rule
 from workup.schema import Action, EvidencePointer, RequirementAssessment, Status, Workup
@@ -79,7 +76,6 @@ def test_missing_billing_postcode_is_unknown_not_mismatch():
 
 
 def test_postcode_normalisation_handles_nbsp_case_and_hyphen():
-    c = CASES["CB-2025-0001"]
     _, pre = _pre("CB-2025-0001", shipping_address_postcode="sw4\u00a07qr", billing_address_postcode="SW4-7QR")
     assert pre.postcode_match is True
 

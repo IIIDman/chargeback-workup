@@ -1,9 +1,8 @@
 """Render a cited page as an image with the quote highlighted, for the analyst UI.
 
-The analyst should not have to open the PDF to check a pointer. pdfplumber gives every word's box, so the
-quote is located among the page's words with the same normalisation the verifier uses, and the matching
-words get a box drawn over them. If the quote cannot be located the page is still rendered, without a box,
-and the caller says so. Images are shown as they are; nothing here touches the prompt or the cache.
+The quote is located among pdfplumber's word boxes with the same normalisation the verifier uses, and the
+matching words get a box. If it cannot be located the page is still shown, without a box. Read-only:
+nothing here touches the prompt or the cache.
 """
 from __future__ import annotations
 

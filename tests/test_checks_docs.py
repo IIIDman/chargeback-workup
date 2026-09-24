@@ -4,7 +4,14 @@ from workup.checks import run_prechecks
 from workup.docs import load_case_documents, normalize
 from workup.pipeline import DOCS_DIR, load_cases
 from workup.rules import get_rule
-from workup.schema import Action, EvidencePointer, RequirementAssessment, Status, Workup, validate_pointers
+from workup.schema import (
+    Action,
+    EvidencePointer,
+    RequirementAssessment,
+    Status,
+    Workup,
+    validate_pointers,
+)
 
 CASES = load_cases()
 
@@ -90,7 +97,8 @@ def test_validate_pointers_not_applicable_must_have_no_pointer():
 
 
 def test_compare_script_runs_from_any_cwd(tmp_path):
-    import subprocess, sys
+    import subprocess
+    import sys
     script = Path(__file__).parent.parent / "scripts" / "compare.py"
     out = subprocess.run([sys.executable, str(script)], cwd=tmp_path, capture_output=True, text=True, timeout=120)
     assert "action agreement" in out.stdout, out.stderr

@@ -14,12 +14,12 @@ from dotenv import load_dotenv
 
 load_dotenv()  # before workup imports: WORKUP_MODEL is read at import time
 
-from workup.checks import run_prechecks
-from workup.docs import load_case_documents
-from workup.llm import SYSTEM_PROMPT, build_user_content
-from workup.pipeline import DOCS_DIR, CaseResult, load_cases, run_case
-from workup.rules import get_rule, rule_as_text
-from workup.schema import Status
+from workup.checks import run_prechecks  # noqa: E402
+from workup.docs import load_case_documents  # noqa: E402
+from workup.llm import SYSTEM_PROMPT, build_user_content  # noqa: E402
+from workup.pipeline import DOCS_DIR, CaseResult, load_cases, run_case  # noqa: E402
+from workup.rules import get_rule, rule_as_text  # noqa: E402
+from workup.schema import Status  # noqa: E402
 
 app = typer.Typer(add_completion=False)
 

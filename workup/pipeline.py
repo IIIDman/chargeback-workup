@@ -15,12 +15,19 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
+from pydantic import ValidationError
+
 from .checks import PreChecks, run_prechecks
 from .confidence import Assessment, assess
 from .docs import Document, load_case_documents
-from pydantic import ValidationError
-
-from .llm import CALL_PARAMS, MODEL, SYSTEM_PROMPT, LLMResult, build_user_content, request_workup
+from .llm import (
+    CALL_PARAMS,
+    MODEL,
+    SYSTEM_PROMPT,
+    LLMResult,
+    build_user_content,
+    request_workup,
+)
 from .rules import ReasonCode, get_rule, rule_as_text
 from .schema import Case, Workup
 from .verify import RequirementVerification, verify_workup

@@ -1,15 +1,10 @@
-"""Quote verification: does every pointer the model returned actually exist in the document it cites?
+"""Quote verification: is every pointer the model returned actually on the page it cites?
 
-The model is asked for verbatim quotes. We check each one against the text we extracted from that page.
-A quote we cannot find is not proof of hallucination (extraction can mangle a table), but it is exactly
-the thing an analyst should not have to discover by opening the PDF. So:
-
-- a pointer is `verified=True` if its normalised quote appears, on word boundaries, in the normalised page
-  text (second attempt with punctuation turned into spaces, to survive extraction quirks), and the quote is
-  substantial: three words and twelve characters, or something shorter that carries a digit (ECI 02, TF-9051);
-- pointers into images are `verified=None`: we have no text to check against, the analyst must look;
-- a requirement marked satisfied with no verified text pointer, including one with no pointer at all, is
-  downgraded to partial, and the reason is recorded so the UI can show it.
+A pointer is verified when its normalised quote appears on word boundaries in the normalised page text
+(second pass with punctuation turned into spaces) and is substantial enough to mean something. Pointers
+into images are `verified=None`: no text to check, the analyst must look. A satisfied requirement with no
+verified text pointer is downgraded to partial with a note; a failed match is usually the extractor, not
+the model, so nothing is discarded.
 """
 from __future__ import annotations
 
@@ -144,19 +139,12 @@ def _identifiers(text: str) -> set[str]:
 
 
 def rationale_conflicts(workup: Workup, ignore: set[str] | None = None) -> list[str]:
-    """Catch a rationale that asserts evidence the same workup says is missing.
+    """Flag a rationale that asserts evidence the same workup says is missing.
 
-    Found on the first full run: case 7's rationale read "the signed proof of delivery POD-9051-img and
-    the driver telematics logs confirm service was rendered", while its own assessment marked that
-    requirement partial precisely because POD-9051-img had not been supplied, and listed it under
-    evidence to request. The rationale is the text that gets filed, so an assertion about evidence we do
-    not hold is the most expensive kind of error here.
-
-    The check is a smoke alarm, not a verdict: it matches identifier-shaped tokens that appear both in the
-    rationale and in the list of things to ask for. Identifiers from the case record itself (transaction id,
-    case id) are passed in `ignore`, because mentioning them is always legitimate. It still over-fires when
-    a reference is used as context in the ask ("the folio for booking MSP-2025-4488"), so the message tells
-    the analyst what to look at rather than asserting an error, and it raises the tier to medium only.
+    Matches identifier-shaped tokens (letters plus digits, e.g. POD-9051-img) that appear both in the
+    rationale and in the list of things to request. Case and transaction ids are passed in `ignore`. It
+    over-fires when a reference is used as context in the ask, so the message tells the analyst what to
+    check and the tier only goes to medium.
     """
     asks = " ".join(workup.evidence_to_request)
     if not asks.strip():

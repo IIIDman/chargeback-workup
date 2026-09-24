@@ -12,7 +12,6 @@ from __future__ import annotations
 import base64
 import json
 from datetime import datetime, timezone
-from pathlib import Path
 
 import streamlit as st
 from dotenv import load_dotenv
@@ -21,7 +20,13 @@ load_dotenv()
 
 from pydantic import ValidationError  # noqa: E402
 
-from workup.pipeline import ARTIFACTS, DOCS_DIR, CaseResult, load_cases, run_case  # noqa: E402
+from workup.pipeline import (  # noqa: E402
+    ARTIFACTS,
+    DOCS_DIR,
+    CaseResult,
+    load_cases,
+    run_case,
+)
 from workup.render import render_page  # noqa: E402
 from workup.schema import Action, Status  # noqa: E402
 

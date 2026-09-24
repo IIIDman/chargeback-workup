@@ -9,7 +9,7 @@ from workup.docs import load_case_documents
 from workup.llm import request_workup
 from workup.pipeline import DOCS_DIR, load_cases
 from workup.rules import get_rule
-from workup.schema import Action, EvidencePointer, RequirementAssessment, Status, Workup
+from workup.schema import Action, RequirementAssessment, Status, Workup
 
 
 def _good_workup(rule):
