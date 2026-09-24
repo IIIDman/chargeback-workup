@@ -169,9 +169,50 @@ in `tests/test_review_fixes.py`.
 
 ## If this were going into production
 
-Build the eval set first: a few hundred closed cases with the outcome the scheme actually gave, which is
-the only ground truth that matters. Then choose the model against it rather than by reputation, and expect
-a cascade: rule-only cases need no model at all, routine ones can run on a cheaper model, and only the
-doubtful ones need the expensive one. Cache the system prompt and the rule text, batch the overnight queue
-at half price, and track the override rate from `decisions.jsonl` per reason code, because the requirements
-an analyst keeps correcting are where the prompt or the encoded rules are wrong.
+**Measure before promising.** The eighteen minutes is the claim, and nothing about it is measurable yet.
+The decision log needs the analyst, the open and approve timestamps and the rule version next to the prompt
+fingerprint it already carries, and a handle-time baseline has to exist before the tool is switched on.
+Then a shadow fortnight (agreement rate, no analyst sees the output), then cases randomised between assisted
+and unassisted. The numbers a Director can act on are handle time at an unchanged win rate and the
+false-accept rate: cases the tool would have conceded that analysts represented and won.
+
+**An evaluation, not ten cases.** Two to three hundred closed cases, labelled per requirement (status and
+the page that proves it) by two analysts who have not seen the tool's output; their agreement is the
+ceiling. Metrics that keep "found the evidence" apart from "made the right call": page recall, a status
+confusion matrix where satisfied-on-nothing is the worst cell, action agreement by direction, override rate
+per tier. A frozen golden set that is never tuned on, with adversarial cases written for each prompt rule
+(a merchant report that does contain carrier data, a look-alike manifest row for another customer, a PDF
+with instructions in it). Rules 3 to 6 of the system prompt each answer one trap in the provided cases; an
+ablation on held-out cases is how I would find out whether they generalise, and I have not run one.
+
+**Where the case really comes from.** The scheme message and the dispute system, plus transaction data the
+acquirer already holds. For Visa 10.4 the compelling evidence is two prior undisputed transactions that
+match on device or IP, which is a lookup in the acquirer's own history rather than a merchant upload: the
+largest single win in this list. The approved rationale and the selected files go back to the dispute
+system; the tool never files with the scheme.
+
+**Ingestion.** OCR for a page with no text layer, email parsing, PAN redaction before anything reaches the
+prompt, and page pre-selection for long manifests by the case's own identifiers (transaction id, tracking
+number, postcode, amount) with a full second pass whenever the pruned document comes back missing. Scheme
+deadlines (about 30 days for Visa, 45 for Mastercard) belong in the queue sort next to the tier.
+
+**The call itself.** Skip the model for non-representable codes. A schema built per case, with fixed
+requirement fields and an enum of `file#page`, would have prevented both corrective round-trips in this
+run. A cache breakpoint after the documents makes the round-trip re-read the case at a tenth of the price.
+One call per case stays: the duplicate-charge catch on the hotel case needed the whole file in view. An
+image quote gets an independent check from OCR on the image, so image-only requirements stop going to
+needs review by default. Cost is not the argument (about five dollars per analyst per day); latency is,
+so the workup is computed when the case arrives, through the batch API, and the analyst never waits.
+
+**Confidence.** Keep the hard gates (rule against action, a satisfied with no verified quote, image-only,
+leftover validation problems) and replace the rest with a score fitted on analyst overrides once there are
+a few hundred. Publish the calibration table: override rate per tier with an interval. The model's own
+confidence field goes; on these ten it said high or medium and separated nothing.
+
+**Never automated.** Filing with the scheme, accepting liability above a set amount, any action that
+contradicts a pre-check, any statement that a cardholder committed fraud. A model change is a shadow run
+plus the eval gate, never a swap.
+
+If I had two more weeks, in order: instrument the log and measure the baseline; the golden set, labelled
+blind; the 10.4 prior-transaction lookup; per-attempt cost and latency logging with the cache breakpoint;
+the adversarial pack and the ablation of the prompt rules.
