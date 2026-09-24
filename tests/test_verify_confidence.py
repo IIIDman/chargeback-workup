@@ -61,8 +61,8 @@ def test_image_pointer_is_unverifiable_not_downgraded():
 
 def test_coverage_logic_all_treats_not_applicable_as_met():
     rule = get_rule("visa", "13.1")
-    docs = [_doc("a.pdf", "x y z")]
-    ptr = [EvidencePointer(document="a.pdf", page=1, quote="x y")]
+    docs = [_doc("a.pdf", "tracking shows delivered to the cardholder on 3 March")]
+    ptr = [EvidencePointer(document="a.pdf", page=1, quote="delivered to the cardholder")]
     w = _workup([_req(1, Status.satisfied, ptr), _req(2, Status.not_applicable), _req(3, Status.satisfied, ptr),
                  _req(4, Status.satisfied, ptr)])
     met, sat, req, applicable = coverage(rule, verify_workup(w, docs))
@@ -71,8 +71,8 @@ def test_coverage_logic_all_treats_not_applicable_as_met():
 
 def test_any_two_rule_met_with_two_satisfied():
     rule = get_rule("mastercard", "4837")
-    docs = [_doc("a.pdf", "avs y cvv m 3ds authenticated")]
-    ptr = [EvidencePointer(document="a.pdf", page=1, quote="avs y")]
+    docs = [_doc("a.pdf", "AVS check (full address) Y Full match; CVV M; 3DS authenticated")]
+    ptr = [EvidencePointer(document="a.pdf", page=1, quote="AVS check (full address) Y Full match")]
     w = _workup([_req(1, Status.satisfied, ptr), _req(2, Status.satisfied, ptr), _req(3, Status.missing),
                  _req(4, Status.missing)])
     met, sat, req, _ = coverage(rule, verify_workup(w, docs))
@@ -218,8 +218,8 @@ def test_subset_of_requirements_counts_missing_ones_and_flags_it():
 
 def test_unknown_requirement_id_is_ignored_not_counted():
     rule = get_rule("mastercard", "4837")
-    docs = [_doc("a.pdf", "avs y cvv m")]
-    ptr = [EvidencePointer(document="a.pdf", page=1, quote="avs y cvv m")]
+    docs = [_doc("a.pdf", "AVS check (full address) Y Full match")]
+    ptr = [EvidencePointer(document="a.pdf", page=1, quote="AVS check (full address) Y Full match")]
     w = _workup([_req(1, Status.satisfied, ptr), _req(9, Status.satisfied, ptr),
                  _req(2, Status.missing), _req(3, Status.missing), _req(4, Status.missing)])
     met, sat, req, _ = coverage(rule, verify_workup(w, docs))
@@ -250,11 +250,13 @@ def test_amount_mismatch_escalates_a_represent():
 
 
 def test_quote_needs_minimum_substance():
-    page = "Delivery failed. ECI 02. cannot confirm"
+    page = "Delivery failed. ECI 02. cannot confirm. Consignment TF-9051 collected."
     assert not quote_in_text("a", page)
     assert not quote_in_text("not", page)
-    assert quote_in_text("ECI 02", page)          # two words: enough
-    assert quote_in_text("Delivery failed", page)
+    assert quote_in_text("ECI 02", page)                 # two words with a digit: a code, not a fragment
+    assert not quote_in_text("Delivery failed", page)    # two plain words: could be anywhere
+    assert quote_in_text("Delivery failed. ECI 02", page)
+    assert quote_in_text("TF-9051", page)                # an identifier is substance on its own
 
 
 def test_identifier_regex_skips_plain_words_and_pure_numbers_and_ignores_case_ids():

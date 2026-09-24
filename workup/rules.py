@@ -11,6 +11,7 @@ Logic values:
 """
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Literal
 
@@ -21,6 +22,23 @@ Logic = Literal["all", "any_two", "any_one", "non_representable"]
 class Requirement:
     id: int
     text: str
+
+    @property
+    def conditional(self) -> bool:
+        """Applies only under a stated condition ("For services: ...", "If a tip ..."), so not_applicable
+        is a legitimate answer. For any other requirement, not_applicable needs a second look."""
+        return re.match(r"^(For |If |Either|Where |When )", self.text) is not None
+
+    @property
+    def fact(self) -> str | None:
+        """A requirement the transaction record answers by itself: 'avs_cvv' or '3ds'. The confidence
+        layer checks the model's status for these against the record."""
+        t = self.text.lower()
+        if "avs" in t and "cvv" in t and "prior" not in t:
+            return "avs_cvv"
+        if "3d secure" in t or "3-d secure" in t:
+            return "3ds"
+        return None
 
 
 @dataclass(frozen=True)

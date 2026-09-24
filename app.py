@@ -42,35 +42,50 @@ st.set_page_config(page_title="Representment workups", layout="wide", initial_si
 # --------------------------------------------------------------------------------- data
 
 
+def artifacts_stamp() -> tuple:
+    """Names and mtimes of the cached artifacts: the cache key, so a `run.py --all` in another terminal
+    is picked up on the next rerun instead of after a server restart."""
+    return tuple(sorted((p.name, p.stat().st_mtime_ns) for p in ARTIFACTS.glob("CB-*.json")))
+
+
 @st.cache_resource(show_spinner="Loading workups...")
-def load_results() -> dict[str, CaseResult]:
+def load_results(stamp: tuple) -> tuple[dict[str, CaseResult], list[str], list[str]]:
     """Cached model output only; verification and tiering are recomputed on load."""
-    out, stale = {}, []
+    out, stale, missing = {}, [], []
     for case_id, case in load_cases().items():
         if not (ARTIFACTS / f"{case_id}.json").exists():
+            missing.append(case_id)
             continue
         try:
             out[case_id] = run_case(case, allow_api=False)  # the UI never calls the API
         except (LookupError, ValidationError):
             stale.append(case_id)
-    if stale:
-        st.warning(f"Cached workups are stale for {', '.join(stale)} (the prompt changed since they were "
-                   "produced). Run `uv run python run.py --all` to refresh.", icon="⚠️")
-    return out
+    return out, stale, missing
 
 
 def decisions_by_case() -> dict[str, dict]:
     if not DECISIONS.exists():
         return {}
-    rows = {}
+    rows, bad = {}, 0
     for line in DECISIONS.read_text().splitlines():
-        if line.strip():
+        if not line.strip():
+            continue
+        try:
             d = json.loads(line)
             rows[d["case_id"]] = d  # last write wins
+        except (ValueError, KeyError, TypeError):
+            bad += 1  # a damaged line must not take the whole log down
+    if bad:
+        st.warning(f"{bad} line(s) in {DECISIONS.name} could not be read and were skipped.", icon="⚠️")
     return rows
 
 
-results = load_results()
+results, stale_ids, missing_ids = load_results(artifacts_stamp())
+if stale_ids:
+    st.warning(f"Cached workups are stale or unreadable for {', '.join(stale_ids)} (the prompt, schema or "
+               "model changed since they were produced). Run `uv run python run.py --all` to refresh.", icon="⚠️")
+if missing_ids:
+    st.info(f"No cached workup yet for {', '.join(missing_ids)}; not in the queue.", icon="ℹ️")
 if not results:
     st.error("No cached workups in artifacts/. Run `uv run python run.py --all` first.")
     st.stop()
@@ -175,6 +190,8 @@ for ra in w.requirements:
     v = ver[ra.requirement_id]
     default = v.effective_status.value
     saved = (prior or {}).get("requirement_overrides", {}).get(str(ra.requirement_id))
+    if isinstance(saved, dict):
+        saved = saved.get("analyst")
     with st.container(border=True):
         left, right = st.columns([5, 1])
         with left:
@@ -216,23 +233,33 @@ with dec_r:
         ask = st.text_area("Ask the merchant for", ask_default or "", height=120, key=f"ask_{case.case_id}")
     note = st.text_input("Note (optional)", (prior or {}).get("note", ""), key=f"note_{case.case_id}")
 
-    changed = (action != a.final_action.value) or bool(overrides) or rationale.strip() != w.rationale.strip()
+    ask_lines = [x for x in ask.splitlines() if x.strip()]
+    ask_edited = action == Action.request_more_evidence.value and ask_lines != list(w.evidence_to_request)
+    changed = ((action != a.final_action.value) or bool(overrides)
+               or rationale.strip() != w.rationale.strip() or ask_edited)
     if changed:
         st.caption("⚠️ differs from the proposal; the difference is recorded")
+    if action == Action.represent.value and any(v in ("missing", "partial") for v in overrides.values()):
+        st.warning("Representing while a requirement is overridden to missing or partial; recorded as is.", icon="⚠️")
     if st.button("Approve and record", type="primary", use_container_width=True, key=f"ok_{case.case_id}"):
         DECISIONS.parent.mkdir(exist_ok=True)
         with DECISIONS.open("a") as f:
             f.write(json.dumps({
                 "case_id": case.case_id,
                 "decided_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                "fingerprint": r.fingerprint,  # which prompt/schema/model version the analyst was looking at
                 "tool_action": a.final_action.value,
                 "final_action": action,
                 "action_changed": action != a.final_action.value,
                 "tool_tier": a.tier,
-                "requirement_overrides": {str(k): v for k, v in overrides.items()},
+                # tool status kept next to the analyst's, so the override is readable after a regeneration
+                "requirement_overrides": {str(k): {"tool": ver[k].effective_status.value, "analyst": v}
+                                          for k, v in overrides.items()},
+                "tool_rationale": w.rationale,
                 "rationale": rationale,
                 "rationale_edited": rationale.strip() != w.rationale.strip(),
-                "evidence_to_request": [x for x in ask.splitlines() if x.strip()],
+                "evidence_to_request": ask_lines,
+                "ask_edited": ask_edited,
                 "note": note,
             }, ensure_ascii=False) + "\n")
         nxt = [c for c in order if c != case.case_id and c not in decided]

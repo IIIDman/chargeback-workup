@@ -4,9 +4,9 @@ The model is asked for verbatim quotes. We check each one against the text we ex
 A quote we cannot find is not proof of hallucination (extraction can mangle a table), but it is exactly
 the thing an analyst should not have to discover by opening the PDF. So:
 
-- a pointer is `verified=True` if its normalised quote is a substring of the normalised page text
-  (second attempt with punctuation stripped, to survive extraction quirks), and the quote is long enough
-  to mean something (a single short token would match almost any page);
+- a pointer is `verified=True` if its normalised quote appears, on word boundaries, in the normalised page
+  text (second attempt with punctuation turned into spaces, to survive extraction quirks), and the quote is
+  substantial: three words and twelve characters, or something shorter that carries a digit (ECI 02, TF-9051);
 - pointers into images are `verified=None`: we have no text to check against, the analyst must look;
 - a requirement marked satisfied with no verified text pointer, including one with no pointer at all, is
   downgraded to partial, and the reason is recorded so the UI can show it.
@@ -20,8 +20,25 @@ from .docs import Document, normalize
 from .schema import Status, Workup
 
 _PUNCT = re.compile(r"[^\w\s]")
-MIN_QUOTE_CHARS = 8   # a normalised quote shorter than this must have at least...
-MIN_QUOTE_WORDS = 2   # ...this many words to count ("ECI 02" passes, "not" does not)
+MIN_QUOTE_CHARS = 12  # a quote counts as evidence only when it is at least this long AND...
+MIN_QUOTE_WORDS = 3   # ...has this many words; shorter is fine only with a digit in it ("ECI 02", "TF-9051")
+_IDENT = re.compile(r"(?<!\w)(?=[\w-]*\d)(?=[\w-]*[a-z])[a-z0-9][\w-]{3,}(?!\w)")
+
+
+def _substantial(q: str) -> bool:
+    """Generic fragments ("of the", "delivered") would match almost any page and must not count."""
+    words = q.split()
+    if len(q) >= MIN_QUOTE_CHARS and len(words) >= MIN_QUOTE_WORDS:
+        return True
+    if _IDENT.search(q) is not None:
+        return True
+    return len(words) >= 2 and len(q) >= 6 and any(ch.isdigit() for ch in q)  # "ECI 02", "Total: 54.00"
+
+
+def _bounded(needle: str, hay: str) -> bool:
+    """Substring match on word boundaries: "ORD-551" must not match inside "ORD-5512", nor
+    "authorised transaction" inside "unauthorised transaction"."""
+    return re.search(r"(?<!\w)" + re.escape(needle) + r"(?!\w)", hay) is not None
 
 
 @dataclass
@@ -61,13 +78,14 @@ class RequirementVerification:
 
 def quote_in_text(quote: str, page_text: str) -> bool:
     q, t = normalize(quote), normalize(page_text)
-    if len(q) < MIN_QUOTE_CHARS and len(q.split()) < MIN_QUOTE_WORDS:
+    if not q or not _substantial(q):
         return False
-    if q in t:
+    if _bounded(q, t):
         return True
-    q2 = re.sub(r"\s+", " ", _PUNCT.sub("", q)).strip()
-    t2 = re.sub(r"\s+", " ", _PUNCT.sub("", t))
-    return len(q2) >= MIN_QUOTE_CHARS // 2 and q2 in t2
+    # Punctuation becomes a space, never nothing: deleting it would let "12.50" match inside "1,250.00".
+    q2 = re.sub(r"\s+", " ", _PUNCT.sub(" ", q)).strip()
+    t2 = re.sub(r"\s+", " ", _PUNCT.sub(" ", t))
+    return bool(q2) and _bounded(q2, t2)
 
 
 def verify_workup(workup: Workup, documents: list[Document]) -> list[RequirementVerification]:

@@ -72,7 +72,8 @@ Rules for your assessment:
 class LLMResult:
     workup: Workup
     raw_response: dict  # full API response, for the audit log
-    usage: dict
+    usage: dict  # totals over all metered attempts
+    usage_per_attempt: list[dict]
     attempts: int
     validation_problems: list[str]  # problems left on the final attempt (should be empty)
     problems_per_attempt: list[list[str]] = None  # what each attempt got wrong, for the audit log
@@ -125,6 +126,7 @@ def request_workup(case: Case, rule: ReasonCode, prechecks: PreChecks, documents
     attempts = 0
     problems: list[str] = []
     history: list[list[str]] = []
+    usages: list[dict] = []  # one per answer the API returned; an unparseable answer leaves none
     unparseable = 0
     while True:
         attempts += 1
@@ -140,11 +142,13 @@ def request_workup(case: Case, rule: ReasonCode, prechecks: PreChecks, documents
             # The SDK could not parse the text as a Workup: a truncated or degenerate answer (seen once on
             # case 6, where the output collapsed into repeated "***" and was cut off). Non-deterministic,
             # so one clean retry of the same request; a second failure is reported, never cached.
+            # A truncated answer (stop_reason max_tokens) surfaces here too, because the SDK parses the
+            # text before handing the response back; it gets the same single retry.
             unparseable += 1
-            history.append([f"unparseable answer: {str(e).splitlines()[0]}"])
+            history.append([f"unparseable answer: {_first_error(e)}"])
             if unparseable >= 2:
                 raise RuntimeError(f"{case.case_id}: the model returned an unparseable answer twice; "
-                                   f"not caching. Last error: {str(e).splitlines()[0]}") from e
+                                   f"not caching. Last error: {_first_error(e)}") from e
             continue
         if response.stop_reason != "end_turn" or response.parsed_output is None:
             raise RuntimeError(
@@ -152,6 +156,7 @@ def request_workup(case: Case, rule: ReasonCode, prechecks: PreChecks, documents
                 f"{'no' if response.parsed_output is None else 'a'} parsed workup; not caching this response"
             )
         workup: Workup = response.parsed_output
+        usages.append(_usage_dict(response.usage))
         problems = validate_pointers(workup, case_docs, len(rule.requirements))
         history.append(problems)
         if not problems or attempts - unparseable >= 2:
@@ -163,12 +168,35 @@ def request_workup(case: Case, rule: ReasonCode, prechecks: PreChecks, documents
              + "\nReturn a corrected workup. Only point to documents and pages that exist in this case."},
         ]
 
-    usage = response.usage.model_dump() if hasattr(response.usage, "model_dump") else dict(response.usage)
     return LLMResult(
         workup=workup,
         raw_response=response.model_dump(mode="json", warnings=False),  # ParsedMessage carries extra fields
-        usage=usage,
+        usage=sum_usage(usages),
+        usage_per_attempt=usages,
         attempts=attempts,
         validation_problems=problems,
         problems_per_attempt=history,
     )
+
+
+def _first_error(e: ValidationError) -> str:
+    try:
+        err = e.errors()[0]
+        return f"{err.get('type')}: {err.get('msg')}"
+    except Exception:  # pragma: no cover
+        return str(e).splitlines()[0]
+
+
+def _usage_dict(usage) -> dict:
+    return usage.model_dump() if hasattr(usage, "model_dump") else dict(usage)
+
+
+_USAGE_KEYS = ("input_tokens", "output_tokens", "cache_creation_input_tokens", "cache_read_input_tokens")
+
+
+def sum_usage(usages: list[dict]) -> dict:
+    """Token totals over every answer the API returned for this case, so the cost of a corrective
+    round-trip is counted. `attempts_metered` says how many answers are in the total."""
+    out = {k: sum(int(u.get(k) or 0) for u in usages) for k in _USAGE_KEYS}
+    out["attempts_metered"] = len(usages)
+    return out

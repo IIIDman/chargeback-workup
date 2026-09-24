@@ -50,6 +50,8 @@ def render(r: CaseResult) -> str:
         "",
         "## Evidence assessment",
     ]
+    if not w.requirements:
+        out.append("(none: the code is not representable, so the evidence was not assessed)")
     for ra in w.requirements:
         req = next((x for x in r.rule.requirements if x.id == ra.requirement_id), None)
         v = ver[ra.requirement_id]
@@ -94,6 +96,7 @@ def main(
     if not all_cases and case_id not in cases:
         raise typer.BadParameter(f"unknown case {case_id!r}; known: {list(cases)}")
 
+    failed = 0
     for cid in ids:
         case = cases[cid]
         if dry_run:
@@ -113,6 +116,7 @@ def main(
         try:
             result = run_case(case, recompute=recompute)
         except Exception as e:  # keep going on --all, say plainly what happened
+            failed += 1
             typer.echo(f"# {cid}: FAILED: {type(e).__name__}: {e}", err=True)
             if "api_key" in str(e).lower() or "authentication" in type(e).__name__.lower():
                 typer.echo("  no usable ANTHROPIC_API_KEY and no fresh cache for this case; "
@@ -124,6 +128,9 @@ def main(
         if not result.from_cache:
             typer.echo(f"usage: {json.dumps(result.usage)}")
         typer.echo("-" * 80)
+    if failed:
+        typer.echo(f"{failed} of {len(ids)} case(s) failed", err=True)
+        raise typer.Exit(1)
 
 
 if __name__ == "__main__":

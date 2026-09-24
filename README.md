@@ -29,7 +29,7 @@ To regenerate the workups (or run a new case) you need a key:
 
 ```bash
 cp .env.example .env                   # then set ANTHROPIC_API_KEY
-uv run python run.py --all             # all ten, about $0.61 on claude-opus-5-5
+uv run python run.py --all             # all ten, about $0.70 on claude-opus-5-5
 uv run python run.py CB-2025-0004 --recompute   # one case, ignoring its cache
 uv run python run.py CB-2025-0004 --dry-run     # print the exact prompt, make no call
 ```
@@ -45,8 +45,10 @@ recommended action, what to ask the merchant for, and caveats. Every case carrie
 the reasons that produced it.
 
 On the ten provided cases: **46 pointers, 40 verified verbatim against the extracted text, 0 not found**,
-6 pointing at images (not text-verifiable by design). Queue: 6 high, 2 medium, 2 needs review. Total cost
-of a full run: $0.61.
+6 pointing at images (not text-verifiable by design). Queue: 6 high, 2 medium, 2 needs review. Cost: the
+cached answers add up to $0.61 at list price (`scripts/compare.py` prints the figure from the stored token
+counts); the two cases that needed a second attempt were metered on the final answer only in this run, so
+a full run is nearer $0.70. Every answer is metered from now on.
 
 ## Design decisions
 
@@ -55,13 +57,15 @@ decided without reading. The rule logic (`all` / `any two` / `any one` / non-rep
 data in `workup/rules.py`, and `workup/checks.py` computes AVS/CVV/3DS, postcode match, date ordering and
 amount agreement from the transaction record. So the outcome for Visa 10.5 is fixed by code whatever the
 documents say (today the model is still called; skipping the call for rule-only codes is the first
-production change), and a merchant document cannot talk the tool out of a failed AVS.
+production change), and a merchant document cannot talk the tool out of a failed AVS: for the requirements
+the record answers by itself (AVS/CVV and 3DS under Mastercard 4837 and 4863), a satisfied that the record
+contradicts is downgraded to missing before the tier is computed.
 
 **Extract the text myself rather than posting PDFs to the model.** `workup/docs.py` pulls each page with
 `pdfplumber`, and the page arrives in the prompt inside `<document name= page= of=>`. That buys three
 things: I know exactly what the model saw, page-level pointers come free, and every quote can be checked
 against the same text afterwards. The two PNGs go in as image blocks. Cost: a scanned PDF would need an
-OCR step in `extract_pages`; there are none here, and I checked (tesseract output matches the text layer).
+OCR step in `extract_pages`; there are none here (every page returns text), so I did not build or run one.
 
 **The output schema is the guardrail.** `Workup` in `workup/schema.py` is passed to the API as the required
 response format, so statuses and actions are enums rather than prose. What a JSON schema cannot express is
@@ -98,7 +102,10 @@ Every tier is shown with its reasons. `needs_review` never appears without a sen
 
 **The tool downgrades rather than discards.** A satisfied requirement whose quotes cannot be found in the
 document text becomes partial with a note, because a failed match is usually the extractor, not the model.
-The analyst sees "quote NOT found" next to the quote and decides.
+The analyst sees "quote NOT found" next to the quote and decides. The match itself is strict where it has
+to be: on word boundaries (ORD-551 must not match inside ORD-5512), with punctuation turned into a space
+rather than deleted (12.50 must not match inside 1,250.00), and a two-word fragment without a digit does
+not count as evidence at all.
 
 ## For the analyst
 
@@ -128,6 +135,20 @@ reason, and `compare.py` prints `(key revised: ...)` on those rows.
 Current run: ten of ten on action, nine of ten on caution. The miss is a case where the tool says high on
 a request for evidence with one of four requirements satisfied, and I would have wanted medium. I left the
 tier rules alone rather than tune them to one case; the row is printed as a miss.
+
+Before submitting I went through the code layer with adversarial inputs rather than the ten cases, and fixed
+what that found. Quote matching: digits could merge across punctuation, a quote could match inside a longer
+word or identifier, a generic two-word fragment counted as evidence, and a word hyphenated across a line
+break could not be found. Pre-checks: a missing billing postcode read as a mismatch, a non-breaking space or
+a hyphen in a postcode broke the comparison, the currency check was case-sensitive, and the day count used
+the local rather than the UTC calendar day. Tiering: the transaction record did not outrank the model on the
+AVS/3DS requirements, a not-applicable on an unconditional requirement under an ALL rule was not raised, a
+partial beyond an already met any-two rule was escalated for nothing, and a non-representable code skipped
+the check for leftover validation problems. Robustness: a half-written artifact crashed the CLI and the UI
+instead of counting as a cache miss, `--all` exited 0 with failures, the UI kept serving old artifacts
+after a regeneration and fell over on one damaged log line, and the decision record did not keep the tool's
+own status next to the analyst's override. None of these changed a tier on the ten cases; each has a test
+in `tests/test_review_fixes.py`.
 
 ## Limitations
 

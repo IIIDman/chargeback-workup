@@ -13,6 +13,10 @@ families, in the order they are applied:
 6. the model's self-reported confidence, as a minor input
 7. leftover validation problems: a workup that still failed structural validation after the retry
 
+Before any of that, requirements the transaction record answers by itself (AVS/CVV and 3DS under
+Mastercard 4837 and 4863) are checked against the record: a satisfied that the record contradicts is
+downgraded to missing, so a merchant document cannot talk the tool out of a failed AVS.
+
 Three principles worth stating, because two of them were wrong in the first version:
 
 - **Direction-neutral.** accept_liability means the merchant eats the loss and request_more_evidence costs
@@ -69,6 +73,29 @@ def coverage(rule: ReasonCode, verifications: list[RequirementVerification]) -> 
     return satisfied >= required, satisfied, required, len(applicable)
 
 
+def apply_transaction_facts(rule: ReasonCode, prechecks: PreChecks,
+                            verifications: list[RequirementVerification]) -> list[int]:
+    """Downgrade a satisfied requirement that the transaction record contradicts. Returns the ids changed."""
+    by_id = {r.id: r for r in rule.requirements}
+    changed: list[int] = []
+    for v in verifications:
+        req = by_id.get(v.requirement_id)
+        if req is None or req.fact is None or v.effective_status is not Status.satisfied:
+            continue
+        if req.fact == "avs_cvv":
+            ok = prechecks.avs_full_match and prechecks.cvv_match
+            seen = f"AVS {prechecks.avs}, CVV {prechecks.cvv}"
+        else:
+            ok = prechecks.three_ds_ok
+            seen = f"3DS {prechecks.three_ds}"
+        if not ok:
+            v.effective_status = Status.missing
+            v.downgraded = True
+            v.note = f"downgraded satisfied -> missing: the transaction record says {seen}"
+            changed.append(v.requirement_id)
+    return changed
+
+
 def assess(rule: ReasonCode, prechecks: PreChecks, workup: Workup,
            verifications: list[RequirementVerification],
            validation_problems: list[str] | None = None,
@@ -87,8 +114,13 @@ def assess(rule: ReasonCode, prechecks: PreChecks, workup: Workup,
         if workup.recommended_action is not Action.accept_liability:
             a.action_overridden = True
             add("medium", f"model proposed {workup.recommended_action.value}; overridden to accept_liability by rule")
+        if validation_problems:
+            add("needs_review", f"workup failed structural validation after retry: {'; '.join(validation_problems)}")
         a.tier = max(sev, key=_RANK.get, default="high")
         return a
+
+    # 1b. the transaction record outranks the model on the requirements it answers itself
+    apply_transaction_facts(rule, prechecks, verifications)
 
     # 2. coverage vs recommendation
     a.rule_met, a.satisfied_count, a.required_count, a.applicable_count = coverage(rule, verifications)
@@ -107,13 +139,24 @@ def assess(rule: ReasonCode, prechecks: PreChecks, workup: Workup,
         add("needs_review", f"requirement(s) {missing_ids} were not assessed by the model; counted as missing")
     na = [v.requirement_id for v in returned if v.effective_status is Status.not_applicable]
     if na and rule.logic == "all":
-        a.reasons.append(f"requirement(s) {na} marked not applicable by the model and excluded from the count; confirm")
+        by_id = {r.id: r for r in rule.requirements}
+        unconditional = [i for i in na if not by_id[i].conditional]
+        if unconditional:
+            # Under an ALL rule, an N/A shrinks the bar. Fine when the rule text states a condition
+            # ("For services: ..."); a second look when it does not.
+            add("medium", f"requirement(s) {unconditional} marked not applicable although the rule states no "
+                          f"condition for them; confirm before relying on the count")
+        else:
+            a.reasons.append(f"requirement(s) {na} marked not applicable by the model and excluded from the count; confirm")
 
     partials = [v.requirement_id for v in returned if v.effective_status is Status.partial]
     satisfied_or_partial = [v.requirement_id for v in returned
                             if v.effective_status in (Status.satisfied, Status.partial)]
     if partials and workup.recommended_action is Action.represent:
-        add("needs_review", f"represent recommended with partial requirement(s): {partials}")
+        if a.rule_met and rule.logic != "all":
+            a.reasons.append(f"requirement(s) {partials} partial, not needed: the rule is already met by satisfied ones")
+        else:
+            add("needs_review", f"represent recommended with partial requirement(s): {partials}")
     # Conceding a case that partly works is a decision too: the merchant eats the loss.
     if workup.recommended_action is Action.accept_liability and satisfied_or_partial:
         add("needs_review", f"accept_liability although requirement(s) {satisfied_or_partial} are met or partly met")

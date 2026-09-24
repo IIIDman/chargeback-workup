@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -43,6 +44,7 @@ class CaseResult:
     from_cache: bool
     attempts: int
     validation_problems: list[str]
+    fingerprint: str = ""
 
 
 def load_cases(path: Path = DATA / "cases.json") -> dict[str, Case]:
@@ -73,30 +75,35 @@ def run_case(case: Case, recompute: bool = False, allow_api: bool = True) -> Cas
 
     ARTIFACTS.mkdir(exist_ok=True)
     cache_path = ARTIFACTS / f"{case.case_id}.json"
+    why = "no cached workup"
     if cache_path.exists() and not recompute:
-        cached = json.loads(cache_path.read_text())
-        if cached.get("fingerprint") == fp:
+        cached = _read_cache(cache_path)
+        if cached is None:
+            why = "unreadable cached workup"  # half-written or hand-edited file: a miss, not a crash
+        elif cached.get("fingerprint") != fp:
+            why = "stale cached workup (the prompt, schema or model changed since it was produced)"
+        else:
             try:
                 workup = Workup.model_validate(cached["workup"])
             except ValidationError:
                 workup = None  # schema moved on; treat as a cache miss
+                why = "cached workup no longer fits the schema"
             if workup is not None:
                 return _finish(case, rule, prechecks, documents, workup,
                                usage=cached.get("usage", {}), from_cache=True,
-                               attempts=cached.get("attempts", 1), problems=cached.get("validation_problems", []))
+                               attempts=cached.get("attempts", 1), problems=cached.get("validation_problems", []),
+                               fingerprint=fp)
 
     if not allow_api:
-        raise LookupError(
-            f"no cached workup for {case.case_id} matching the current prompt "
-            f"(fingerprint {fp}). Run `uv run python run.py --all` to refresh."
-        )
+        raise LookupError(f"{why} for {case.case_id} (fingerprint {fp}). Run `uv run python run.py --all` to refresh.")
     result: LLMResult = request_workup(case, rule, prechecks, documents)
-    cache_path.write_text(json.dumps({
+    _write_atomic(cache_path, json.dumps({
         "case_id": case.case_id,
         "fingerprint": fp,
         "model": result.raw_response.get("model"),
         "workup": result.workup.model_dump(mode="json"),
         "usage": result.usage,
+        "usage_per_attempt": result.usage_per_attempt,
         "attempts": result.attempts,
         "validation_problems": result.validation_problems,
         "problems_per_attempt": result.problems_per_attempt,
@@ -106,11 +113,26 @@ def run_case(case: Case, recompute: bool = False, allow_api: bool = True) -> Cas
     }, indent=2, ensure_ascii=False))
 
     return _finish(case, rule, prechecks, documents, result.workup, usage=result.usage, from_cache=False,
-                   attempts=result.attempts, problems=result.validation_problems)
+                   attempts=result.attempts, problems=result.validation_problems, fingerprint=fp)
+
+
+def _read_cache(path: Path) -> dict | None:
+    try:
+        cached = json.loads(path.read_text())
+    except (OSError, ValueError):
+        return None
+    return cached if isinstance(cached, dict) and "workup" in cached else None
+
+
+def _write_atomic(path: Path, text: str) -> None:
+    """Write via a temp file and rename, so an interrupted run never leaves a half-written artifact."""
+    tmp = path.with_suffix(".json.tmp")
+    tmp.write_text(text)
+    os.replace(tmp, path)
 
 
 def _finish(case: Case, rule: ReasonCode, prechecks: PreChecks, documents: list[Document], workup: Workup,
-            *, usage: dict, from_cache: bool, attempts: int, problems: list[str]) -> CaseResult:
+            *, usage: dict, from_cache: bool, attempts: int, problems: list[str], fingerprint: str = "") -> CaseResult:
     verifications = verify_workup(workup, documents)
     known = {case.case_id, case.transaction.transaction_id, case.transaction.merchant_name}
     assessment = assess(rule, prechecks, workup, verifications, validation_problems=problems, known_identifiers=known)
@@ -118,4 +140,5 @@ def _finish(case: Case, rule: ReasonCode, prechecks: PreChecks, documents: list[
         case=case, rule=rule, prechecks=prechecks, documents=documents, workup=workup,
         verifications=verifications, assessment=assessment,
         usage=usage, from_cache=from_cache, attempts=attempts, validation_problems=problems,
+        fingerprint=fingerprint,
     )

@@ -4,9 +4,9 @@ Design choice: extract text ourselves, page by page, rather than sending PDFs to
 documents. Reasons: (1) we control exactly what the model saw, (2) every quote the model returns can be
 verified verbatim against the extracted text, (3) page-level pointers come for free.
 
-All PDFs in this dataset have a text layer (checked with pdftotext and against OCR). Scanned PDFs would
-need an OCR step (e.g. tesseract) inserted in `extract_pages`; that is out of scope here and noted in the
-README. Images (PNG) are passed to the model's vision input as-is.
+Every page of every PDF in this dataset has a text layer (checked: pdfplumber returns text for all of them).
+Scanned PDFs would need an OCR step (e.g. tesseract) inserted in `extract_pages`; that is out of scope here
+and noted in the README. Images (PNG) are passed to the model's vision input as-is.
 """
 from __future__ import annotations
 
@@ -55,6 +55,7 @@ def normalize(text: str) -> str:
     text = unicodedata.normalize("NFKC", text)
     text = text.replace("—", "-").replace("–", "-").replace("−", "-")
     text = text.replace("‘", "'").replace("’", "'").replace("“", '"').replace("”", '"')
+    text = re.sub(r"(?<=\w)-[ \t]*\n\s*(?=\w)", "", text)  # re-join words hyphenated across a line break
     text = re.sub(r"\s+", " ", text)
     return text.strip().lower()
 
