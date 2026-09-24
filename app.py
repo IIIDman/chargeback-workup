@@ -9,6 +9,7 @@ Reads cached results from artifacts/, so it never calls the API.
 """
 from __future__ import annotations
 
+import base64
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -20,7 +21,8 @@ load_dotenv()
 
 from pydantic import ValidationError  # noqa: E402
 
-from workup.pipeline import ARTIFACTS, CaseResult, load_cases, run_case  # noqa: E402
+from workup.pipeline import ARTIFACTS, DOCS_DIR, CaseResult, load_cases, run_case  # noqa: E402
+from workup.render import render_page  # noqa: E402
 from workup.schema import Action, Status  # noqa: E402
 
 DECISIONS = ARTIFACTS / "decisions.jsonl"
@@ -61,6 +63,28 @@ def load_results(stamp: tuple) -> tuple[dict[str, CaseResult], list[str], list[s
         except (LookupError, ValidationError):
             stale.append(case_id)
     return out, stale, missing
+
+
+@st.cache_data(show_spinner=False)
+def page_png(doc_name: str, page: int, quote: str | None) -> tuple[bytes, bool]:
+    """Rendered page with the quote highlighted; cached per (document, page, quote)."""
+    return render_page(DOCS_DIR / doc_name, page, quote)
+
+
+def show_pointer(pc, documents) -> None:
+    """The cited page, or the image itself, so checking a pointer never means opening a file."""
+    doc = next((d for d in documents if d.name == pc.document), None)
+    if doc is None:
+        st.caption("document not in this case")
+        return
+    if doc.kind == "image":
+        st.image(base64.b64decode(doc.image_b64), caption=f"{doc.name}: the model transcribed the quote from this image",
+                 width="stretch")
+        return
+    png, found = page_png(doc.name, pc.page, pc.quote)
+    st.image(png, caption=f"{doc.name}, page {pc.page} of {doc.page_count}"
+             + ("" if found else ": quote not located on the rendered page, shown without highlight"),
+             width="stretch")
 
 
 def decisions_by_case() -> dict[str, dict]:
@@ -118,7 +142,7 @@ with st.sidebar:
     st.caption(f"Decisions recorded: {len(decided)}")
     if decided:
         st.download_button("Export decisions as JSON", json.dumps(list(decided.values()), indent=2),
-                           "decisions.json", "application/json", use_container_width=True)
+                           "decisions.json", "application/json", width="stretch")
     st.caption("Edits are kept per case only until you switch case; approve to record them.")
 
 # -------------------------------------------------------------------------- case header
@@ -206,6 +230,7 @@ for ra in w.requirements:
                     st.code(pc.quote, language=None)
                     if pc.note:
                         st.caption(pc.note)
+                    show_pointer(pc, r.documents)
         with right:
             opts = [s.value for s in Status]
             choice = st.selectbox("analyst", opts, index=opts.index(saved or default),
@@ -265,6 +290,20 @@ with dec_r:
         nxt = [c for c in order if c != case.case_id and c not in decided]
         st.session_state.selected = nxt[0] if nxt else case.case_id
         st.rerun()
+
+with st.expander(f"All {len(r.documents)} document(s) for this case"):
+    # For the gap, not the evidence: what the merchant sent that no requirement cites.
+    cited = {(pc.document, pc.page) for v in r.verifications for pc in v.pointers}
+    for d in r.documents:
+        pages_cited = sorted(p for (n, p) in cited if n == d.name)
+        st.markdown(f"**{d.name}** · {d.page_count} page(s)"
+                    + (f" · cited: page {', '.join(map(str, pages_cited))}" if pages_cited else " · not cited"))
+        if d.kind == "image":
+            st.image(base64.b64decode(d.image_b64), width="stretch")
+            continue
+        page = st.number_input("page", 1, d.page_count, pages_cited[0] if pages_cited else 1,
+                               key=f"pg_{case.case_id}_{d.name}", label_visibility="collapsed")
+        st.image(page_png(d.name, int(page), None)[0], width="stretch")
 
 with st.expander("Transaction record and deterministic pre-checks"):
     pre_l, pre_r = st.columns(2)

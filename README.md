@@ -110,8 +110,12 @@ not count as evidence at all.
 ## For the analyst
 
 `app.py` sorts the queue by tier, hardest first, then by amount. A case opens as rule / evidence / gap, with
-the requirement checklist below it. Every pointer expands to show the quote and whether it was verified.
-Every status has an override, the rationale is editable, and the action can be changed. Approving writes a
+the requirement checklist below it. Every pointer expands to show the quote, whether it was verified, and
+the cited page itself rendered with the quote highlighted (`workup/render.py`, from pdfplumber's word
+boxes), so checking a pointer never means opening a file; an image document is shown as it is. Below the
+checklist every document of the case can be paged through, with the cited pages marked, which is where
+the analyst looks for what the model did not cite. Every status has an override, the rationale is
+editable, and the action can be changed. Approving writes a
 record to `artifacts/decisions.jsonl` that keeps both what the tool proposed and what the analyst chose,
 which is the data you would want later to see where the tool is wrong.
 
