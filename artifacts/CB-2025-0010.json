@@ -1,37 +1,47 @@
 {
   "case_id": "CB-2025-0010",
-  "fingerprint": "46c6c7f40da05c24",
+  "fingerprint": "25611e5fc4b0d08f",
   "model": "claude-opus-5-5",
   "workup": {
-    "reason_code_summary": "The issuer has charged back this transaction under Visa 10.5 because it was flagged under the Visa Fraud Monitoring Program. Under the simplified rules this code cannot be represented. The only exception is if the merchant can prove the issuer miscoded the transaction.",
+    "reason_code_summary": "The issuer has raised the chargeback under Visa 10.5, stating the transaction was flagged under the Visa Fraud Monitoring Program. Under the simplified rules this reason code is not representable. The only exception is where the merchant can prove the issuer miscoded the dispute.",
     "requirements": [],
     "recommended_action": "accept_liability",
-    "action_justification": "Visa 10.5 is non-representable, and nothing in the file shows the issuer miscoded the chargeback.",
+    "action_justification": "Visa 10.5 is non-representable, and nothing in the file shows the issuer miscoded the dispute, so the merchant's evidence cannot change the outcome.",
     "evidence_to_request": [],
-    "rationale": "Case CB-2025-0010 was charged back under Visa 10.5 (Visa Fraud Monitoring Program), which is non-representable under the applicable rules. The merchant's 3DS authentication record and delivery confirmation do not change the outcome for this reason code. No evidence shows the issuer miscoded the chargeback. Liability for GBP 78.50 is accepted.",
+    "rationale": "Case CB-2025-0010 was raised under Visa 10.5 (Visa Fraud Monitoring Program), which is non-representable under the applicable rules. The merchant supplied a Visa Secure authentication record and a signed Evri delivery confirmation. These documents address cardholder fraud, not the monitoring-program flag. Nothing in the file indicates the issuer miscoded the dispute, which is the only basis for challenging this reason code. Liability for GBP 78.50 is accepted.",
     "caveats": [
-      "The transaction record shows 3DS authenticated, AVS Y, CVV M and matching billing/shipping postcodes. The merchant also supplied an ECI 05 Visa Secure record and a signed delivery. This is strong fraud-defence evidence, but it is irrelevant under 10.5 unless a miscoding is established.",
-      "If the analyst suspects the issuer applied 10.5 to a transaction that was not actually VFMP-identified, confirm with the issuer or through the scheme before closing. That is the only route to challenge.",
-      "This evidence was not assessed against requirements because the code is non-representable."
+      "The merchant's evidence is strong for a fraud dispute, but it does not change the outcome for a non-representable code. It includes: full AVS match, CVV match, 3DS authenticated (ECI 05, timestamp 22:14:51 UTC, 4 seconds before the transaction), matching billing and shipping postcode SW4 7QR, signed delivery on 2 May 2025, and a returning customer with 3 prior undisputed orders.",
+      "Before closing, confirm with the issuer or on the scheme record that the transaction was actually listed under the Visa Fraud Monitoring Program. If it was a standard fraud dispute miscoded as 10.5, the case could be re-evaluated under the correct reason code, where this evidence would be relevant.",
+      "The merchant's order reference (#BB-77231) does not appear in the case metadata. The link to txn_1178ST relies on the matching amount and address, which is moot unless the case is recoded.",
+      "No text addressed to the reviewer or asserting conclusions was found in the merchant documents."
     ],
     "model_confidence": "high"
   },
   "usage": {
-    "cache_creation": {
-      "ephemeral_1h_input_tokens": 0,
-      "ephemeral_5m_input_tokens": 0
-    },
+    "input_tokens": 4129,
+    "output_tokens": 935,
     "cache_creation_input_tokens": 0,
     "cache_read_input_tokens": 0,
-    "inference_geo": "global",
-    "input_tokens": 4020,
-    "output_tokens": 712,
-    "output_tokens_details": {
-      "thinking_tokens": 191
-    },
-    "server_tool_use": null,
-    "service_tier": "standard"
+    "attempts_metered": 1
   },
+  "usage_per_attempt": [
+    {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "inference_geo": "global",
+      "input_tokens": 4129,
+      "output_tokens": 935,
+      "output_tokens_details": {
+        "thinking_tokens": 214
+      },
+      "server_tool_use": null,
+      "service_tier": "standard"
+    }
+  ],
   "attempts": 1,
   "validation_problems": [],
   "problems_per_attempt": [
@@ -46,29 +56,30 @@
     "Flag: Visa 10.5 is non-representable: evidence does not change the outcome"
   ],
   "raw_response": {
-    "id": "msg_011CfLWTDa64WFQ15GnCVT2P",
+    "id": "msg_011CfN4e2pUSR5mUhJe4UrRb",
     "container": null,
     "content": [
       {
-        "signature": "CAQS6AgKEAgSGAI4AUIIdGhpbmtpbmcSDDFs7NMN+LLDmhVV/hoMz8iMfX26c9Izg5aKIjDjZifx+lG7og90iqIpK58u9JnPzze5KdqHyqkTtGs0qVVHSenRtvTVGSoE9i5we68qhQjatpU1GGejYf4fFwbKZXIueksJpFaYyElE3zyz07DgUFN395XD32XxjKXwQvbY2/eu/VOyV/7VBi9G4PvkcGfItv7Ybl46vBEShnKjHl605zJwKtSjoQzIg9xTolBTPvPR36OihV7ZUwHyU9mkqTKgR2rp1q4P6iwaebmI5hVdHXaCE1Yxfw0gFItIqeY3T2RGrEuBEnF+ru3wWB/rZRH3M49m7pwLoWaCKOmvqGhFiC91K4izSa5/HUxDWK0enQkhq3AHOxhFJCpOeA8ivT/v8qrMj1pyyk1xR1RhooM3TFKo4oNaMf9BbnPCvRF44CfGJaBp5rlG/Z/7+2X3h0aSgO4QaNcn5WIK0im+J07s0V2rw3kcB24O2HB0Q0wlf0YbXXstnv9xljC1+41huwbsNs6YuFEKshbjDkVYJwMXpTbiCc9vm2gYvHLimbnLkMwkwyFD8cMs7S7sYTqcUuaWwNvnAv9mkVm48lt9FGMSu9bQvNB0pfITfe3uWlt19G2P1ewtmY4rtVCriwObHmi7rOm9AzxrEm8KV5dj8NLthI23o5wcqOPYAgHtFyjWdRdPG15djQ1PZaI7uwjTdz77x/3/wOkn5jnOINToH9WHZrTOGRP9QcfhuROQx6R/d6rHerv3JDcSt0ghnUS1GGToAUPzpTuQbHH7rdCkGMG5G/Dg4LGIF7XoAsqt4UmPt0+TqlFJAcRRhMHyM4AC356Z0AsYNu/Wc2ClAt+EauCNr7shIM8dej25jGSnCLtLUBgwMXzPgkH3x8F6LMtUXP7tp1wTkZrYMQLSU720+FZYxrAGQPuffj33IeMtn/fHgqZRAOZugDur0B9AK2jreHPXw1CTwGvKUOAgRmjrkisL5uqMmVmC0XoxJPzuf512NomjxDaUmL3+xOv1zSW+kzqjjlXk0tQXcn5YVZIOykAMrxNBv3jdAXCw/lOptLitcXFIXfbaX1AhGvr19AOipKAeMxnR5rQdX2q92UdB+ZN74ChO6sFcCYSFUMzZ0D4LCDNKC7yKQc3R2tGPTdMRgG/2UTLVY0IBtdBP806FnYTn1MS8LMgabq5UBfZUMIUhH/oB/5B7sgmwec5PRqYotqvnPVc3qfMdTUPeZphUUAg34FybcTlujPfULuUavqRsoRb6V1W2mH7USBFJUZ5bHd3/jo3CtOSKHn+EDb3M1OhWhr6ix+sfrNQKR9wc32h1h7c6GD0GXkM5rTMPvRMo2k1BVnuRgBS+LQ66HW6FTkDp8de2wDhizcx41+++PG9tFtecOIaxFA3CSmvQnldilzx21yIp5kUDtEC9knGmafw/GW/ESCCE0H6KkdhjCbSXdQbnHZ46DCYNwhAd+RZiiGdLgvX0/0kYAQ==",
+        "signature": "CAQShwkKEAgSGAI4AUIIdGhpbmtpbmcSDIOO060f8pqE3BnndhoMI5bc2HdAg7EbElfGIjC9GNL7qdlz2WPNWJhhlGTKjBZ2IZaxgsLxTCXV4pM5S1/FA8hmrP+UoWroJjwhwYMqpAiZCBPRLKoQpDHn+xDTdD2Ev+qJyiWPJkFw/E2v3CL194u6wG1CEmy2MbdNNodr9unuzlVNMQlwfGlIUwPZdMfCDQomsCnOdGEkuFNeMmJdr0cb0bml3De9bK+V8vl9J5vfbdmrn4vt34wo5Ci+jpcLi/MNcaPXXv9ufx9f0wHJQoqOgAglxAb7Srzrlp9U5E26HAobSu8X1vwUtjhYFrSYH2qLOwltoXYc8mjksCvwoYfbNoUkQCTuUpDYTJolTstqovu2qgMj9Q6JMCO8ybT++3QhE3T6rGS2KhAm7fgRQND+F6DPE95eGahaXjWTSUMH39nfMDYE5WFwdyVOc1egqET4Ka8iAE9YSxDZ/1QFhg0wgXMI2Uzi4AgbjbUbA5T0jlPSPtNRnEdGOw9XF3+wrCND7Yvjm1AP/Dq/MXV+3mbIeuISOr2NhX9MuEHA8THudQeQfJo9ZWfIszcEJmOsRsF+eop/XBfJKaaC0rzrCJU6OezzBchu/pDfVj6e2HCwH2D16Z7hT2aqKxTSvRP0eMK3oSS4MmC0HcgtDOe6ks75XwCo6yG1qmc4FVb1py/+b2WggsQaFiOnd0IHAHdl+AQFLJY2/Jaxn3/NBhPIDhopVbjdmuHLmSaZJPtO8nlu6VtgRHoAVBo70I1oD0EQ8TSE1/ZATYlndVA6d2ynYxlgLSTpGASmJn9R9X27FCy4kNExuoI3WMFdIMOvTYXnCPXK4G7MjWGxnLlfPruEjrYsU3W0Z6ruccYngBHiUG34p81YIIzr7+CxuHf0R1KotFob3gsx5gNRqw9aTCqkXTsXBPGB0kmwxl++EHvRsYGPCKw81UNLxfg+u3e/Nc3JXQGJOor6a/ao7Dkgzuz8lkVuH7axoOao5o6VwsvMn47ViQHYKcAMp53ix/uMUmn78pCznTC9x3L9gfANs/rRZpLtATl/AI9wBEiSui9jhAO01ZuyKGW53UT57mX14HUrEAu7tp5z3xVNwo76MgSELh3teB5zbVs5Ycg4h1SKPAJnWdjoBEV2q064yq0gavF9859WXv399NzuqV9IriCajrKWH+qbtaKRkc0fqCERqDES5MAmnxMZFjWGIffMnS6D2sMHS8WLlshUOTkugCzA0EJKBXXmMpG2ypsoZM7jMyU1D2VfGR2mfQysKxqmIXs4wQfYohyMPIDacWbToLu4Xn7F6OED1Rc9aMxPDXlvQ9JL2cl43J0Ycg7LU/Fd3RRxNcq0nPhmzo66bDkhulK8bElmbEnsYEn6RWHIivd4umA4yAQEDH2N/0eY9B5R9C5Ht8+NzxImVitZpPY3gFPLtUCfA++ZZze13ugNwHMo+6zX01jE3yMpimKwS8zYJNxAOqibkQC2cbOFCnhGtHEW873msl6/BSJPakrD3GpAaUcAYjwAGAE=",
         "thinking": "",
         "type": "thinking"
       },
       {
         "citations": null,
-        "text": "{\"reason_code_summary\":\"The issuer has charged back this transaction under Visa 10.5 because it was flagged under the Visa Fraud Monitoring Program. Under the simplified rules this code cannot be represented. The only exception is if the merchant can prove the issuer miscoded the transaction.\",\"requirements\":[],\"recommended_action\":\"accept_liability\",\"action_justification\":\"Visa 10.5 is non-representable, and nothing in the file shows the issuer miscoded the chargeback.\",\"evidence_to_request\":[],\"rationale\":\"Case CB-2025-0010 was charged back under Visa 10.5 (Visa Fraud Monitoring Program), which is non-representable under the applicable rules. The merchant's 3DS authentication record and delivery confirmation do not change the outcome for this reason code. No evidence shows the issuer miscoded the chargeback. Liability for GBP 78.50 is accepted.\",\"caveats\":[\"The transaction record shows 3DS authenticated, AVS Y, CVV M and matching billing/shipping postcodes. The merchant also supplied an ECI 05 Visa Secure record and a signed delivery. This is strong fraud-defence evidence, but it is irrelevant under 10.5 unless a miscoding is established.\",\"If the analyst suspects the issuer applied 10.5 to a transaction that was not actually VFMP-identified, confirm with the issuer or through the scheme before closing. That is the only route to challenge.\",\"This evidence was not assessed against requirements because the code is non-representable.\"],\"model_confidence\":\"high\"}",
+        "text": "{\"reason_code_summary\":\"The issuer has raised the chargeback under Visa 10.5, stating the transaction was flagged under the Visa Fraud Monitoring Program. Under the simplified rules this reason code is not representable. The only exception is where the merchant can prove the issuer miscoded the dispute.\",\"requirements\":[],\"recommended_action\":\"accept_liability\",\"action_justification\":\"Visa 10.5 is non-representable, and nothing in the file shows the issuer miscoded the dispute, so the merchant's evidence cannot change the outcome.\",\"evidence_to_request\":[],\"rationale\":\"Case CB-2025-0010 was raised under Visa 10.5 (Visa Fraud Monitoring Program), which is non-representable under the applicable rules. The merchant supplied a Visa Secure authentication record and a signed Evri delivery confirmation. These documents address cardholder fraud, not the monitoring-program flag. Nothing in the file indicates the issuer miscoded the dispute, which is the only basis for challenging this reason code. Liability for GBP 78.50 is accepted.\",\"caveats\":[\"The merchant's evidence is strong for a fraud dispute, but it does not change the outcome for a non-representable code. It includes: full AVS match, CVV match, 3DS authenticated (ECI 05, timestamp 22:14:51 UTC, 4 seconds before the transaction), matching billing and shipping postcode SW4 7QR, signed delivery on 2 May 2025, and a returning customer with 3 prior undisputed orders.\",\"Before closing, confirm with the issuer or on the scheme record that the transaction was actually listed under the Visa Fraud Monitoring Program. If it was a standard fraud dispute miscoded as 10.5, the case could be re-evaluated under the correct reason code, where this evidence would be relevant.\",\"The merchant's order reference (#BB-77231) does not appear in the case metadata. The link to txn_1178ST relies on the matching amount and address, which is moot unless the case is recoded.\",\"No text addressed to the reviewer or asserting conclusions was found in the merchant documents.\"],\"model_confidence\":\"high\"}",
         "type": "text",
         "parsed_output": {
-          "reason_code_summary": "The issuer has charged back this transaction under Visa 10.5 because it was flagged under the Visa Fraud Monitoring Program. Under the simplified rules this code cannot be represented. The only exception is if the merchant can prove the issuer miscoded the transaction.",
+          "reason_code_summary": "The issuer has raised the chargeback under Visa 10.5, stating the transaction was flagged under the Visa Fraud Monitoring Program. Under the simplified rules this reason code is not representable. The only exception is where the merchant can prove the issuer miscoded the dispute.",
           "requirements": [],
           "recommended_action": "accept_liability",
-          "action_justification": "Visa 10.5 is non-representable, and nothing in the file shows the issuer miscoded the chargeback.",
+          "action_justification": "Visa 10.5 is non-representable, and nothing in the file shows the issuer miscoded the dispute, so the merchant's evidence cannot change the outcome.",
           "evidence_to_request": [],
-          "rationale": "Case CB-2025-0010 was charged back under Visa 10.5 (Visa Fraud Monitoring Program), which is non-representable under the applicable rules. The merchant's 3DS authentication record and delivery confirmation do not change the outcome for this reason code. No evidence shows the issuer miscoded the chargeback. Liability for GBP 78.50 is accepted.",
+          "rationale": "Case CB-2025-0010 was raised under Visa 10.5 (Visa Fraud Monitoring Program), which is non-representable under the applicable rules. The merchant supplied a Visa Secure authentication record and a signed Evri delivery confirmation. These documents address cardholder fraud, not the monitoring-program flag. Nothing in the file indicates the issuer miscoded the dispute, which is the only basis for challenging this reason code. Liability for GBP 78.50 is accepted.",
           "caveats": [
-            "The transaction record shows 3DS authenticated, AVS Y, CVV M and matching billing/shipping postcodes. The merchant also supplied an ECI 05 Visa Secure record and a signed delivery. This is strong fraud-defence evidence, but it is irrelevant under 10.5 unless a miscoding is established.",
-            "If the analyst suspects the issuer applied 10.5 to a transaction that was not actually VFMP-identified, confirm with the issuer or through the scheme before closing. That is the only route to challenge.",
-            "This evidence was not assessed against requirements because the code is non-representable."
+            "The merchant's evidence is strong for a fraud dispute, but it does not change the outcome for a non-representable code. It includes: full AVS match, CVV match, 3DS authenticated (ECI 05, timestamp 22:14:51 UTC, 4 seconds before the transaction), matching billing and shipping postcode SW4 7QR, signed delivery on 2 May 2025, and a returning customer with 3 prior undisputed orders.",
+            "Before closing, confirm with the issuer or on the scheme record that the transaction was actually listed under the Visa Fraud Monitoring Program. If it was a standard fraud dispute miscoded as 10.5, the case could be re-evaluated under the correct reason code, where this evidence would be relevant.",
+            "The merchant's order reference (#BB-77231) does not appear in the case metadata. The link to txn_1178ST relies on the matching amount and address, which is moot unless the case is recoded.",
+            "No text addressed to the reviewer or asserting conclusions was found in the merchant documents."
           ],
           "model_confidence": "high"
         }
@@ -88,13 +99,14 @@
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 0,
       "inference_geo": "global",
-      "input_tokens": 4020,
-      "output_tokens": 712,
+      "input_tokens": 4129,
+      "output_tokens": 935,
       "output_tokens_details": {
-        "thinking_tokens": 191
+        "thinking_tokens": 214
       },
       "server_tool_use": null,
       "service_tier": "standard"
-    }
+    },
+    "diagnostics": null
   }
 }

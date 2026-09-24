@@ -1,9 +1,9 @@
 {
   "case_id": "CB-2025-0001",
-  "fingerprint": "d2b9f12e816ea49f",
+  "fingerprint": "43080b003d40bcad",
   "model": "claude-opus-5-5",
   "workup": {
-    "reason_code_summary": "The issuer alleges the cardholder ordered clothing on 22 March 2025 and never received it. To defend, the merchant must show carrier proof of delivery (tracking number, carrier, delivery confirmation) to the cardholder's address. Delivery must be on or before the chargeback date, and the delivery address must match the address given at purchase. The services requirement applies only to service transactions. All applicable requirements must be met.",
+    "reason_code_summary": "The issuer alleges the cardholder paid £189.99 for clothing ordered on 22 March 2025 and never received it. To defend under Visa 13.1 the merchant must show carrier proof of delivery (tracking number, carrier, delivery to the cardholder's address), evidence of service rendering where services are involved, delivery on or before the chargeback date, and a delivery address that matches the one given at purchase.",
     "requirements": [
       {
         "requirement_id": 1,
@@ -12,12 +12,12 @@
           {
             "document": "CB-2025-0001_delivery_confirmation.pdf",
             "page": 1,
-            "quote": "Royal Mail — Tracking & Delivery Confirmation"
+            "quote": "Tracking number: RM98421144GB"
           },
           {
             "document": "CB-2025-0001_delivery_confirmation.pdf",
             "page": 1,
-            "quote": "Tracking number: RM98421144GB"
+            "quote": "Royal Mail — Tracking & Delivery Confirmation"
           },
           {
             "document": "CB-2025-0001_delivery_confirmation.pdf",
@@ -25,13 +25,13 @@
             "quote": "DELIVERED — signed by WHITFORD 24 Mar 2025 11:47 SW4 7QR"
           }
         ],
-        "reasoning": "The Royal Mail confirmation gives the carrier, tracking number RM98421144GB and a signed delivery to 22 Cavendish Court, London SW4 7QR. The signatory surname matches the customer, M. Whitford."
+        "reasoning": "The Royal Mail confirmation gives the carrier, tracking number RM98421144GB, and a signed delivery by 'WHITFORD' at SW4 7QR. That surname and postcode match the cardholder and billing address."
       },
       {
         "requirement_id": 2,
         "status": "not_applicable",
         "pointers": [],
-        "reasoning": "This is a physical-goods order (1× Heritage Wool Overcoat), not a service, so the services requirement does not apply."
+        "reasoning": "The order is a physical good (1× Heritage Wool Overcoat) shipped by Royal Mail. No service was purchased, so the services-rendered requirement does not apply."
       },
       {
         "requirement_id": 3,
@@ -40,10 +40,15 @@
           {
             "document": "CB-2025-0001_delivery_confirmation.pdf",
             "page": 1,
-            "quote": "This item was delivered to the address shown and signed for\nat 11:47 on 24 March 2025."
+            "quote": "Proof of Delivery: Signature on file. This item was delivered to the address shown and signed for"
+          },
+          {
+            "document": "CB-2025-0001_carrier_tracking.pdf",
+            "page": 1,
+            "quote": "Delivered 24 March 2025, 11:47 — signed for at SW4 7QR"
           }
         ],
-        "reasoning": "Delivery on 24 March 2025 falls before the 18 April 2025 chargeback date."
+        "reasoning": "Delivery took place on 24 March 2025. That is 25 days before the 18 April 2025 chargeback date."
       },
       {
         "requirement_id": 4,
@@ -57,39 +62,49 @@
           {
             "document": "CB-2025-0001_delivery_confirmation.pdf",
             "page": 1,
-            "quote": "22 Cavendish Court\nLondon SW4 7QR"
+            "quote": "22 Cavendish Court"
           }
         ],
-        "reasoning": "The shipping address on the order matches the carrier's delivery address exactly. The transaction record shows shipping postcode SW4 7QR matching billing, with AVS Y."
+        "reasoning": "The order's shipping address (22 Cavendish Court, London SW4 7QR) matches the carrier recipient address. The transaction record shows billing and shipping postcodes both SW4 7QR, with AVS Y."
       }
     ],
     "recommended_action": "represent",
-    "action_justification": "All applicable requirements are satisfied by carrier-signed proof of delivery to the matching order address before the chargeback date.",
+    "action_justification": "All applicable requirements are satisfied with carrier-signed delivery to the AVS-matched address 25 days before the chargeback; the services requirement does not apply to this goods order.",
     "evidence_to_request": [],
-    "rationale": "Order NT-44912 for a Heritage Wool Overcoat (£189.99) was placed on 22 March 2025 for shipment to 22 Cavendish Court, London SW4 7QR, the same as the billing address; AVS returned Y, CVV M and 3DS authenticated. The merchant dispatched the item on 23 March 2025 via Royal Mail Tracked 24 under tracking number RM98421144GB. Royal Mail's delivery confirmation records the item as delivered to 22 Cavendish Court, London SW4 7QR at 11:47 on 24 March 2025, signed for by WHITFORD. Delivery occurred 25 days before the 18 April 2025 chargeback, to the address the cardholder provided at purchase. The claim that the merchandise was not received is contradicted by carrier proof of delivery.",
+    "rationale": "The cardholder ordered one Heritage Wool Overcoat (£189.99) on 22 March 2025 for delivery to 22 Cavendish Court, London SW4 7QR, the same address as the billing address (AVS Y, CVV M, 3DS authenticated). NorthernThread Apparel dispatched the order via Royal Mail Tracked 24 under tracking number RM98421144GB on 23 March 2025. Royal Mail records delivery to 22 Cavendish Court, London SW4 7QR on 24 March 2025 at 11:47, signed for by WHITFORD, matching the cardholder's surname. Delivery occurred 25 days before the 18 April 2025 chargeback. The merchandise was received and the claim under 13.1 is not supported.",
     "caveats": [
-      "The filenames appear swapped: 'CB-2025-0001_carrier_tracking.pdf' is the merchant's order record, and the Royal Mail carrier record is 'CB-2025-0001_delivery_confirmation.pdf'. Label them correctly in the submission.",
-      "The delivery confirmation states 'Signature on file' but includes no signature image, only the printed name WHITFORD. Consider obtaining the Royal Mail signature image to strengthen the file.",
-      "The issuer says the cardholder contacted the merchant twice without resolution. No merchant correspondence was provided; check whether those contacts contain anything contradicting delivery, such as a report of a missing or empty parcel."
+      "The filenames appear swapped. 'carrier_tracking.pdf' is the merchant's own order record, and 'delivery_confirmation.pdf' holds the Royal Mail tracking events. Cite them by content.",
+      "The Royal Mail document is a merchant-supplied PDF. Verify tracking RM98421144GB directly on Royal Mail, and consider obtaining the signature image, since 'Signature on file' is asserted but no signature capture is included.",
+      "The issuer says the cardholder contacted the merchant twice without resolution. No merchant–customer correspondence was provided; check whether the cardholder raised a wrong-item or tampering issue that the delivery proof would not answer.",
+      "The signature shows surname only ('WHITFORD'), so it does not establish which household member signed. Delivery to the verified address still meets the rule."
     ],
     "model_confidence": "high"
   },
   "usage": {
-    "cache_creation": {
-      "ephemeral_1h_input_tokens": 0,
-      "ephemeral_5m_input_tokens": 0
-    },
+    "input_tokens": 4489,
+    "output_tokens": 1852,
     "cache_creation_input_tokens": 0,
     "cache_read_input_tokens": 0,
-    "inference_geo": "global",
-    "input_tokens": 4380,
-    "output_tokens": 1712,
-    "output_tokens_details": {
-      "thinking_tokens": 254
-    },
-    "server_tool_use": null,
-    "service_tier": "standard"
+    "attempts_metered": 1
   },
+  "usage_per_attempt": [
+    {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "inference_geo": "global",
+      "input_tokens": 4489,
+      "output_tokens": 1852,
+      "output_tokens_details": {
+        "thinking_tokens": 264
+      },
+      "server_tool_use": null,
+      "service_tier": "standard"
+    }
+  ],
   "attempts": 1,
   "validation_problems": [],
   "problems_per_attempt": [
@@ -103,20 +118,20 @@
     "Chargeback raised 27 days after the transaction"
   ],
   "raw_response": {
-    "id": "msg_011CfLW3HpfB7QTQxMurpTAx",
+    "id": "msg_011CfN4NvZmB4PBjVvcnvtfr",
     "container": null,
     "content": [
       {
-        "signature": "CAQS1gkKEAgSGAI4AUIIdGhpbmtpbmcSDNB5sHE5a5CmimtgGxoMIdnEhPPEVQwX8LJ/IjDkWVGzRElsxQfX5qMPtfW9fKrCA4xKhkzWZShwf/pY9n9y3KMtLXDh8l15L5QH2Bgq8wjF+YARa3lopeY3moxPbFKYEU+u2EUSuocnIE89csdqdZ0c02m43NOFXeNDlwD4NYVsULz5dOL4LJnyFaOuodyaSkKPecLyx4+ACu7++3znFrverqrpGOhL0KHDuxQ613y73xvgsGqsmSudCNEXPprO4etBYxXSkBJ0cAN0YWerZ7UfK7SUYkQlqQBJr1FuillBaXGLOCVUEGqcfqjDKYhBAnEBtFHiogsbIF2LFAawwnkwcJmwYJswpdLTTOzitwjJ5iZRRxgD+HbjsAjhv8IE/gsXJnq4/ZILq++Ft8x0bERSsnRwBeUU4aUWk7YRo8Tb+UWmV56BlCiM2n+Wcxxw1J9pCFDbqtDsk1xaf4pN5pG+blOUgP+96r+T4RWa6XRHWyyiwekf7HB20Uio7U5I5+ScqkAIvUP+m0SbLFrdU5Gx7SLxyIZQIjUFWytPTamFU5v/AmjjtrSdxRBeE+42bfZSzIACRKVwqkrvIYHlpMltpkFF8KXkLiL55yO4/T2AFkUCFhgaVzZSLQGcfOGt6xFM6ddHgYNCsMCuyyOjYlCIgNNYMtkaObPCcKOzIEttB1/Gw9GnxeWQeS/3+ng6rV2HdPyybebBHICDobxcqteOCCe0wAWnd6C3Qf25YIg09MezR2TPDz04//Lcv7gP3PNLg/jEGAylspphUNaSR51kaOyAks3enQofSJ6IwklpDABjvelzRjCYV1UNQhwlxCaRjdd9YBSTqieesoCxWItLqJ6QaPJtSvducPt6sbZvbEYftrHN04K1TTl+ZuAO9ApqxFQnAh1zIzExyMV1pDP9b5OAK/3ZKQLbXaO98Uj05QwhA3iHqysptGY1ndIMBX6OOBxdvzGMOyIeUMIj5F/VqEUrh2ZlbiuqtfvTt66DLZnqRYVNIp48z3J2Cz+0UicI2WyFWnHAuPgKOzI/P4enCu1YBuCbkP6vrlykDgK4JESlj8Dim1/Gn1QbUtZAWagW5kELtyXHqqNjDlPzlVhsQnfPyxHaxX/6IMT2MmgnzfRu4mct0U1GB+LGu3YF0BQqSP9xH/YryPHBk3cEjXXSh18KJx5zK1USZIlLXNRBsb0mSRP6augiARemPAiTUK8b/v/Dqg05/r4k55rSoStjkMdmiwtkHyv1jbrjDs+hPsKZdqQsrD5fBAEQAHstpG+ZlwopfZGvXKo/kou4djPNph3SZJPy8NXO03/oIysqDA2Lx3/2gxYmMhwX0Vw8qkXPHfFaC/WNKQuwR/AZurEOVYkkPeUskR3yjRfYRxS5rMeG4cHDmaN5+FRseR4hDQdgSqI1nqu7taIqNj9rTaSrSjCj9WlQJS+jshYpfiFalNlZEpAnR9QLdQI4L6CW43/uoyxzOpG/CWWkmUl6wGbxISTYatFXra6L4kDwqXE2CVgGxHhT7zz2CLW7Ks0iY5uAT25npeu3lNlD2vf/qfBt8Ib37RQa7Z2gzQQUHhpj77BdQC/qDfFI3dSk6USIq5EPq0adwKc1cIXNK6ZPhY2HaBgB",
+        "signature": "CAQS0QkKEAgSGAI4AUIIdGhpbmtpbmcSDFrjKKZohYhh8FbtTBoMNwyMO4evV4TMdBVcIjA/xhpXi0fmawNStEk6SCg0B4/YvzyUuoYgySSA4FMOVa2ZyPBsmq+wcX82Wd0j4zYq7gh7Neq/8KpUslcyAY9FOSTzZuYKQqNnAp8FeAK07/YnQo7AGU7KY3BeKNZXBjJT4HGr6yEwTJoEO6myR55SVi+aLGniHDoBJT7MlpEO3J6jrIJhrmnnaSqGCvo8c3XkWBELrBzmBSzYKSu59a78M02JwLqfj0PXq4sr/UDMNjeX0OpEXHJOWB49ay91t1Vimd2NimFeqlmFsBdJx/XvGiDCFihkvBFigNNP8N3jxymEeJ0K63Rn07+6JRNttMsd4L4/4fiaty6YaVZS5X5ff86bJSdWoq0xLndJpWcH9dmMeO7GjNGPeUEysiZJw8SEDURg3kG9FGSUBSMtiFOslsloRGNBMJKZi9bxso1xqrOqFi8sjze0M2gSDYK9dpn+1I7de4OBvCfbKys7REfMs09aLRbuZ6GWhq8SfaeLcrw7L5oou4TipheRBCgiIKJYYcZias+vr/Hg0WsmsVu58xyHvQp3JQ7eIaQd8MyHa6+XRMoAs+vlF8DLsBJuBLeQ09n+DwSfJuVwsiGKJ/Xnet8EQWPXKGuUyFRfTUH3rKHSoeTFpZRyvsXvW1Kx3tLjlVEKrbyC6KyjC2IVlaYccQmAa/jLLm4VRK4wq1wlO9GvL2s1/Mka7OThvQacOiz4nDSEguOrxOLayNrbWwzJC3w3fP7/s6j1oeGhjPl8GcUhvJe1t77EzsMsjqrwUuW/57XfpKxCuCWVfzyRpKNHLmNZuePN2OSFE52CFRfh50s/xicFRVhVNGZuw2/MJiywk1Nhj3qdXoSfp4TKzwAOVpQ8ma8FBL3vkLOm1ZMMuH8H6UwtjUv9G0DgGrS4g0F9kXByAkZwl5r3TjshDkBzlQujThRgVwDM8OM0p+h1tmuHLC4Dan1TyJ5Ak5/kw0LE1vB/2bMAy90p0QLkygqsPf4qduvs/FpxpPchGuusisvnIlWcS1H37zuCbwjhA8629MeUYWloIN+m1wnwt3bFJz7t1NkeKE/24IoaYurVPoRCOgicEkT+1/nUCRprCvBiPPlDJ3sznAOQ72lT7ZNOdxKYSqcddbe0l2IIozMIcPGq00cDjSIPVmyoFq37pBboYQDPuzj2e3q18Qkjrt6rBckmUD1GXDJTopXjLeqHg1aqhsKx9eCRE9etwAeJAhjYKgJKIVUZzaQxhSxOXi9ojLFIo1TrfkG+Hpi/OF13mBj2PRXyIgU90JIJ6Eb/SBi4GOYGZjarzyBPadfplF2dMJfFTkWMLsHBmIc23sef18wlc5DZqXtCMI+frYdizZfoWnV89S2Tc4f03OIaQ6Ipm5O1rAw5qtZQcZV47ZV8plUpBm13fORcuCgeZ7BGbGKCD1W4We5VDYNZs93MOtRLvsyjk4sQRSNa/lEBFr9/JdVatEiQSMlc0BSW1EBzb6EZSIrz4JTCE5GN1zqM3GtlW10FXy59LbIS94caaMmX7qurllwNaoGBVfhmgGGIDF/1iZwOsxXaM95GWCBfhFzWCmVcMigXvhvbtWdrvydBxK0YAQ==",
         "thinking": "",
         "type": "thinking"
       },
       {
         "citations": null,
-        "text": "{\"reason_code_summary\":\"The issuer alleges the cardholder ordered clothing on 22 March 2025 and never received it. To defend, the merchant must show carrier proof of delivery (tracking number, carrier, delivery confirmation) to the cardholder's address. Delivery must be on or before the chargeback date, and the delivery address must match the address given at purchase. The services requirement applies only to service transactions. All applicable requirements must be met.\",\"requirements\":[{\"requirement_id\":1,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0001_delivery_confirmation.pdf\",\"page\":1,\"quote\":\"Royal Mail — Tracking & Delivery Confirmation\"},{\"document\":\"CB-2025-0001_delivery_confirmation.pdf\",\"page\":1,\"quote\":\"Tracking number: RM98421144GB\"},{\"document\":\"CB-2025-0001_delivery_confirmation.pdf\",\"page\":1,\"quote\":\"DELIVERED — signed by WHITFORD 24 Mar 2025 11:47 SW4 7QR\"}],\"reasoning\":\"The Royal Mail confirmation gives the carrier, tracking number RM98421144GB and a signed delivery to 22 Cavendish Court, London SW4 7QR. The signatory surname matches the customer, M. Whitford.\"},{\"requirement_id\":2,\"status\":\"not_applicable\",\"pointers\":[],\"reasoning\":\"This is a physical-goods order (1× Heritage Wool Overcoat), not a service, so the services requirement does not apply.\"},{\"requirement_id\":3,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0001_delivery_confirmation.pdf\",\"page\":1,\"quote\":\"This item was delivered to the address shown and signed for\\nat 11:47 on 24 March 2025.\"}],\"reasoning\":\"Delivery on 24 March 2025 falls before the 18 April 2025 chargeback date.\"},{\"requirement_id\":4,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0001_carrier_tracking.pdf\",\"page\":1,\"quote\":\"Shipping address: 22 Cavendish Court, London SW4 7QR\"},{\"document\":\"CB-2025-0001_delivery_confirmation.pdf\",\"page\":1,\"quote\":\"22 Cavendish Court\\nLondon SW4 7QR\"}],\"reasoning\":\"The shipping address on the order matches the carrier's delivery address exactly. The transaction record shows shipping postcode SW4 7QR matching billing, with AVS Y.\"}],\"recommended_action\":\"represent\",\"action_justification\":\"All applicable requirements are satisfied by carrier-signed proof of delivery to the matching order address before the chargeback date.\",\"evidence_to_request\":[],\"rationale\":\"Order NT-44912 for a Heritage Wool Overcoat (£189.99) was placed on 22 March 2025 for shipment to 22 Cavendish Court, London SW4 7QR, the same as the billing address; AVS returned Y, CVV M and 3DS authenticated. The merchant dispatched the item on 23 March 2025 via Royal Mail Tracked 24 under tracking number RM98421144GB. Royal Mail's delivery confirmation records the item as delivered to 22 Cavendish Court, London SW4 7QR at 11:47 on 24 March 2025, signed for by WHITFORD. Delivery occurred 25 days before the 18 April 2025 chargeback, to the address the cardholder provided at purchase. The claim that the merchandise was not received is contradicted by carrier proof of delivery.\",\"caveats\":[\"The filenames appear swapped: 'CB-2025-0001_carrier_tracking.pdf' is the merchant's order record, and the Royal Mail carrier record is 'CB-2025-0001_delivery_confirmation.pdf'. Label them correctly in the submission.\",\"The delivery confirmation states 'Signature on file' but includes no signature image, only the printed name WHITFORD. Consider obtaining the Royal Mail signature image to strengthen the file.\",\"The issuer says the cardholder contacted the merchant twice without resolution. No merchant correspondence was provided; check whether those contacts contain anything contradicting delivery, such as a report of a missing or empty parcel.\"],\"model_confidence\":\"high\"}",
+        "text": "{\"reason_code_summary\":\"The issuer alleges the cardholder paid £189.99 for clothing ordered on 22 March 2025 and never received it. To defend under Visa 13.1 the merchant must show carrier proof of delivery (tracking number, carrier, delivery to the cardholder's address), evidence of service rendering where services are involved, delivery on or before the chargeback date, and a delivery address that matches the one given at purchase.\",\"requirements\":[{\"requirement_id\":1,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0001_delivery_confirmation.pdf\",\"page\":1,\"quote\":\"Tracking number: RM98421144GB\"},{\"document\":\"CB-2025-0001_delivery_confirmation.pdf\",\"page\":1,\"quote\":\"Royal Mail — Tracking & Delivery Confirmation\"},{\"document\":\"CB-2025-0001_delivery_confirmation.pdf\",\"page\":1,\"quote\":\"DELIVERED — signed by WHITFORD 24 Mar 2025 11:47 SW4 7QR\"}],\"reasoning\":\"The Royal Mail confirmation gives the carrier, tracking number RM98421144GB, and a signed delivery by 'WHITFORD' at SW4 7QR. That surname and postcode match the cardholder and billing address.\"},{\"requirement_id\":2,\"status\":\"not_applicable\",\"pointers\":[],\"reasoning\":\"The order is a physical good (1× Heritage Wool Overcoat) shipped by Royal Mail. No service was purchased, so the services-rendered requirement does not apply.\"},{\"requirement_id\":3,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0001_delivery_confirmation.pdf\",\"page\":1,\"quote\":\"Proof of Delivery: Signature on file. This item was delivered to the address shown and signed for\"},{\"document\":\"CB-2025-0001_carrier_tracking.pdf\",\"page\":1,\"quote\":\"Delivered 24 March 2025, 11:47 — signed for at SW4 7QR\"}],\"reasoning\":\"Delivery took place on 24 March 2025. That is 25 days before the 18 April 2025 chargeback date.\"},{\"requirement_id\":4,\"status\":\"satisfied\",\"pointers\":[{\"document\":\"CB-2025-0001_carrier_tracking.pdf\",\"page\":1,\"quote\":\"Shipping address: 22 Cavendish Court, London SW4 7QR\"},{\"document\":\"CB-2025-0001_delivery_confirmation.pdf\",\"page\":1,\"quote\":\"22 Cavendish Court\"}],\"reasoning\":\"The order's shipping address (22 Cavendish Court, London SW4 7QR) matches the carrier recipient address. The transaction record shows billing and shipping postcodes both SW4 7QR, with AVS Y.\"}],\"recommended_action\":\"represent\",\"action_justification\":\"All applicable requirements are satisfied with carrier-signed delivery to the AVS-matched address 25 days before the chargeback; the services requirement does not apply to this goods order.\",\"evidence_to_request\":[],\"rationale\":\"The cardholder ordered one Heritage Wool Overcoat (£189.99) on 22 March 2025 for delivery to 22 Cavendish Court, London SW4 7QR, the same address as the billing address (AVS Y, CVV M, 3DS authenticated). NorthernThread Apparel dispatched the order via Royal Mail Tracked 24 under tracking number RM98421144GB on 23 March 2025. Royal Mail records delivery to 22 Cavendish Court, London SW4 7QR on 24 March 2025 at 11:47, signed for by WHITFORD, matching the cardholder's surname. Delivery occurred 25 days before the 18 April 2025 chargeback. The merchandise was received and the claim under 13.1 is not supported.\",\"caveats\":[\"The filenames appear swapped. 'carrier_tracking.pdf' is the merchant's own order record, and 'delivery_confirmation.pdf' holds the Royal Mail tracking events. Cite them by content.\",\"The Royal Mail document is a merchant-supplied PDF. Verify tracking RM98421144GB directly on Royal Mail, and consider obtaining the signature image, since 'Signature on file' is asserted but no signature capture is included.\",\"The issuer says the cardholder contacted the merchant twice without resolution. No merchant–customer correspondence was provided; check whether the cardholder raised a wrong-item or tampering issue that the delivery proof would not answer.\",\"The signature shows surname only ('WHITFORD'), so it does not establish which household member signed. Delivery to the verified address still meets the rule.\"],\"model_confidence\":\"high\"}",
         "type": "text",
         "parsed_output": {
-          "reason_code_summary": "The issuer alleges the cardholder ordered clothing on 22 March 2025 and never received it. To defend, the merchant must show carrier proof of delivery (tracking number, carrier, delivery confirmation) to the cardholder's address. Delivery must be on or before the chargeback date, and the delivery address must match the address given at purchase. The services requirement applies only to service transactions. All applicable requirements must be met.",
+          "reason_code_summary": "The issuer alleges the cardholder paid £189.99 for clothing ordered on 22 March 2025 and never received it. To defend under Visa 13.1 the merchant must show carrier proof of delivery (tracking number, carrier, delivery to the cardholder's address), evidence of service rendering where services are involved, delivery on or before the chargeback date, and a delivery address that matches the one given at purchase.",
           "requirements": [
             {
               "requirement_id": 1,
@@ -125,12 +140,12 @@
                 {
                   "document": "CB-2025-0001_delivery_confirmation.pdf",
                   "page": 1,
-                  "quote": "Royal Mail — Tracking & Delivery Confirmation"
+                  "quote": "Tracking number: RM98421144GB"
                 },
                 {
                   "document": "CB-2025-0001_delivery_confirmation.pdf",
                   "page": 1,
-                  "quote": "Tracking number: RM98421144GB"
+                  "quote": "Royal Mail — Tracking & Delivery Confirmation"
                 },
                 {
                   "document": "CB-2025-0001_delivery_confirmation.pdf",
@@ -138,13 +153,13 @@
                   "quote": "DELIVERED — signed by WHITFORD 24 Mar 2025 11:47 SW4 7QR"
                 }
               ],
-              "reasoning": "The Royal Mail confirmation gives the carrier, tracking number RM98421144GB and a signed delivery to 22 Cavendish Court, London SW4 7QR. The signatory surname matches the customer, M. Whitford."
+              "reasoning": "The Royal Mail confirmation gives the carrier, tracking number RM98421144GB, and a signed delivery by 'WHITFORD' at SW4 7QR. That surname and postcode match the cardholder and billing address."
             },
             {
               "requirement_id": 2,
               "status": "not_applicable",
               "pointers": [],
-              "reasoning": "This is a physical-goods order (1× Heritage Wool Overcoat), not a service, so the services requirement does not apply."
+              "reasoning": "The order is a physical good (1× Heritage Wool Overcoat) shipped by Royal Mail. No service was purchased, so the services-rendered requirement does not apply."
             },
             {
               "requirement_id": 3,
@@ -153,10 +168,15 @@
                 {
                   "document": "CB-2025-0001_delivery_confirmation.pdf",
                   "page": 1,
-                  "quote": "This item was delivered to the address shown and signed for\nat 11:47 on 24 March 2025."
+                  "quote": "Proof of Delivery: Signature on file. This item was delivered to the address shown and signed for"
+                },
+                {
+                  "document": "CB-2025-0001_carrier_tracking.pdf",
+                  "page": 1,
+                  "quote": "Delivered 24 March 2025, 11:47 — signed for at SW4 7QR"
                 }
               ],
-              "reasoning": "Delivery on 24 March 2025 falls before the 18 April 2025 chargeback date."
+              "reasoning": "Delivery took place on 24 March 2025. That is 25 days before the 18 April 2025 chargeback date."
             },
             {
               "requirement_id": 4,
@@ -170,20 +190,21 @@
                 {
                   "document": "CB-2025-0001_delivery_confirmation.pdf",
                   "page": 1,
-                  "quote": "22 Cavendish Court\nLondon SW4 7QR"
+                  "quote": "22 Cavendish Court"
                 }
               ],
-              "reasoning": "The shipping address on the order matches the carrier's delivery address exactly. The transaction record shows shipping postcode SW4 7QR matching billing, with AVS Y."
+              "reasoning": "The order's shipping address (22 Cavendish Court, London SW4 7QR) matches the carrier recipient address. The transaction record shows billing and shipping postcodes both SW4 7QR, with AVS Y."
             }
           ],
           "recommended_action": "represent",
-          "action_justification": "All applicable requirements are satisfied by carrier-signed proof of delivery to the matching order address before the chargeback date.",
+          "action_justification": "All applicable requirements are satisfied with carrier-signed delivery to the AVS-matched address 25 days before the chargeback; the services requirement does not apply to this goods order.",
           "evidence_to_request": [],
-          "rationale": "Order NT-44912 for a Heritage Wool Overcoat (£189.99) was placed on 22 March 2025 for shipment to 22 Cavendish Court, London SW4 7QR, the same as the billing address; AVS returned Y, CVV M and 3DS authenticated. The merchant dispatched the item on 23 March 2025 via Royal Mail Tracked 24 under tracking number RM98421144GB. Royal Mail's delivery confirmation records the item as delivered to 22 Cavendish Court, London SW4 7QR at 11:47 on 24 March 2025, signed for by WHITFORD. Delivery occurred 25 days before the 18 April 2025 chargeback, to the address the cardholder provided at purchase. The claim that the merchandise was not received is contradicted by carrier proof of delivery.",
+          "rationale": "The cardholder ordered one Heritage Wool Overcoat (£189.99) on 22 March 2025 for delivery to 22 Cavendish Court, London SW4 7QR, the same address as the billing address (AVS Y, CVV M, 3DS authenticated). NorthernThread Apparel dispatched the order via Royal Mail Tracked 24 under tracking number RM98421144GB on 23 March 2025. Royal Mail records delivery to 22 Cavendish Court, London SW4 7QR on 24 March 2025 at 11:47, signed for by WHITFORD, matching the cardholder's surname. Delivery occurred 25 days before the 18 April 2025 chargeback. The merchandise was received and the claim under 13.1 is not supported.",
           "caveats": [
-            "The filenames appear swapped: 'CB-2025-0001_carrier_tracking.pdf' is the merchant's order record, and the Royal Mail carrier record is 'CB-2025-0001_delivery_confirmation.pdf'. Label them correctly in the submission.",
-            "The delivery confirmation states 'Signature on file' but includes no signature image, only the printed name WHITFORD. Consider obtaining the Royal Mail signature image to strengthen the file.",
-            "The issuer says the cardholder contacted the merchant twice without resolution. No merchant correspondence was provided; check whether those contacts contain anything contradicting delivery, such as a report of a missing or empty parcel."
+            "The filenames appear swapped. 'carrier_tracking.pdf' is the merchant's own order record, and 'delivery_confirmation.pdf' holds the Royal Mail tracking events. Cite them by content.",
+            "The Royal Mail document is a merchant-supplied PDF. Verify tracking RM98421144GB directly on Royal Mail, and consider obtaining the signature image, since 'Signature on file' is asserted but no signature capture is included.",
+            "The issuer says the cardholder contacted the merchant twice without resolution. No merchant–customer correspondence was provided; check whether the cardholder raised a wrong-item or tampering issue that the delivery proof would not answer.",
+            "The signature shows surname only ('WHITFORD'), so it does not establish which household member signed. Delivery to the verified address still meets the rule."
           ],
           "model_confidence": "high"
         }
@@ -203,13 +224,14 @@
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 0,
       "inference_geo": "global",
-      "input_tokens": 4380,
-      "output_tokens": 1712,
+      "input_tokens": 4489,
+      "output_tokens": 1852,
       "output_tokens_details": {
-        "thinking_tokens": 254
+        "thinking_tokens": 264
       },
       "server_tool_use": null,
       "service_tier": "standard"
-    }
+    },
+    "diagnostics": null
   }
 }

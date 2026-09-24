@@ -29,7 +29,7 @@ To regenerate the workups (or run a new case) you need a key:
 
 ```bash
 cp .env.example .env                   # then set ANTHROPIC_API_KEY
-uv run python run.py --all             # all ten, about $0.70 on claude-opus-5-5
+uv run python run.py --all             # all ten, about $0.65 on claude-opus-5-5
 uv run python run.py CB-2025-0004 --recompute   # one case, ignoring its cache
 uv run python run.py CB-2025-0004 --dry-run     # print the exact prompt, make no call
 ```
@@ -45,10 +45,9 @@ recommended action, what to ask the merchant for, and caveats. Every case carrie
 the reasons that produced it.
 
 On the ten provided cases: **46 pointers, 40 verified verbatim against the extracted text, 0 not found**,
-6 pointing at images (not text-verifiable by design). Queue: 6 high, 2 medium, 2 needs review. Cost: the
-cached answers add up to $0.61 at list price (`scripts/compare.py` prints the figure from the stored token
-counts); the two cases that needed a second attempt were metered on the final answer only in this run, so
-a full run is nearer $0.70. Every answer is metered from now on.
+6 pointing at images (not text-verifiable by design). Queue: 5 high, 3 medium, 2 needs review. Cost of the
+run: $0.65 at list price, every attempt metered (`scripts/compare.py` prints the figure from the stored
+token counts).
 
 ## Design decisions
 
@@ -76,9 +75,10 @@ OCR step in `extract_pages`; there are none here (every page returns text), so I
 response format, so statuses and actions are enums rather than prose. What a JSON schema cannot express is
 checked afterwards in `validate_pointers`: the document must be one of this case's files, the page must
 exist in it, a satisfied requirement must carry a pointer. A failure sends the model its own answer plus the
-list of problems for one corrective round-trip. On the committed run that fired on two of ten cases: one
-answer carried a requirement id the rule does not have, the other returned one requirement of three and an
-empty request list under request_more_evidence. Both validated on the second attempt. If problems survive
+list of problems for one corrective round-trip. On the committed run every case validated first time; on
+the run before it two of ten did not: one answer carried a requirement id the rule does not have, the other
+returned one requirement of three and an empty request list under request_more_evidence, and both validated
+on the second attempt. If problems survive
 the retry they are kept and the case is marked needs review rather than trusted. An answer that does not
 parse at all is retried once from scratch and then raised as an error, never cached: one run produced JSON
 that degenerated into repeated asterisks mid-string, which is what that path is for.
@@ -141,9 +141,12 @@ possible. I also lowered the attention level I expected on one case after seeing
 clean, actionable request list. All three edits keep the original value in `expected.json` with the
 reason, and `compare.py` prints `(key revised: ...)` on those rows.
 
-Current run: ten of ten on action, nine of ten on caution. The miss is a case where the tool says high on
-a request for evidence with one of four requirements satisfied, and I would have wanted medium. I left the
-tier rules alone rather than tune them to one case; the row is printed as a miss.
+Current run: ten of ten on action, ten of ten on caution. On the run before it one case was a caution
+miss: the tool said high on a request for evidence with one of four requirements satisfied, where I wanted
+medium, and I left the tier rules alone rather than tune them to one case. On the final run that case came
+out medium because the model's own confidence came back medium, which is the weakest signal in the tier and
+the one I would least like to depend on; it is why the calibration work below comes before any claim about
+the tiers.
 
 Before submitting I went through the code layer with adversarial inputs rather than the ten cases, and fixed
 what that found. Quote matching: digits could merge across punctuation, a quote could match inside a longer
@@ -214,7 +217,8 @@ so the workup is computed when the case arrives, through the batch API, and the 
 **Confidence.** Keep the hard gates (rule against action, a satisfied with no verified quote, image-only,
 leftover validation problems) and replace the rest with a score fitted on analyst overrides once there are
 a few hundred. Publish the calibration table: override rate per tier with an interval. The model's own
-confidence field goes; on these ten it said high or medium and separated nothing.
+confidence field is the input I trust least: on these ten it is the only reason one case sits at medium
+rather than high, and I would rather earn that signal from override data than from the model's mood.
 
 **Never automated.** Filing with the scheme, accepting liability above a set amount, any action that
 contradicts a pre-check, any statement that a cardholder committed fraud. A model change is a shadow run
