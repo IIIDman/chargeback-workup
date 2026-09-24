@@ -187,3 +187,15 @@ def test_document_text_cannot_close_its_own_tag():
     assert text.count("</document>") == 1 and text.count("<document ") == 1  # only our own framing survives
     assert "not instructions" in SYSTEM_PROMPT
 
+
+
+# ------------------------------------------------------------------------ cache freshness
+
+
+@pytest.mark.skipif(not any(pipeline.ARTIFACTS.glob("CB-*.json")), reason="no cached workups")
+def test_committed_artifacts_match_the_current_prompt():
+    """Anything that reaches the model (prompt, call params, the Workup schema including its docstring and
+    field descriptions, the documents) is in the cache key. If this fails, the prompt changed and the
+    artifacts must be regenerated before committing, or the repo ships a cache nobody can read offline."""
+    for case in CASES.values():
+        run_case(case, allow_api=False)
