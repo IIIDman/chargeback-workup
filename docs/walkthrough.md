@@ -67,11 +67,13 @@ Visa 13.1, "merchandise not received", 642 pounds. According to the tracking it 
 postcode M1 7DR, and the card's billing postcode is M14 5RT. AVS failed. 3DS was only attempted. The
 customer says that address is not theirs.
 
-![Case 2: needs review, with every reason listed and the tracking screenshot inline](img/case2.png)
+![Case 2: needs review, with every reason listed](img/case2_1.png)
 
 The tool puts the case at the top of the queue as "needs review" and lists every reason. The only proof
 of delivery is a screenshot, so it is shown inline: code cannot verify text on an image, a person has to
-look. It asks for prior orders to that address. I would have accepted liability. Either way this is a case
+look.
+
+![Case 2: the tracking screenshot shown under the requirement it supports](img/case2_2.png) It asks for prior orders to that address. I would have accepted liability. Either way this is a case
 a human should look at, and the tool's job was to make that obvious in five seconds rather than after
 twenty minutes of reading.
 
