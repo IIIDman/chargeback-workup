@@ -21,8 +21,11 @@ flowchart LR
 ```
 
 Code decides what can be computed from the case record and the rule. The model only reads the documents.
-Code then checks what the model read and says how far to trust it. Longer notes on the decisions, what
-went wrong first and the production plan are in [docs/design-notes.md](docs/design-notes.md).
+Code then checks what the model read and says how far to trust it.
+
+**Start with [docs/walkthrough.md](docs/walkthrough.md)**: three cases with screenshots, five minutes. Longer notes on
+the decisions, what went wrong first and the production plan are in [docs/design-notes.md](docs/design-notes.md).
+The cases and documents under `data/` are the synthetic case pack supplied with the brief.
 
 ## Run it
 
